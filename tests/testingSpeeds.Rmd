@@ -1,0 +1,53 @@
+---
+title: "TimeBenchmarking"
+author: "J Grembi"
+date: "2/21/2020"
+output: html_document
+---
+
+```{r}
+library(epiRiskRelativism)
+library(tidyverse)
+library(tictoc)
+
+source("/Users/JGrembi/Classes/STATS290/project/epiRiskRelativism2/R/get_results_tibble.R")
+source("/Users/JGrembi/Classes/STATS290/project/epiRiskRelativism2/R/make_predict_df.R")
+source("/Users/JGrembi/Classes/STATS290/project/epiRiskRelativism2/R/plot.gComp.R")
+source("/Users/JGrembi/Classes/STATS290/project/epiRiskRelativism2/R/pointEstimate_new.R")
+load("/Users/JGrembi/Classes/STATS290/project/epiRiskRelativism2/data/cvdd.rda")
+```
+
+
+```{r}
+cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
+```
+
+## Old bootstrapping method
+```{r binary_outcome, cache = TRUE}
+# data(cvdd)
+source("/Users/JGrembi/Classes/STATS290/project/gComp_old.R")
+
+##this will take 25+ minutes because of the 50 bootstrap iterations.  You can increase the ncpus if your laptop has more cores.
+tic("old bootstrap method")
+cvdd.res.old <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 50, parallel = "multicore", offset = NULL)
+toc()
+cvdd.res.old 
+
+
+# cvdd.res2 <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 2, parallel = "multicore", offset = NULL)
+```
+
+
+## New bootstrapping method
+
+```{r}
+library(future.apply)
+plan(multiprocess, workers = 4) ## Parallelize using four cores
+# source("/Users/JGrembi/Classes/STATS290/project/epiRiskRelativism2/R/gComp.R")
+tic("new bootstrap method")
+cvdd.res.new <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 50, offset = NULL, clusterID = NULL)
+toc()
+
+cvdd.res.new
+```
+

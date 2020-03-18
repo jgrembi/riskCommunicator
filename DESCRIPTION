@@ -1,0 +1,33 @@
+Package: riskCommunicator
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Jessica",
+           family = "Grembi",
+           role = c("aut", "cre"),
+           email = "jgrembi@stanford.edu",
+           comment = c(ORCID = "0000-0001-6142-4913"))
+Depends: R (>= 3.5)
+Imports:
+    magrittr,
+    tibble,
+    dplyr,
+    ggplot2,
+    stats,
+    boot,
+    gridExtra,
+    purrr,
+    furrr,
+    rlang, 
+    rsample,  
+    tidyr,
+    tidyselect
+Description: \code{riskCommunicator} is a package for estimating flexible epidemiological effect measures including both differences and ratios. The package is based on the parametric G-formula developed by Robbins et. al. in 1986 as an alternative to inverse probabilty weighting.  It is useful for estimating the impact of interventions in the presence of treatment-confounder-feedback and is a powerful tool for causal inference, but has seen limited success due to lack of software for the computationally intensive components.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
