@@ -82,7 +82,7 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
   # outcome.type = "binary"
   # offset = NULL
   # rate.multiplier = 1
-  # subgroup = NULL
+  # subgroup = "SEX"
   # formula = NULL
 
   outcome.type <- match.arg(outcome.type)
@@ -198,7 +198,8 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
             dplyr::select(tidyselect::contains(s))
           fn.results.tibble <- get_results_tibble(predict.df = predict.df.s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
           tbl_s <- fn.results.tibble[[1]]
-          names(tbl_s) <- c(paste(exposure.list[1], s, sep = "_"), paste(e, s, sep = "_"), paste(exposure.list[1], s, "odds", sep ="_"), paste(e, s, "odds", sep ="_"))
+          names(tbl_s) <- 
+            x <- c(paste0("pred with ", exposure.list[1], ", ", s), paste0("pred with ", e, ", ", s), paste0("pred odds with ", exposure.list[1], ", ", s), paste0("pred odds with ", e, ", ", s))
           results.tbl_all <- results.tbl_all %>%
             dplyr::bind_cols(tbl_s)
           return(fn.results.tibble[[2]])
@@ -215,8 +216,8 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
           dplyr::select(tidyselect::contains(s))
         fn.results.tibble <- get_results_tibble(predict.df = predict.df.s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
         tbl_s <- fn.results.tibble[[1]]
-        
-        names(tbl_s) <- c(paste(exposure.list[1], s, sep = "_"), paste(exposure.list[2], s, sep = "_"), paste(exposure.list[1], s, "odds", sep ="_"), paste(exposure.list[2], s, "odds", sep ="_"))
+        pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x, ", ", s)), sapply(exposure.list, function(x) paste0("pred odds with ",x, ", ", s)))
+        names(tbl_s) <- pred.names
         results.tbl_all <- results.tbl_all %>%
           dplyr::bind_cols(tbl_s)
         return(fn.results.tibble[[2]])
@@ -233,8 +234,8 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
         dplyr::select(tidyselect::contains(exposure.list[1]), tidyselect::contains(e))
       fn.results.tibble <- get_results_tibble(predict.df = predict.df.e, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
       tbl_e <- fn.results.tibble[[1]]
-      
-      names(tbl_e) <- c(exposure.list[1], e, paste(exposure.list[1], "odds", sep ="_"), paste(e, "odds", sep ="_"))
+      pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x, ", ", e)), sapply(exposure.list, function(x) paste0("pred odds with ",x, ", ", e)))
+      names(tbl_e) <- pred.names
       results.tbl_all <- results.tbl_all %>%
         dplyr::bind_cols(tbl_e)
       return(fn.results.tibble[[2]])
@@ -245,7 +246,8 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
   } else {
     fn.results.tibble <- get_results_tibble(predict.df = fn.output, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
     tbl <- fn.results.tibble[[1]]
-    names(tbl) <- exposure.list
+    pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x)), sapply(exposure.list, function(x) paste0("pred odds with ",x)))
+    names(tbl) <- pred.names
     results.tbl_all <- results.tbl_all %>%
       dplyr::bind_cols(tbl)
     results <- fn.results.tibble[[2]] %>%
