@@ -59,7 +59,7 @@
 #' @importFrom tidyr nest unnest gather spread unnest_legacy
 #' @importFrom purrr map_dfc 
 #' @importFrom furrr future_map_dfr 
-#' @importFrom tidyselect vars_select starts_with contains
+#' @importFrom tidyselect vars_select starts_with contains matches
 #' @importFrom rlang sym
 #' @importFrom magrittr %>%
 #' 
@@ -126,7 +126,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
      df <- rsample::analysis(x) %>%
       tidyr::unnest_legacy(., cols = c(data)) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-matches("dummy_id"))
+      dplyr::select(-tidyselect::matches("dummy_id"))
     estimate <- pointEstimate(df, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier)
     result <- estimate$parameterEstimates %>%
       t() %>%
