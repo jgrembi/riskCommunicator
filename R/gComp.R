@@ -13,7 +13,7 @@
 #' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param Z optional argument which provides the covariates or other variables to adjust for in the \code{glm} function to be used internally.  
 #' Can be either a single expression or vector of quoted variable names.
-#' @param family a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
+#' @param outcome.type a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
 #' For gComp this can currenlty only be a binomial distribution and the link function will be forced to 'logit' but updates are forthcoming to handle various distributions. 
 #' @param R The number of bootstrap replicates. Usually this will be a single positive integer.  
 #' For importance resampling, some resamples may use one set of weights and others use a different set of weights.  
