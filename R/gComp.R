@@ -13,20 +13,14 @@
 #' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param Z optional argument which provides the covariates or other variables to adjust for in the \code{glm} function to be used internally.  
 #' Can be either a single expression or vector of quoted variable names.
+#' @param subgroup An optinal character string of the variable name to use for subgroup analyses. 
 #' @param outcome.type a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
 #' For gComp this can currenlty only be a binomial distribution and the link function will be forced to 'logit' but updates are forthcoming to handle various distributions. 
-#' @param R The number of bootstrap replicates to be conducted for the confidence interval.  
+#' @param R The number of bootstraps to be conducted to produce the bootstrap confidence interval of the estimate.  
 #' @param offset An optional numeric value that can be used to specify an *a priori* known component to be included in the linear predictor during fitting.
 #' @param rate.multiplier An optional numeric value to 
-#' @param subgroup An optinal character string of the variable name to use for subgroup analyses. 
 #' @param clusterID An optinal character string of the variable name to use as the level for resampling if the bootstrap resampling should be done at any level other than random resampling of the dataset.
-#' @param parallel The type of parallel operation to be used (if any) in the underlying bootstrap calculation of the confidence interval.  
-#' If missing, the default is taken from the option \code{"boot.parallel"} (and if that is not set, \code{"no"}).
-#' @param ncpus integer: number of processes to be used in parallel operation for the bootstrap calculation.
-#' Typically one would chose this to the number of available CPUs.
-#' @param cl An optional \pkg{parallel} or \pkg{snow} cluster for use if \code{parallel = "snow"}.  
-#' If not supplied, a cluster on the local machine is created for the duration of the \code{boot} call.
-#' @param ... Other named arguments for \code{boot} which are passed unchanged each time it is called. Arguments to boot should follow the specifications in the \code{\link{boot}} package
+#' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
 #' 
 #' @value the returned value is an object of class \code{gComp} containing the following:
 #' \itemize{
@@ -63,9 +57,9 @@
 #' 
 #' 
 #' @keywords gComp
-gComp <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, 
+gComp <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, subgroup = NULL,
                   outcome.type =  c("binary", "count","rate", "continuous"), offset = NULL, rate.multiplier = 1, clusterID = NULL,
-                  R = 100, parallel = c("no", "multicore", "snow"), ncpus = getOption("boot.ncpus", 1L), subgroup = NULL, ...) {
+                  R = 200, ...) {
   ###need to check if X is categorical or 
   if (!is.null(X)) {
     X.type = ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
@@ -80,7 +74,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
   }
   
   ## Get point estimate for diff and ratio
-  ptEstimate <- pointEstimate(data, formula = formula, outcome.type = outcome.type, offset = offset, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier)
+  ptEstimate <- pointEstimate(data, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, outcome.type = outcome.type, offset = offset, rate.multiplier = rate.multiplier, ...)
   ## Nest df by bootstrap resampling unit
   if (is.null(clusterID)) {
     # ## run R bootstrap iterations to get 95% CI for diff and ratio
