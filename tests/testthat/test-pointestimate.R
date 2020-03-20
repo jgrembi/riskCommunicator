@@ -1,4 +1,4 @@
-context("test-pointEstimate")
+context("test-pointestimate")
 
 testthat::test_that("outcome.type is matched correcly (is not a family like regular glm)", {
   testthat::expect_error(pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX"), outcome.type = "gaussian"))
@@ -15,11 +15,12 @@ testthat::test_that("Y and X vars are both provided if no formula is given", {
 
 testthat::test_that("X variable is a binary (either a factor with 2 levels, or numeric with only 2 values)", {
   testthat::expect_error(pointEstimate(data = cvdd, formula = CVD ~ BMI + AGE, outcome.type = "binary"))
+  testthat::expect_error(pointEstimate(data = cvdd %>% mutate(DIABETES = as.character(DIABETES)), formula = cvd_dth ~ DIABETES + SEX, outcome.type = "binary"))
 })
 
 
 testthat::test_that("outcome is expected value", {
-  testthat::expect_equal(round(pointEstimate(data = cvdd, formula = CVD ~ SEX + BMI + AGE, outcome.type = "binary")$diff,3), -0.315)
-  testthat::expect_equal(round(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type = "binary")$ratio, 3), 1.259)
-  testthat::expect_equal(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type  = "binary")$family, "binomial")
+  testthat::expect_equal(round(pointEstimate(data = cvdd, formula = CVD ~ SEX + BMI + AGE, outcome.type = "binary")$parameterEstimates[[1,1]],3), -0.145)
+  testthat::expect_equal(round(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type = "binary")$parameterEstimates[[1,2]], 3), 1.176)
+  testthat::expect_equal(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type  = "binary")$formula, "DEATH ~ DIABETES + SEX + AGE")
 })

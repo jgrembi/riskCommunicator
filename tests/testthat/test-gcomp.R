@@ -1,4 +1,4 @@
-context("test-gComp")
+context("test-gcomp")
 
 testthat::test_that("outcome.type is matched correcly (is not a family like regular glm)", {
   testthat::expect_error(gComp(data = cvdd, formula = cvd_dth ~ DIABETES + BMI, outcome.type = "binomial", R = 4))
@@ -14,7 +14,7 @@ testthat::test_that("Y and X vars are both provided if no formula is given", {
 
 
 testthat::test_that("outcome is expected value", {
-  testthat::expect_equal(round(gComp(data = cvdd, formula = cvd_dth ~ DIABETES + BMI, outcome.type = "binary", R = 4)$paramEst[[1]], 2), 3.63)
+  testthat::expect_equal(round(gComp(data = cvdd, formula = cvd_dth ~ DIABETES + BMI, outcome.type = "binary", R = 4)$results.df[[1,1]], 2),  0.4)
   testthat::expect_equal(gComp(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type  = "binary", R = 4)$R, 4)
 
 })
