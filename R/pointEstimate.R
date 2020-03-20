@@ -73,17 +73,17 @@
 #formula  an optional an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.requires a string of the format "Y ~ X + adjustVar1 + adjustVar2 + adjustVar3".  The function will internally convert it to a formula class.
 #X a binary treatment indicator; control = 0, treatment = 1 
 pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, outcome.type = c("binary", "count","rate", "continuous"), offset = NULL, rate.multiplier = 1, subgroup = NULL) {
-  data = cvdd
-  Y = "cvd_dth"
-  X = "DIABETES"
-  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
-  # X = "bmicat"
-  # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
-  outcome.type = "binary"
-  offset = NULL
-  rate.multiplier = 1
-  subgroup = "SEX"
-  formula = NULL
+  # data = cvdd
+  # Y = "cvd_dth"
+  # X = "DIABETES"
+  # Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
+  # # X = "bmicat"
+  # # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
+  # outcome.type = "binary"
+  # offset = NULL
+  # rate.multiplier = 1
+  # subgroup = "SEX"
+  # formula = NULL
 
   outcome.type <- match.arg(outcome.type)
   
