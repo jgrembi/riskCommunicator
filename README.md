@@ -3,7 +3,7 @@ An R package for estimating risk differences and relative risk measures.
 
 
 # Installation
-The `riskCommunicator` R package is available as a source package through github. Installation requires the ability to compile R packages. This means that R and the R tool-chain must be installed, which requires the Xcode command-line tools on Mac and Rtools on Windows.
+The `riskCommunicator` R package is available as a source package through GitHub. Installation requires the ability to compile R packages. This means that R and the R tool-chain must be installed, which requires the Xcode command-line tools on Mac and Rtools on Windows.
 
 The easiest source installation method uses the devtools package:
 
