@@ -1,5 +1,5 @@
 # riskCommunicator
-An R package for estimating risk differences and relative risk measures
+An R package for estimating risk differences and relative risk measures.
 
 
 # Installation
@@ -7,9 +7,10 @@ The `riskCommunicator` R package is available as a source package through github
 
 The easiest source installation method uses the devtools package:
 
+```
 library(devtools)
 devtools::install_github("jgrembi/riskCommunicator")
-
+```
 
 # Other Resources
 
