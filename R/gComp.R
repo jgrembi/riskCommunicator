@@ -15,9 +15,7 @@
 #' Can be either a single expression or vector of quoted variable names.
 #' @param outcome.type a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
 #' For gComp this can currenlty only be a binomial distribution and the link function will be forced to 'logit' but updates are forthcoming to handle various distributions. 
-#' @param R The number of bootstrap replicates. Usually this will be a single positive integer.  
-#' For importance resampling, some resamples may use one set of weights and others use a different set of weights.  
-#' In this case \code{R} would be a vector of integers where each component gives the number of resamples from each of the rows of weights.  
+#' @param R The number of bootstrap replicates to be conducted for the confidence interval.  
 #' @param offset An optional numeric value that can be used to specify an *a priori* known component to be included in the linear predictor during fitting.
 #' @param rate.multiplier An optional numeric value to 
 #' @param subgroup An optinal character string of the variable name to use for subgroup analyses. 
@@ -174,7 +172,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
         dplyr::rename_all(.funs = funs(sub(t, "Result", .))) %>%
         dplyr::mutate(Out = paste0(formatC(round(Result, 3), format = "f", digits = 3), " (", formatC(round(`Result_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`Result_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
         dplyr::select(Out)# %>%
-      names(df) <- paste0(t, "_Result (95% CL)")
+      names(df) <- paste0(t, " Estimate (95% CL)")
       return(df)
     })
     rownames(summary) <- rownames(res.ci.df %>% na.omit())
@@ -192,7 +190,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
       stats::na.omit() %>%
       dplyr::mutate(Out = paste0(formatC(round(Result, 3), format = "f", digits = 3), " (", formatC(round(`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
       dplyr::select(-(Result:`97.5% CL`)) %>%
-      dplyr::rename(`Result (95% CL)` = Out)
+      dplyr::rename(`Estimate (95% CL)` = Out)
     rownames(summary) <- rownames(res.ci.df %>% na.omit())
   }
 
