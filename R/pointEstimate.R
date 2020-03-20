@@ -75,14 +75,14 @@
 pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, outcome.type = c("binary", "count","rate", "continuous"), offset = NULL, rate.multiplier = 1, subgroup = NULL) {
   # data = cvdd
   # Y = "cvd_dth"
-  # X = "DIABETES"
-  # Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
-  # # X = "bmicat"
-  # # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
+  # # X = "DIABETES"
+  # # Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
+  # X = "bmicat"
+  # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
   # outcome.type = "binary"
   # offset = NULL
   # rate.multiplier = 1
-  # subgroup = "SEX"
+  # subgroup = NULL
   # formula = NULL
 
   outcome.type <- match.arg(outcome.type)
@@ -235,7 +235,7 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
         dplyr::select(tidyselect::contains(exposure.list[1]), tidyselect::contains(e))
       fn.results.tibble <- get_results_tibble(predict.df = predict.df.e, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
       tbl_e <- fn.results.tibble[[1]]
-      pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x, ", ", e)), sapply(exposure.list, function(x) paste0("pred odds with ",x, ", ", e)))
+      pred.names <- c(paste0("pred with ", exposure.list[1]), paste0("pred with ", e), paste0("pred odds with ", exposure.list[1]), paste0("pred odds with ", e))
       names(tbl_e) <- pred.names
       results.tbl_all <<- results.tbl_all %>%
         dplyr::bind_cols(tbl_e)
