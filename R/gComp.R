@@ -2,24 +2,34 @@
 #'
 #' @description Obtain a point estimate and 95% confidence limits for the difference and ratio between treatment and non-treatment (or exposed/not exposed) groups.
 #'
-#' @param data the data as a data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
-#' @param formula optional argument which provides the model formula for the \code{glm} function to be used internally. 
+#' @param data (Required) Data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
+#' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
+#'  \describe{
+#'  \item{binary} (Default) A binomial distribution with link = 'logit' is used.
+#'  \item{count} A Poisson distribution with link = 'log' is used.
+#'  \item{rate} A Poisson distribution with link = 'log' is used.
+#'  \item{continuous} A gaussian distribution with link = 'identity' is used. 
+#' }
+#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the model formula for the \code{glm} function to be used internally. 
+#' The first predictor (after the "~") is assumed to be the exposure variable.
 #' Can be supplied as a character or formula object, the function will internally convert it to a formula if not supplied as such. 
 #' If no formula is provided, Y and X must be provided.
-#' @param Y optional argument which provides the response variable that will be supplied to the \code{glm} function internally.  
-#' Must also provide \code{X} in order for the function to work.  Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param X optional argument which provides the binary exposure/treatment group assignment that will be supplied to the \code{glm} function internally.  
-#' This variable can be supplied as a factor variable or as a numeric of 0 or 1. Must also provide \code{Y} in order for the function to work.  
+#' @param Y (Optional) Default NULL. Character argument which provides the response variable that will be supplied to the \code{glm} function internally.  
+#' Must also provide \code{X} in order for the function to work.  Can optionally provide a formula instead of \code{Y} and \code{X} variables.
+#' @param X (Optional) Default NULL. Character argument which provides variable identifying exposure/treatment group assignment that will be supplied to the \code{glm} function internally. 
+#' Must also provide \code{Y} in order for the function to work.   
+#' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
+#' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
 #' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param Z optional argument which provides the covariates or other variables to adjust for in the \code{glm} function to be used internally.  
-#' Can be either a single expression or vector of quoted variable names.
-#' @param subgroup An optinal character string of the variable name to use for subgroup analyses. 
-#' @param outcome.type a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
-#' For gComp this can currenlty only be a binomial distribution and the link function will be forced to 'logit' but updates are forthcoming to handle various distributions. 
-#' @param R The number of bootstraps to be conducted to produce the bootstrap confidence interval of the estimate.  
-#' @param offset An optional numeric value that can be used to specify an *a priori* known component to be included in the linear predictor during fitting.
-#' @param rate.multiplier An optional numeric value to 
-#' @param clusterID An optinal character string of the variable name to use as the level for resampling if the bootstrap resampling should be done at any level other than random resampling of the dataset.
+#' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally.  
+#' For only one covariate, can be a single character object, for multiple a vector of quoted variable names is required. Does not allow interaction terms.
+#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. 
+#' @param offset (Required if using \code{outcome.type = "rate"}) Default NULL. Character argument which identifies the variable to use for offset. 
+#' Internal function converts offset to \code{log} scale, so variable should be provided on the linear scale. 
+#' @param rate.multiplier (Optional) Default 1. Numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
+#' For example, the rate for an offset provided in days could be converted to years by supplying rate.multiplier = 365. 
+#' @param R (Optional) Default 200. The number of bootstraps to be conducted to produce the bootstrap confidence interval of the estimate.
+#' @param clusterID (Optional) Default NULL. Character vector of the variable name to use as the level for resampling if the bootstrap resampling should be done at any level other than random resampling of the dataset.
 #' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
 #' 
 #' @value the returned value is an object of class \code{gComp} containing the following:
@@ -41,7 +51,7 @@
 #' ## patients with and without diabetes.  
 #' data(cvdd)
 #' diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", 
-#' outcome.type = "binary", R = 10)
+#' outcome.type = "binary", R = 200)
 
 #' 
 #' @importFrom rsample bootstraps analysis
@@ -57,9 +67,18 @@
 #' 
 #' 
 #' @keywords gComp
-gComp <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, subgroup = NULL,
-                  outcome.type =  c("binary", "count","rate", "continuous"), offset = NULL, rate.multiplier = 1, clusterID = NULL,
-                  R = 200, ...) {
+gComp <- function(data, 
+                  outcome.type =  c("binary", "count","rate", "continuous"), 
+                  formula = NULL, 
+                  Y = NULL, 
+                  X = NULL, 
+                  Z = NULL, 
+                  subgroup = NULL,
+                  offset = NULL, 
+                  rate.multiplier = 1, 
+                  R = 200,
+                  clusterID = NULL,
+                  ...) {
   ###need to check if X is categorical or 
   if (!is.null(X)) {
     X.type = ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))

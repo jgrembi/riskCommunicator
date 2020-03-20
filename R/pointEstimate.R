@@ -2,27 +2,35 @@
 #'
 #' @description Generate a point estimate of the outcome difference and ratio
 #'
-#' @param data the data as a data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
-#' @param formula optional argument which provides the model formula for the \code{glm} function to be used internally. The first predictor (after the "~") is assumed to be the exposure variable.
+#' @param data (Required) Data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
+#' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
+#'  \describe{
+#'  \item{binary} (Default) A binomial distribution with link = 'logit' is used.
+#'  \item{count} A Poisson distribution with link = 'log' is used.
+#'  \item{rate} A Poisson distribution with link = 'log' is used.
+#'  \item{continuous} A gaussian distribution with link = 'identity' is used. 
+#' }
+#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the model formula for the \code{glm} function to be used internally. 
+#' The first predictor (after the "~") is assumed to be the exposure variable.
 #' Can be supplied as a character or formula object, the function will internally convert it to a formula if not supplied as such. 
 #' If no formula is provided, Y and X must be provided.
-#' @param Y optional character argument which provides the response variable that will be supplied to the \code{glm} function internally.  
+#' @param Y (Optional) Default NULL. Character argument which provides the response variable that will be supplied to the \code{glm} function internally.  
 #' Must also provide \code{X} in order for the function to work.  Can optionally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param X optional character argument which provides the binary exposure/treatment group assignment that will be supplied to the \code{glm} function internally.  
-#' This variable can be supplied as a factor variable or as a numeric of 0 or 1. Must also provide \code{Y} in order for the function to work.  
+#' @param X (Optional) Default NULL. Character argument which provides variable identifying exposure/treatment group assignment that will be supplied to the \code{glm} function internally. 
+#' Must also provide \code{Y} in order for the function to work.   
+#' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
+#' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
 #' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param Z optional argument which provides the covariates or other variables to adjust for in the \code{glm} function to be used internally.  
-#' Can be either a single character expression or vector of quoted variable names.
-#' @param outcome.type required argument to describe the outcome type. Acceptable responses include "binary", "count", "rate", and "continuous". 
-#' This argument is used to determine the error distribution and link function to be used in the model when calling the \code{glm} function internally. Default is "binary'
-#' For "binary" a binomial distribution with link = 'logit' is used, 
-#' for "count" or "rate" a Poisson distribution with link = 'log' is used, 
-#' for "continuous" a gaussian distribution with link = 'identity' is used. 
-#' @param offset character argument which identifies the variable to use for offset. Required if using outcome.type of "rate". Default is NULL. 
-#' Internal functions automatically convert offset to log scale, so should be provided in original units.
-#' @param rate.multiplier optional numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
+#' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally.  
+#' For only one covariate, can be a single character object, for multiple a vector of quoted variable names is required. Does not allow interaction terms.
+#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. 
+#' @param offset (Required if using \code{outcome.type = "rate"}) Default NULL. Character argument which identifies the variable to use for offset. 
+#' Internal function converts offset to \code{log} scale, so variable should be provided on the linear scale. 
+#' @param rate.multiplier (Optional) Default 1. Numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
 #' For example, the rate for an offset provided in days could be converted to years by supplying rate.multiplier = 365. 
-#' #' @return a list containing the following:
+#' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
+
+#' @return a list containing the following:
 #' \itemize{
 #' \item{"Risk Difference"} {point estimate of the risk difference for binary outcomes, will be NA for other outcome types}
 #' \item{"Risk Ratio"} {point estimate of the risk ratio for binary outcomes, will be NA for other outcome types}
@@ -67,12 +75,15 @@
 
 
 
-
-
-
-#formula  an optional an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.requires a string of the format "Y ~ X + adjustVar1 + adjustVar2 + adjustVar3".  The function will internally convert it to a formula class.
-#X a binary treatment indicator; control = 0, treatment = 1 
-pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, subgroup = NULL, outcome.type = c("binary", "count","rate", "continuous"), offset = NULL, rate.multiplier = 1) {
+pointEstimate <- function(data, 
+                          outcome.type = c("binary", "count","rate", "continuous"),
+                          formula = NULL, 
+                          Y = NULL, 
+                          X = NULL, 
+                          Z = NULL, 
+                          subgroup = NULL,  
+                          offset = NULL, 
+                          rate.multiplier = 1) {
   # data = cvdd
   # Y = "cvd_dth"
   # # X = "DIABETES"
@@ -119,7 +130,6 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, su
   }
   
   if (!is.null(subgroup)) {
-    # formula <- stats::as.formula(paste(as.character(formula), paste(as.character(X), subgroup, sep = ":"), sep = " + "))
     interaction.term <- rlang::sym(paste(as.character(X), subgroup, sep = ":"))
     formula <- stats::as.formula(paste(paste(Y,X, sep = " ~ "), paste(Z, collapse = " + "), interaction.term, sep = " + "))
     
@@ -131,9 +141,8 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, su
     allVars <- unlist(c(Y, as.character(X), Z))
   } else if (!is.null(offset)) {
     offset <- rlang::sym(offset)
-    data <- data %>%
-      dplyr::mutate(!!offset := !!offset + 0.00001)
-    # formula <- stats::as.formula(paste(formula, "offset(offsetlog)", sep = " + "))
+    # data <- data %>%
+    #   dplyr::mutate(!!offset := !!offset + 0.00001)
     if (!is.null(subgroup)){
       subgroup <- rlang::sym(subgroup)
       allVars <- unlist(c(Y, as.character(X), Z, offset, subgroup))
@@ -272,7 +281,3 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, su
               predictedData = results.tbl_all)
   return(res)
 }
-
-
-# framingham <- read_csv("/Users/JGrembi/Classes/STATS290/project/data/frmgham2.csv")
-# save(framingham, file = "/Users/JGrembi/Classes/STATS290/project/data/framingham.rda")
