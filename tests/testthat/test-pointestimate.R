@@ -21,6 +21,6 @@ testthat::test_that("X variable is a binary (either a factor with 2 levels, or n
 
 testthat::test_that("outcome is expected value", {
   testthat::expect_equal(round(pointEstimate(data = cvdd, formula = CVD ~ SEX + BMI + AGE, outcome.type = "binary")$parameterEstimates[[1,1]],3), -0.145)
-  testthat::expect_equal(round(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type = "binary")$parameterEstimates[[1,2]], 3), 1.176)
+  testthat::expect_equal(round(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type = "binary")$parameterEstimates[[2,1]], 3), 1.176)
   testthat::expect_equal(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type  = "binary")$formula, "DEATH ~ DIABETES + SEX + AGE")
 })

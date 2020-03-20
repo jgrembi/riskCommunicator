@@ -2,8 +2,8 @@
 #'
 #' @description Plot histograms and Q-Q plots for each the difference and ratio estimates
 #'
-#' @param gComp.res an object of class\code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
-#' @param ... additional arguments to be supplied to the \code{geom_histogram} call to adjust binwidth, etc for histogram.
+#' @param gComp.res (Required) An object of class\code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
+#' @param ... additional arguments to be supplied to the \code{geom_histogram} call (e.g. to adjust binwidth for histogram, assign colors, etc.).
 #' 
 #' @return a plot containing histograms and Q-Q plots of the difference and ratio estimates returned from R bootstrap iterations
 #' @export
@@ -18,7 +18,7 @@
 #' ## if they have a history of hypertension. 
 #' data(cvdd)
 #' diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", 
-#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), family = "binomial", R = 10)
+#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 10)
 #' plot(diabetes.result)
 #' 
 #' @importFrom gridExtra grid.arrange 
