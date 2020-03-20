@@ -73,17 +73,17 @@
 #formula  an optional an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.requires a string of the format "Y ~ X + adjustVar1 + adjustVar2 + adjustVar3".  The function will internally convert it to a formula class.
 #X a binary treatment indicator; control = 0, treatment = 1 
 pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, outcome.type = c("binary", "count","rate", "continuous"), offset = NULL, rate.multiplier = 1, subgroup = NULL) {
-  # data = cvdd
-  # Y = "cvd_dth"
-  # # X = "DIABETES"
+  data = cvdd
+  Y = "cvd_dth"
+  X = "DIABETES"
+  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
   # X = "bmicat"
   # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
-  # # Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
-  # outcome.type = "binary"
-  # offset = NULL
-  # rate.multiplier = 1
-  # subgroup = "SEX"
-  # formula = NULL
+  outcome.type = "binary"
+  offset = NULL
+  rate.multiplier = 1
+  subgroup = "SEX"
+  formula = NULL
 
   outcome.type <- match.arg(outcome.type)
   
@@ -200,7 +200,7 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
           tbl_s <- fn.results.tibble[[1]]
           names(tbl_s) <- 
             x <- c(paste0("pred with ", exposure.list[1], ", ", s), paste0("pred with ", e, ", ", s), paste0("pred odds with ", exposure.list[1], ", ", s), paste0("pred odds with ", e, ", ", s))
-          results.tbl_all <- results.tbl_all %>%
+          results.tbl_all <<- results.tbl_all %>%
             dplyr::bind_cols(tbl_s)
           return(fn.results.tibble[[2]])
         })
@@ -212,13 +212,14 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
       results <- subgroup.contrasts.res
     } else {
       subgroup.res <- purrr::map_dfc(subgroups.list, function(s) {
+        # s <- subgroups.list[1]
         predict.df.s = fn.output %>% 
           dplyr::select(tidyselect::contains(s))
         fn.results.tibble <- get_results_tibble(predict.df = predict.df.s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
         tbl_s <- fn.results.tibble[[1]]
         pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x, ", ", s)), sapply(exposure.list, function(x) paste0("pred odds with ",x, ", ", s)))
         names(tbl_s) <- pred.names
-        results.tbl_all <- results.tbl_all %>%
+        results.tbl_all <<- results.tbl_all %>%
           dplyr::bind_cols(tbl_s)
         return(fn.results.tibble[[2]])
       })
@@ -236,7 +237,7 @@ pointEstimate <- function(data, formula = NULL, Y = NULL, X = NULL, Z = NULL, ou
       tbl_e <- fn.results.tibble[[1]]
       pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x, ", ", e)), sapply(exposure.list, function(x) paste0("pred odds with ",x, ", ", e)))
       names(tbl_e) <- pred.names
-      results.tbl_all <- results.tbl_all %>%
+      results.tbl_all <<- results.tbl_all %>%
         dplyr::bind_cols(tbl_e)
       return(fn.results.tibble[[2]])
     })
