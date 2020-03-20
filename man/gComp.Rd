@@ -38,6 +38,9 @@ Can optinoally provide a formula instead of \code{Y} and \code{X} variables.}
 \item{Z}{optional argument which provides the covariates or other variables to adjust for in the \code{glm} function to be used internally.
 Can be either a single expression or vector of quoted variable names.}
 
+\item{outcome.type}{a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
+For gComp this can currenlty only be a binomial distribution and the link function will be forced to 'logit' but updates are forthcoming to handle various distributions.}
+
 \item{offset}{An optional numeric value that can be used to specify an *a priori* known component to be included in the linear predictor during fitting.}
 
 \item{rate.multiplier}{An optional numeric value to}
@@ -57,9 +60,6 @@ Typically one would chose this to the number of available CPUs.}
 \item{subgroup}{An optinal character string of the variable name to use for subgroup analyses.}
 
 \item{...}{Other named arguments for \code{boot} which are passed unchanged each time it is called. Arguments to boot should follow the specifications in the \code{\link{boot}} package}
-
-\item{family}{a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
-For gComp this can currenlty only be a binomial distribution and the link function will be forced to 'logit' but updates are forthcoming to handle various distributions.}
 
 \item{cl}{An optional \pkg{parallel} or \pkg{snow} cluster for use if \code{parallel = "snow"}.
 If not supplied, a cluster on the local machine is created for the duration of the \code{boot} call.}
