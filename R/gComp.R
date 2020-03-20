@@ -20,6 +20,7 @@
 #' Must also provide \code{Y} in order for the function to work.   
 #' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
 #' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
+#' Character variables are not accepted and will throw an error.
 #' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally.  
 #' For only one covariate, can be a single character object, for multiple a vector of quoted variable names is required. Does not allow interaction terms.
@@ -198,11 +199,11 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
                                   ci.ul = sapply(2:8, function(i) stats::quantile(boot.res[,i], probs = 0.975, na.rm = T))) %>%
                          dplyr::mutate(outcome = as.character(outcome)), by = "outcome") %>%
       tibble::column_to_rownames("outcome") %>%
-      dplyr::rename(Result = Results, `2.5% CL` = ci.ll, `97.5% CL` = ci.ul)
+      dplyr::rename(`2.5% CL` = ci.ll, `97.5% CL` = ci.ul)
     summary <- res.ci.df %>% 
       stats::na.omit() %>%
-      dplyr::mutate(Out = paste0(formatC(round(Result, 3), format = "f", digits = 3), " (", formatC(round(`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
-      dplyr::select(-(Result:`97.5% CL`)) %>%
+      dplyr::mutate(Out = paste0(formatC(round(Estimate, 3), format = "f", digits = 3), " (", formatC(round(`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
+      dplyr::select(-(Estimate:`97.5% CL`)) %>%
       dplyr::rename(`Estimate (95% CL)` = Out)
     rownames(summary) <- rownames(res.ci.df %>% na.omit())
   }
