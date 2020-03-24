@@ -24,12 +24,12 @@
 #' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally.  
 #' For only one covariate, can be a single character object, for multiple a vector of quoted variable names is required. Does not allow interaction terms.
-#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. 
+#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such. 
 #' @param offset (Required if using \code{outcome.type = "rate"}) Default NULL. Character argument which identifies the variable to use for offset. 
 #' Internal function converts offset to \code{log} scale, so variable should be provided on the linear scale. 
 #' @param rate.multiplier (Optional) Default 1. Numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
 #' For example, the rate for an offset provided in days could be converted to years by supplying rate.multiplier = 365. 
-#' @param R (Optional) Default 200. The number of bootstraps to be conducted to produce the bootstrap confidence interval of the estimate.
+#' @param R (Optional) Default 200. The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate.
 #' @param clusterID (Optional) Default NULL. Character vector of the variable name to use as the level for resampling if the bootstrap resampling should be done at any level other than random resampling of the dataset.
 #' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
 #' 
