@@ -1,10 +1,9 @@
 #' Using the \code{glm} results, predict outcomes for each individual at each level of treatment/exposure
 #'
-#' @param glm.res 
-#' @param df 
-#' @param X 
-#' @param subgroup 
-#' @param offset 
+#' @param glm.res (Required) A fitted object of class inheriting from "glm" that will be used with new dataset for prediciton.
+#' @param df (Required) A new data frame in which to look for variables with which to predict. This is equivalent to the \code{newdata} argument in predict.glm. 
+#' @param X (Required) Character argument which provides variable identifying exposure/treatment group assignment.
+#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such.  
 #'
 #' @value
 #' @export
@@ -15,12 +14,12 @@
 #' @importFrom purrr map_dfc
 #' @importFrom stats predict
 #'
-make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL) {
+make_predict_df <- function(glm.res, df, X, subgroup = NULL) {
   
-  if (!is.null(offset)) {
-    df <- df %>%
-      dplyr::mutate(offset2 = 1)
-  }
+  # if (!is.null(offset)) {
+  #   df <- df %>%
+  #     dplyr::mutate(offset2 = 1)
+  # }
   
   result.output.final <- purrr::map_dfc(levels(df[[X]]), function(x) {
     if(!is.null(subgroup)) {
@@ -62,7 +61,6 @@ make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL) {
 # df_1 <- data %>%
 #   dplyr::mutate(!!X := 1, 
 #                 !!X := factor(!!X))
-# if (!is.null(offset)) {
 #   df_0 <- df_0 %>% 
 #     dplyr::mutate(offsetlog = 0)
 #   df_1 <- df_1 %>%

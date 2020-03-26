@@ -1,9 +1,16 @@
 #' Take predicted dataframe and calculate the outcome (risk difference/ratio, incidence rate difference/ratio, marginal difference, and number needed to treat)
 #'
-#' @param predict.df 
-#' @param outcome.type 
-#' @param X 
-#' @param rate.multiplier 
+#' @param predict.df (Required) A data frame output from the \code{make_predict_df} function.
+#' @param outcome.type {Required} Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
+#'  \describe{
+#'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
+#'  \item{count}{A Poisson distribution with link = 'log' is used.}
+#'  \item{rate}{A Poisson distribution with link = 'log' is used.}
+#'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
+#' }
+#' @param X (Required) Character argument which provides variable identifying exposure/treatment group assignment.
+#' @param rate.multiplier (Optional) Default 1. Numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
+#' For example, the rate for an offset provided in days could be converted to years by supplying rate.multiplier = 365. 
 #'
 #' @value
 #' @export
@@ -17,6 +24,7 @@
 #' @importFrom tidyselect starts_with
 
 get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
+
   col.names <- unique(unlist(stringr::str_split(names(predict.df), "_"))) %>%
     stringr::str_subset(pattern = as.character(X))
   noTx.predict = predict.df %>%
@@ -52,7 +60,7 @@ get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
            `Odds Ratio` = ifelse(outcome.type %in% c("binary"), ratio_odds, NA),
            `Incidence Rate Difference` = ifelse(outcome.type %in% c("rate"), (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
            `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count"), ratio, NA),#only for poisson)
-           `Marginal Difference` = ifelse(outcome.type %in% c("continuous"), diff, NA),
+           `Mean Difference` = ifelse(outcome.type %in% c("continuous"), diff, NA),
            `Number needed to treat` = ifelse(outcome.type %in% c("binary","count"), 1/diff, NA))
   
   return(list(results_tbl, res))
