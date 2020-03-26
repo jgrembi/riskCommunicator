@@ -5,10 +5,10 @@
 #' @param data (Required) Data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
 #' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
 #'  \describe{
-#'  \item{binary} (Default) A binomial distribution with link = 'logit' is used.
-#'  \item{count} A Poisson distribution with link = 'log' is used.
-#'  \item{rate} A Poisson distribution with link = 'log' is used.
-#'  \item{continuous} A gaussian distribution with link = 'identity' is used. 
+#'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
+#'  \item{count}{A Poisson distribution with link = 'log' is used.}
+#'  \item{rate}{A Poisson distribution with link = 'log' is used.}
+#'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
 #' }
 #' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the model formula for the \code{glm} function to be used internally. 
 #' The first predictor (after the "~") is assumed to be the exposure variable.
@@ -23,7 +23,7 @@
 #' Character variables are not accepted and will throw an error.
 #' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally. Does not allow interaction terms.
-#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. 
+#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such.  
 #' @param offset (Required if using \code{outcome.type = "rate"}) Default NULL. Character argument which identifies the variable to use for offset. 
 #' Internal function converts offset to \code{log} scale, so variable should be provided on the linear scale. 
 #' @param rate.multiplier (Optional) Default 1. Numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
@@ -37,7 +37,7 @@
 #' \item{"Odds Ratio"} {point estimate of the odds ratio for binary outcomes, will be NA for other outcome types}
 #' \item{"Incidence Rate Difference"} {point estimate of the rate difference for rate outcomes, will be NA for other outcome types}
 #' \item{"Incidence Rate Ratio"} {point estimate of the rate ratio for rate outcomes, will be NA for other outcome types}
-#' \item{"Marginal Difference"} {point estimate of the marginal difference for continuous or count outcomes, will be NA for other outcome types}
+#' \item{"Mean Difference"} {point estimate of the marginal difference for continuous or count outcomes, will be NA for other outcome types}
 #' \item{"Number needed to treat"} {1/(Risk Difference) for binary outcomes, 1/(Incidence Rate Difference) for rate outcomes, will be NA for other outcome types}
 #' \item{"n} {number of observations provided to the model}
 #' \item{"contrast"} {the contrast levels compared}
@@ -208,7 +208,7 @@ pointEstimate <- function(data,
           fn.results.tibble <- get_results_tibble(predict.df = predict.df.s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
           tbl_s <- fn.results.tibble[[1]]
           names(tbl_s) <- 
-            x <- c(paste0("pred with ", exposure.list[1], ", ", s), paste0("pred with ", e, ", ", s), paste0("pred odds with ", exposure.list[1], ", ", s), paste0("pred odds with ", e, ", ", s))
+            x <- c(paste0("predicted risk with ", exposure.list[1], ", ", s), paste0("predicted risk with ", e, ", ", s), paste0("pred odds with ", exposure.list[1], ", ", s), paste0("pred odds with ", e, ", ", s))
           results.tbl_all <<- results.tbl_all %>%
             dplyr::bind_cols(tbl_s)
           return(fn.results.tibble[[2]])
@@ -226,7 +226,7 @@ pointEstimate <- function(data,
           dplyr::select(tidyselect::contains(s))
         fn.results.tibble <- get_results_tibble(predict.df = predict.df.s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
         tbl_s <- fn.results.tibble[[1]]
-        pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x, ", ", s)), sapply(exposure.list, function(x) paste0("pred odds with ",x, ", ", s)))
+        pred.names <- c(sapply(exposure.list, function(x) paste0("predicted risk with ",x, ", ", s)), sapply(exposure.list, function(x) paste0("predicted odds with ",x, ", ", s)))
         names(tbl_s) <- pred.names
         results.tbl_all <<- results.tbl_all %>%
           dplyr::bind_cols(tbl_s)
@@ -244,7 +244,7 @@ pointEstimate <- function(data,
         dplyr::select(tidyselect::contains(exposure.list[1]), tidyselect::contains(e))
       fn.results.tibble <- get_results_tibble(predict.df = predict.df.e, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
       tbl_e <- fn.results.tibble[[1]]
-      pred.names <- c(paste0("pred with ", exposure.list[1]), paste0("pred with ", e), paste0("pred odds with ", exposure.list[1]), paste0("pred odds with ", e))
+      pred.names <- c(paste0("predicted risk with ", exposure.list[1]), paste0("predicted risk with ", e), paste0("pred odds with ", exposure.list[1]), paste0("pred odds with ", e))
       names(tbl_e) <- pred.names
       results.tbl_all <<- results.tbl_all %>%
         dplyr::bind_cols(tbl_e)
@@ -256,7 +256,7 @@ pointEstimate <- function(data,
   } else {
     fn.results.tibble <- get_results_tibble(predict.df = fn.output, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
     tbl <- fn.results.tibble[[1]]
-    pred.names <- c(sapply(exposure.list, function(x) paste0("pred with ",x)), sapply(exposure.list, function(x) paste0("pred odds with ",x)))
+    pred.names <- c(sapply(exposure.list, function(x) paste0("predicted risk with ",x)), sapply(exposure.list, function(x) paste0("pred odds with ",x)))
     names(tbl) <- pred.names
     results.tbl_all <- results.tbl_all %>%
       dplyr::bind_cols(tbl)
@@ -265,7 +265,7 @@ pointEstimate <- function(data,
       dplyr::rename(Estimate = ".") %>%
       dplyr::mutate_if(is.numeric, round, digits = 4)
   }
-  rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Marginal Difference", "Number needed to treat")
+  rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")
   
   
   

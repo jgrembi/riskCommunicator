@@ -5,23 +5,16 @@
 #' @param data (Required) Data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
 #' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
 #'  \describe{
-#'  \item{binary} (Default) A binomial distribution with link = 'logit' is used.
-#'  \item{count} A Poisson distribution with link = 'log' is used.
-#'  \item{rate} A Poisson distribution with link = 'log' is used.
-#'  \item{continuous} A gaussian distribution with link = 'identity' is used. 
+#'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
+#'  \item{count}{A Poisson distribution with link = 'log' is used.}
+#'  \item{rate}{A Poisson distribution with link = 'log' is used.}
+#'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
 #' }
-#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the model formula for the \code{glm} function to be used internally. 
-#' The first predictor (after the "~") is assumed to be the exposure variable.
-#' Can be supplied as a character or formula object, the function will internally convert it to a formula if not supplied as such. 
-#' If no formula is provided, Y and X must be provided.
+#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the model formula for the \code{glm} function to be used internally. The first predictor (after the "~") is assumed to be the exposure variable. Can be supplied as a character or formula object, the function will internally convert it to a formula if not supplied as such. If no formula is provided, Y and X must be provided.
 #' @param Y (Optional) Default NULL. Character argument which provides the response variable that will be supplied to the \code{glm} function internally.  
 #' Must also provide \code{X} in order for the function to work.  Can optionally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param X (Optional) Default NULL. Character argument which provides variable identifying exposure/treatment group assignment that will be supplied to the \code{glm} function internally. 
-#' Must also provide \code{Y} in order for the function to work.   
-#' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
-#' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
-#' Character variables are not accepted and will throw an error.
-#' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
+#' Must also provide \code{Y} in order for the function to work. Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. Character variables are not accepted and will throw an error. Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally.  
 #' For only one covariate, can be a single character object, for multiple a vector of quoted variable names is required. Does not allow interaction terms.
 #' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such. 
@@ -183,10 +176,11 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
       df <- res.ci.df %>%
         stats::na.omit() %>%
         dplyr::select(tidyselect::contains(t)) %>%
-        dplyr::rename_all(.funs = funs(sub(t, "Result", .))) %>%
-        dplyr::mutate(Out = paste0(formatC(round(Result, 3), format = "f", digits = 3), " (", formatC(round(`Result_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`Result_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
+        dplyr::rename_all(.funs = funs(sub(t, "Estimate", .))) %>%
+        dplyr::mutate(Out = paste0(formatC(round(Estimate, 3), format = "f", digits = 3), " (", formatC(round(`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
+        dplyr::rename(`Estimate (95% CI)` = Out) %>%
         dplyr::select(Out)# %>%
-      names(df) <- paste0(t, " Estimate (95% CL)")
+      # names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
     })
     rownames(summary) <- rownames(res.ci.df %>% na.omit())
@@ -204,7 +198,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
       stats::na.omit() %>%
       dplyr::mutate(Out = paste0(formatC(round(Estimate, 3), format = "f", digits = 3), " (", formatC(round(`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
       dplyr::select(-(Estimate:`97.5% CL`)) %>%
-      dplyr::rename(`Estimate (95% CL)` = Out)
+      dplyr::rename(`Estimate (95% CI)` = Out)
     rownames(summary) <- rownames(res.ci.df %>% na.omit())
   }
 
