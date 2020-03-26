@@ -2,7 +2,7 @@
 #'
 #' @description Generate a point estimate of the outcome difference and ratio
 #'
-#' @param data (Required) Data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
+#' @param data (Required) A data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula. Data set should also contain variables for the optinal \code{subgroup} and \code{offset}, if they are specified 
 #' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
 #'  \describe{
 #'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
@@ -10,44 +10,34 @@
 #'  \item{rate}{A Poisson distribution with link = 'log' is used.}
 #'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
 #' }
-#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the model formula for the \code{glm} function to be used internally. 
-#' The first predictor (after the "~") is assumed to be the exposure variable.
-#' Can be supplied as a character or formula object, the function will internally convert it to a formula if not supplied as such. 
-#' If no formula is provided, Y and X must be provided.
-#' @param Y (Optional) Default NULL. Character argument which provides the response variable that will be supplied to the \code{glm} function internally.  
-#' Must also provide \code{X} in order for the function to work.  Can optionally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param X (Optional) Default NULL. Character argument which provides variable identifying exposure/treatment group assignment that will be supplied to the \code{glm} function internally. 
-#' Must also provide \code{Y} in order for the function to work.   
+#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). 
+#' Can be supplied as a character or formula object. If no formula is provided, Y and X must be provided.
+#' @param Y (Optional) Default NULL. Character argument which specifies the outcome variable. Can optionally provide a formula instead of \code{Y} and \code{X} variables.
+#' @param X (Optional) Default NULL. Character argument which specifies the exposure variable (or treatment group assignment), which can be binary, categorical, or continuous. This variable can be supplied as a factor variable, a numeric variable coded 0 or 1, or a continuous variable. 
 #' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
 #' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
 #' Character variables are not accepted and will throw an error.
-#' Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally. Does not allow interaction terms.
-#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such.  
-#' @param offset (Required if using \code{outcome.type = "rate"}) Default NULL. Character argument which identifies the variable to use for offset. 
-#' Internal function converts offset to \code{log} scale, so variable should be provided on the linear scale. 
-#' @param rate.multiplier (Optional) Default 1. Numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
-#' For example, the rate for an offset provided in days could be converted to years by supplying rate.multiplier = 365. 
+#' Can optionally provide a formula instead of \code{Y} and \code{X} variables. 
+#' @param Z (Optional) Default NULL. List or single character vector which specifies the names of covariates or other variables to adjust for in the \code{glm} function to be used internally. Does not allow interaction terms.
+#' @param subgroup (Optional) Default NULL. Character argument that indicates subgroups for stratified analysis. Effects will be reported for each category of the subgroup variable. Variable will be automatically converted to a factor if not already.  
+#' @param offset (Optional, only applicable for rate outcomes) Default NULL. Character argument which specifies the person-time denominator for rate outcomes to be included as an offset in the Poisson regression model. Numeric variable should be on the linear scale; function will take natural log before including in the model.
+#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default 1. Numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
 #' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
 
-#' @return a list containing the following:
+#' @return A list containing the following:
 #' \itemize{
-#' \item{"Risk Difference"} {point estimate of the risk difference for binary outcomes, will be NA for other outcome types}
-#' \item{"Risk Ratio"} {point estimate of the risk ratio for binary outcomes, will be NA for other outcome types}
-#' \item{"Odds Ratio"} {point estimate of the odds ratio for binary outcomes, will be NA for other outcome types}
-#' \item{"Incidence Rate Difference"} {point estimate of the rate difference for rate outcomes, will be NA for other outcome types}
-#' \item{"Incidence Rate Ratio"} {point estimate of the rate ratio for rate outcomes, will be NA for other outcome types}
-#' \item{"Mean Difference"} {point estimate of the marginal difference for continuous or count outcomes, will be NA for other outcome types}
-#' \item{"Number needed to treat"} {1/(Risk Difference) for binary outcomes, 1/(Incidence Rate Difference) for rate outcomes, will be NA for other outcome types}
+#' \item{"parameter.estimates"} {point estimates for the risk difference, risk ratio, odds ratio, incidence rate difference, indicence rate ratio, mean difference and/or number needed to treat, depending on the outcome.type}
 #' \item{"n} {number of observations provided to the model}
 #' \item{"contrast"} {the contrast levels compared}
 #' \item{"family"} {the error distribution used in the model}
 #' \item{"formula"} {the model formula used to fit the \code{glm}}
 #' \item{"Y"} {the response variable}
 #' \item{"covariates"} {covariates used in the model}
-#' \item{"predictedData"} {a tibble with the predicted values for the naturnal course, and both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
+#' \item{"predicted.data"} {a tibble with the predicted values for the naturnal course, and both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
 #' }
 #'   
+
+
 
 #' @export
 #'
@@ -67,7 +57,7 @@
 #' @importFrom stats as.formula glm model.matrix contrasts binomial na.omit predict
 #' @importFrom dplyr expr select mutate select_if select_at rowwise funs vars        
 #' @importFrom tibble as_tibble tibble
-#' @importFrom rlang sym
+#' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
 #' @importFrom purrr negate
 #'
@@ -184,12 +174,12 @@ pointEstimate <- function(data,
   if (!is.null(offset)) {
     data <- data %>%
       dplyr::mutate(offset2 = !!offset + 0.00001)
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(offset2))
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(.data$offset2))
   } else {
     glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
   }
   
-  fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup, offset = offset)
+  fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup)
   results_tbl_all <- NULL
   exposure_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
     stringr::str_subset(pattern = as.character(X))

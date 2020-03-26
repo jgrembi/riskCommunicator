@@ -2,7 +2,7 @@
 #'
 #' @description Obtain a point estimate and 95% confidence limits for the difference and ratio between treatment and non-treatment (or exposed/not exposed) groups.
 #'
-#' @param data (Required) Data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.
+#' @param data (Required) A data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula. Data set should also contain variables for the optinal \code{subgroup} and \code{offset}, if they are specified 
 #' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
 #'  \describe{
 #'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
@@ -10,20 +10,20 @@
 #'  \item{rate}{A Poisson distribution with link = 'log' is used.}
 #'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
 #' }
-#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the model formula for the \code{glm} function to be used internally. The first predictor (after the "~") is assumed to be the exposure variable. Can be supplied as a character or formula object, the function will internally convert it to a formula if not supplied as such. If no formula is provided, Y and X must be provided.
-#' @param Y (Optional) Default NULL. Character argument which provides the response variable that will be supplied to the \code{glm} function internally.  
-#' Must also provide \code{X} in order for the function to work.  Can optionally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param X (Optional) Default NULL. Character argument which provides variable identifying exposure/treatment group assignment that will be supplied to the \code{glm} function internally. 
-#' Must also provide \code{Y} in order for the function to work. Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. Character variables are not accepted and will throw an error. Can optinoally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param Z (Optional) Default NULL. List or single character vector which provides the names of covariates or other variables to adjust for in the \code{glm} function to be used internally.  
-#' For only one covariate, can be a single character object, for multiple a vector of quoted variable names is required. Does not allow interaction terms.
-#' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such. 
-#' @param offset (Required if using \code{outcome.type = "rate"}) Default NULL. Character argument which identifies the variable to use for offset. 
-#' Internal function converts offset to \code{log} scale, so variable should be provided on the linear scale. 
-#' @param rate.multiplier (Optional) Default 1. Numeric argument to identify the multiplier to provide rate outcome in desired units. Only used if outcome.type == "rate." 
-#' For example, the rate for an offset provided in days could be converted to years by supplying rate.multiplier = 365. 
+#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). 
+#' Can be supplied as a character or formula object. If no formula is provided, Y and X must be provided.
+#' @param Y (Optional) Default NULL. Character argument which specifies the outcome variable. Can optionally provide a formula instead of \code{Y} and \code{X} variables.
+#' @param X (Optional) Default NULL. Character argument which specifies the exposure variable (or treatment group assignment), which can be binary, categorical, or continuous. This variable can be supplied as a factor variable, a numeric variable coded 0 or 1, or a continuous variable. 
+#' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
+#' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
+#' Character variables are not accepted and will throw an error.
+#' Can optionally provide a formula instead of \code{Y} and \code{X} variables. 
+#' @param Z (Optional) Default NULL. List or single character vector which specifies the names of covariates or other variables to adjust for in the \code{glm} function to be used internally. Does not allow interaction terms.
+#' @param subgroup (Optional) Default NULL. Character argument that indicates subgroups for stratified analysis. Effects will be reported for each category of the subgroup variable. Variable will be automatically converted to a factor if not already.  
+#' @param offset (Optional, only applicable for rate outcomes) Default NULL. Character argument which specifies the person-time denominator for rate outcomes to be included as an offset in the Poisson regression model. Numeric variable should be on the linear scale; function will take natural log before including in the model.
+#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default 1. Numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
 #' @param R (Optional) Default 200. The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate.
-#' @param clusterID (Optional) Default NULL. Character vector of the variable name to use as the level for resampling if the bootstrap resampling should be done at any level other than random resampling of the dataset.
+#' @param clusterID (Optional) Default NULL. Character argument which specifies the variable name for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The \code{clusterID} will be used as the level for resampling in the bootstrap procedure.
 #' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
 #' 
 #' @value the returned value is an object of class \code{gComp} containing the following:
@@ -105,7 +105,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
     # } else {
     #   res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
     #     tibble::rownames_to_column("outcome") %>%
-    #     left_join(data.frame(outcome = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Marginal Difference", "Number needed to treat"),
+    #     left_join(data.frame(outcome = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat"),
     #                          ci.ll = sapply(1:7, function(i) stats::quantile(boot_res$t[,i], probs = 0.025, na.rm = T)),
     #                          ci.ul = sapply(1:7, function(i) stats::quantile(boot_res$t[,i], probs = 0.975, na.rm = T)))) %>%
     #     tibble::column_to_rownames("outcome") %>%
@@ -113,7 +113,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
     # }
     df <- data %>%
       tibble::rownames_to_column("dummy_id") %>%
-      dplyr::group_by(dummy_id) %>%
+      dplyr::group_by(.data$dummy_id) %>%
       tidyr::nest()
     } else {
       df <- data %>%
@@ -138,7 +138,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
       as.data.frame() %>% 
       tibble::rownames_to_column("test") %>%
       dplyr::mutate(boot = as.character(x$id))
-    names(result) <- c("test","Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Marginal Difference", "Number needed to treat", "boot")
+    names(result) <- c("test","Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat", "boot")
     return(result)
   })
   
@@ -146,23 +146,23 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
   
   if(length(unique(boot_res$test)) > 1) {
     ci <- boot_res %>%
-      dplyr::group_by(test) %>%
-      dplyr::summarise_at(dplyr::vars(`Risk Difference`:`Number needed to treat`),
+      dplyr::group_by(.data$test) %>%
+      dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat`),
                           ~stats::quantile(., probs = 0.025, na.rm = T)) %>%
       dplyr::mutate(test = paste0(.data$test,"_2.5% CL")) %>%
       dplyr::ungroup() %>%
-      tidyr::gather(var, value, -test) %>%
-      tidyr::spread(test, value) %>%
+      tidyr::gather(var, value, -.data$test) %>%
+      tidyr::spread(.data$test, value) %>%
       dplyr::left_join(boot_res %>%
-                         dplyr::group_by(test) %>%
-                         dplyr::summarise_at(dplyr::vars(`Risk Difference`:`Number needed to treat`),
+                         dplyr::group_by(.data$test) %>%
+                         dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat`),
                                              ~stats::quantile(., probs = 0.975, na.rm = T)) %>%
                          dplyr::mutate(test = paste0(.data$test, "_97.5% CL")) %>%
                          dplyr::ungroup() %>%
-                         tidyr::gather(var, value, -test) %>%
-                         tidyr::spread(test, value), by = "var") %>%
+                         tidyr::gather(var, value, -.data$test) %>%
+                         tidyr::spread(.data$test, value), by = "var") %>%
       dplyr::rename(outcome = var) %>%
-      dplyr::mutate(outcome = as.character(outcome))
+      dplyr::mutate(outcome = as.character(.data$outcome))
     test_list <- unlist(names(pt_estimate$parameter.estimates)) 
 
     res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
@@ -177,9 +177,9 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
         stats::na.omit() %>%
         dplyr::select(tidyselect::contains(t)) %>%
         dplyr::rename_all(.funs = funs(sub(t, "Estimate", .))) %>%
-        dplyr::mutate(Out = paste0(formatC(round(Estimate, 3), format = "f", digits = 3), " (", formatC(round(`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
-        dplyr::rename(`Estimate (95% CI)` = Out) %>%
-        dplyr::select(Out)# %>%
+        dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
+        dplyr::rename(`Estimate (95% CI)` = .data$Out) %>%
+        dplyr::select(.data$`Estimate (95% CI)`)# %>%
       # names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
     })
@@ -191,14 +191,14 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
       dplyr::left_join(data.frame(outcome = rownames(pt_estimate$parameter.estimates),
                                   ci.ll = sapply(2:8, function(i) stats::quantile(boot_res[,i], probs = 0.025, na.rm = T)),
                                   ci.ul = sapply(2:8, function(i) stats::quantile(boot_res[,i], probs = 0.975, na.rm = T))) %>%
-                         dplyr::mutate(outcome = as.character(outcome)), by = "outcome") %>%
+                         dplyr::mutate(outcome = as.character(.data$outcome)), by = "outcome") %>%
       tibble::column_to_rownames("outcome") %>%
-      dplyr::rename(`2.5% CL` = ci.ll, `97.5% CL` = ci.ul)
+      dplyr::rename(`2.5% CL` = .data$ci.ll, `97.5% CL` = .data$ci.ul)
     summary <- res_ci_df %>% 
       stats::na.omit() %>%
-      dplyr::mutate(Out = paste0(formatC(round(Estimate, 3), format = "f", digits = 3), " (", formatC(round(`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
-      dplyr::select(-(Estimate:`97.5% CL`)) %>%
-      dplyr::rename(`Estimate (95% CI)` = Out)
+      dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
+      dplyr::select(-(.data$Estimate:.data$`97.5% CL`)) %>%
+      dplyr::rename(`Estimate (95% CI)` = .data$Out)
     rownames(summary) <- rownames(res_ci_df %>% na.omit())
   }
 
