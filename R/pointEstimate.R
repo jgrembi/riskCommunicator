@@ -63,9 +63,9 @@
 #' ptEstimate <- pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES", 
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
 #' 
-#' @importFrom tidyselect one_of
+#' @importFrom tidyselect one_of contains
 #' @importFrom stats as.formula glm model.matrix contrasts binomial na.omit predict
-#' @importFrom dplyr expr select mutate select_if rowwise funs        
+#' @importFrom dplyr expr select mutate select_if select_at rowwise funs vars        
 #' @importFrom tibble as_tibble tibble
 #' @importFrom rlang sym
 #' @importFrom magrittr %>%
@@ -130,8 +130,8 @@ pointEstimate <- function(data,
   }
   
   if (!is.null(subgroup)) {
-    interaction.term <- rlang::sym(paste(as.character(X), subgroup, sep = ":"))
-    formula <- stats::as.formula(paste(paste(Y,X, sep = " ~ "), paste(Z, collapse = " + "), interaction.term, sep = " + "))
+    interaction_term <- rlang::sym(paste(as.character(X), subgroup, sep = ":"))
+    formula <- stats::as.formula(paste(paste(Y,X, sep = " ~ "), paste(Z, collapse = " + "), interaction_term, sep = " + "))
     
   }
   
@@ -157,8 +157,8 @@ pointEstimate <- function(data,
   if(!all(allVars %in% names(data))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
   
   if (!is.null(X)) {
-    X.type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
-    if(X.type == "numeric") {
+    X_type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
+    if(X_type == "numeric") {
       message("Proceeding with X as a continuous variable, if it should be categorical, please reformat so that X is a factor variable")
       # if (nlevels(eval(dplyr::expr(`$`(data, !!X)))) != 2) {
       #   stop("Explanatory variable has more than 2 levels")
@@ -184,100 +184,101 @@ pointEstimate <- function(data,
   if (!is.null(offset)) {
     data <- data %>%
       dplyr::mutate(offset2 = !!offset + 0.00001)
-    glm.result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(offset2))
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(offset2))
   } else {
-    glm.result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
   }
   
-  fn.output <- make_predict_df(glm.res = glm.result, df = data, X = X, subgroup = subgroup, offset = offset)
-  results.tbl_all <- NULL
-  exposure.list <- unique(unlist(stringr::str_split(names(fn.output), "_"))) %>%
+  fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup, offset = offset)
+  results_tbl_all <- NULL
+  exposure_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
     stringr::str_subset(pattern = as.character(X))
   
   if (!is.null(subgroup)) {
-    subgroups.list <- unique(unlist(stringr::str_split(names(fn.output), "_"))) %>%
+    subgroups_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
       stringr::str_subset(pattern = as.character(subgroup))
-    if (length(exposure.list) > 2) {
-      contrasts.list <- lapply(exposure.list[-1], function(x) paste0(x, "_v._", exposure.list[1]))
-      subgroup.contrasts.res <- purrr::map_dfc(exposure.list[-1], function(e) {
-        predict.df.e <- fn.output %>%
-          dplyr::select(tidyselect::contains(exposure.list[1]), tidyselect::contains(e))
-        subgroup.res <- purrr::map_dfc(subgroups.list, function(s) {
-          predict.df.s = fn.output %>% 
+    if (length(exposure_list) > 2) {
+      contrasts_list <- lapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]))
+      subgroup_contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
+        predict_df_e <- fn_output %>%
+          dplyr::select(tidyselect::contains(exposure_list[1]), tidyselect::contains(e))
+        subgroup_res <- purrr::map_dfc(subgroups_list, function(s) {
+          predict_df_s = fn_output %>% 
             dplyr::select(tidyselect::contains(s))
-          fn.results.tibble <- get_results_tibble(predict.df = predict.df.s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-          tbl_s <- fn.results.tibble[[1]]
+          fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+          tbl_s <- fn_results_tibble[[1]]
           names(tbl_s) <- 
-            x <- c(paste0("predicted risk with ", exposure.list[1], ", ", s), paste0("predicted risk with ", e, ", ", s), paste0("pred odds with ", exposure.list[1], ", ", s), paste0("pred odds with ", e, ", ", s))
-          results.tbl_all <<- results.tbl_all %>%
+            x <- c(paste0("predicted risk with ", exposure_list[1], ", ", s), paste0("predicted risk with ", e, ", ", s), paste0("pred odds with ", exposure_list[1], ", ", s), paste0("pred odds with ", e, ", ", s))
+          results_tbl_all <<- results_tbl_all %>%
             dplyr::bind_cols(tbl_s)
-          return(fn.results.tibble[[2]])
+          return(fn_results_tibble[[2]])
         })
-        subgp.results <- subgroup.res %>%
+        subgp_results <- subgroup_res %>%
           as.data.frame()
-        colnames(subgp.results) <- paste0(e, "_v._", exposure.list[1],"_", subgroups.list)
-        return(subgp.results)
+        colnames(subgp_results) <- paste0(e, "_v._", exposure_list[1],"_", subgroups_list)
+        return(subgp_results)
       })
-      results <- subgroup.contrasts.res
+      results <- subgroup_contrasts_res
     } else {
-      subgroup.res <- purrr::map_dfc(subgroups.list, function(s) {
-        # s <- subgroups.list[1]
-        predict.df.s = fn.output %>% 
+      subgroup_res <- purrr::map_dfc(subgroups_list, function(s) {
+        # s <- subgroups_list[1]
+        predict_df_s = fn_output %>% 
           dplyr::select(tidyselect::contains(s))
-        fn.results.tibble <- get_results_tibble(predict.df = predict.df.s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-        tbl_s <- fn.results.tibble[[1]]
-        pred.names <- c(sapply(exposure.list, function(x) paste0("predicted risk with ",x, ", ", s)), sapply(exposure.list, function(x) paste0("predicted odds with ",x, ", ", s)))
-        names(tbl_s) <- pred.names
-        results.tbl_all <<- results.tbl_all %>%
+        fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+        tbl_s <- fn_results_tibble[[1]]
+        pred_names <- c(sapply(exposure_list, function(x) paste0("predicted risk with ",x, ", ", s)), sapply(exposure_list, function(x) paste0("predicted odds with ",x, ", ", s)))
+        names(tbl_s) <- pred_names
+        results_tbl_all <<- results_tbl_all %>%
           dplyr::bind_cols(tbl_s)
-        return(fn.results.tibble[[2]])
+        return(fn_results_tibble[[2]])
       })
-      results <- subgroup.res %>%
+      results <- subgroup_res %>%
         as.data.frame()
-      colnames(results) <- subgroups.list
+      colnames(results) <- subgroups_list
     }
-  } else if (length(exposure.list) > 2) {
-    contrasts.list <- lapply(exposure.list[-1], function(x) paste0(x, "_v._", exposure.list[1]))
-    contrasts.res <- purrr::map_dfc(exposure.list[-1], function(e) {
-      # e <- exposure.list[2]
-      predict.df.e <- fn.output %>%
-        dplyr::select(tidyselect::contains(exposure.list[1]), tidyselect::contains(e))
-      fn.results.tibble <- get_results_tibble(predict.df = predict.df.e, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-      tbl_e <- fn.results.tibble[[1]]
-      pred.names <- c(paste0("predicted risk with ", exposure.list[1]), paste0("predicted risk with ", e), paste0("pred odds with ", exposure.list[1]), paste0("pred odds with ", e))
-      names(tbl_e) <- pred.names
-      results.tbl_all <<- results.tbl_all %>%
+  } else if (length(exposure_list) > 2) {
+    contrasts_list <- lapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]))
+    contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
+      # e <- exposure_list[2]
+      predict_df_e <- fn_output %>%
+        dplyr::select(tidyselect::contains(exposure_list[1]), tidyselect::contains(e))
+      fn_results_tibble <- get_results_tibble(predict.df = predict_df_e, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+      tbl_e <- fn_results_tibble[[1]]
+      pred_names <- c(paste0("predicted risk with ", exposure_list[1]), paste0("predicted risk with ", e), paste0("pred odds with ", exposure_list[1]), paste0("pred odds with ", e))
+      names(tbl_e) <- pred_names
+      results_tbl_all <<- results_tbl_all %>%
         dplyr::bind_cols(tbl_e)
-      return(fn.results.tibble[[2]])
+      return(fn_results_tibble[[2]])
     })
-    results <- contrasts.res %>%
+    results <- contrasts_res %>%
       as.data.frame()
-    colnames(results) <- contrasts.list
+    colnames(results) <- contrasts_list
   } else {
-    fn.results.tibble <- get_results_tibble(predict.df = fn.output, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-    tbl <- fn.results.tibble[[1]]
-    pred.names <- c(sapply(exposure.list, function(x) paste0("predicted risk with ",x)), sapply(exposure.list, function(x) paste0("pred odds with ",x)))
-    names(tbl) <- pred.names
-    results.tbl_all <- results.tbl_all %>%
+    fn_results_tibble <- get_results_tibble(predict.df = fn_output, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+    tbl <- fn_results_tibble[[1]]
+    pred_names <- c(sapply(exposure_list, function(x) paste0("predicted risk with ",x)), sapply(exposure_list, function(x) paste0("pred odds with ",x)))
+    names(tbl) <- pred_names
+    results_tbl_all <- results_tbl_all %>%
       dplyr::bind_cols(tbl)
-    results <- fn.results.tibble[[2]] %>%
+    results <- fn_results_tibble[[2]] %>%
       as.data.frame() %>%
       dplyr::rename(Estimate = ".") %>%
       dplyr::mutate_if(is.numeric, round, digits = 4)
   }
   rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")
   
+  results_tbl_risk <- results_tbl_all %>%
+    dplyr::select_at(dplyr::vars(tidyselect::contains("predicted risk")))
   
   
-  
-  res <- list(parameterEstimates = results,
+  res <- list(parameter.estimates = results,
               n = as.numeric(dplyr::summarise(data, n = dplyr::n())), 
               #counterFactuals = c(counterFactControl = counterFactControl, counterFactTrt = counterFactTrt), 
-              contrast = paste(paste0(names(glm.result$xlevels[1]), rev(unlist(glm.result$xlevels[1]))), collapse = " v. "), 
-              family = family,#paste0(glm.result$family$family, "(link = '", glm.result$family$link,"')"), 
+              contrast = paste(paste0(names(glm_result$xlevels[1]), rev(unlist(glm_result$xlevels[1]))), collapse = " v. "), 
+              family = family,#paste0(glm_result$family$family, "(link = '", glm_result$family$link,"')"), 
               formula = formula, 
               Y = Y, 
-              covariates = ifelse(length(attr(glm.result$terms , "term.labels")) > 1, do.call(paste,as.list(attr(glm.result$terms , "term.labels")[-1])), NA),
-              predictedData = results.tbl_all)
+              covariates = ifelse(length(attr(glm_result$terms , "term.labels")) > 1, do.call(paste,as.list(attr(glm_result$terms , "term.labels")[-1])), NA),
+              predicted.data = results_tbl_risk)
   return(res)
 }
