@@ -32,7 +32,7 @@
 #' \item{"results.df} {data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
 #' \item{"n"} {number of observations in the original dataset}
 #' \item{"R"} {number of bootstrap iterations}
-#' \item{"boot_result"} {a boot object containing the results of the \code{R} bootstrap iterations of the g-computation} 
+#' \item{"boot.result"} {a boot object containing the results of the \code{R} bootstrap iterations of the g-computation} 
 #' \item{"contrast"} {the contrast levels compared}
 #' \item{"family"} {the error distribution used in the model}
 #' \item{"formula"} {the model formula used to fit the \code{glm}}
@@ -56,7 +56,7 @@
 #' @importFrom purrr map_dfc 
 #' @importFrom furrr future_map_dfr 
 #' @importFrom tidyselect vars_select starts_with contains matches
-#' @importFrom rlang sym
+#' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
 #' 
 #' 
@@ -149,7 +149,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
       dplyr::group_by(test) %>%
       dplyr::summarise_at(dplyr::vars(`Risk Difference`:`Number needed to treat`),
                           ~stats::quantile(., probs = 0.025, na.rm = T)) %>%
-      dplyr::mutate(test = paste0(test,"_2.5% CL")) %>%
+      dplyr::mutate(test = paste0(.data$test,"_2.5% CL")) %>%
       dplyr::ungroup() %>%
       tidyr::gather(var, value, -test) %>%
       tidyr::spread(test, value) %>%
@@ -157,7 +157,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
                          dplyr::group_by(test) %>%
                          dplyr::summarise_at(dplyr::vars(`Risk Difference`:`Number needed to treat`),
                                              ~stats::quantile(., probs = 0.975, na.rm = T)) %>%
-                         dplyr::mutate(test = paste0(test, "_97.5% CL")) %>%
+                         dplyr::mutate(test = paste0(.data$test, "_97.5% CL")) %>%
                          dplyr::ungroup() %>%
                          tidyr::gather(var, value, -test) %>%
                          tidyr::spread(test, value), by = "var") %>%
@@ -208,7 +208,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
     results.df = res_ci_df %>% na.omit(), 
     n = dplyr::n_distinct(data), 
     R = R, 
-    boot_result = boot_res,
+    boot.result = boot_res,
     contrast = pt_estimate$contrast,
     family = pt_estimate$family, 
     formula = pt_estimate$formula,
