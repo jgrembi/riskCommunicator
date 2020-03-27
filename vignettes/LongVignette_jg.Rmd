@@ -1,14 +1,14 @@
 ---
-title: "riskCommunicator package vignette"
+title: "riskCommunicator package extended vignette for newbie R users"
 author: "Jessica Grembi, Elizabeth Rogawski McQuade"
 date: "`r Sys.Date()`"
 output: 
-  html_document:
+  rmarkdown::html_vignette:
       number_sections: no
       toc: yes
       toc_float: yes
 vignette: >
-  %\VignetteIndexEntry{LongVignette}
+  %\VignetteIndexEntry{riskCommunicator package extended vignette for newbie R users}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{tidyverse}
