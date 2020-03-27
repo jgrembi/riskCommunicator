@@ -165,7 +165,7 @@ pointEstimate <- function(data,
     test_for_char_df <- sapply(data %>% 
       dplyr::select(tidyselect::all_of(Z)), is.character)
     if (any(test_for_char_df)) {
-      stop("One of the covariates (Z) is supplied as a character variable in the dataset provided.  Please change to a factor or numeric.")
+      stop("One of the covariates (Z) is a character variable in the dataset provided.  Please change to a factor or numeric.")
     }
   }
   
