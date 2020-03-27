@@ -1,6 +1,6 @@
 ---
 title: "riskCommunicator package vignette"
-author: "Jessica Grembi"
+author: "Jessica Grembi, Elizabeth Rogawski McQuade"
 date: "`r Sys.Date()`"
 output: 
   html_document:
@@ -89,7 +89,6 @@ Add details here about how to install, can modify once its on CRAN
 Load packages:
 ```{r setup}
 library(riskCommunicator)
-#library(tidyverse)
 ```
 
 ## Installing required packages
@@ -213,7 +212,7 @@ You can do a similar analysis when your exposure variable is not binary (has mor
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
 ```{r categorical_exposure, fig.width = 12, cache = TRUE}
-catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 
 catExp.res
 ```
@@ -226,7 +225,7 @@ NOTE - Liz needs to add interpretation of result here!}
 While there was very little drop out in these data (<1%), let's say that we are interested in estimating the effect of diabetes on the rate of cardiovascular disease or death due to any cause. For this analysis, we will take into account the person-days at risk (**timeout**) and use Poisson regression as the underlying parametric model for g-computation. This analysis will estimate the incidence rate difference and incidence rate ratio.
 
 First, we need to modify the dataset to change the variable **cvd_dth** from a factor to a numeric variable since the outcome for Poisson regression must be numeric.
-```{r }
+```{r change_dataset_cvd_dth_to_numeric}
 cvdd.t <- cvdd %>%
   dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)))
 ```
