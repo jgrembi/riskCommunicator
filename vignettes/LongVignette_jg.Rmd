@@ -51,7 +51,7 @@ devtools::install_github("jgrembi/riskCommunicator")
 Add details here about how to install, can modify once its on CRAN
 
 Load packages:
-```{r setup, eval = F}
+```{r setup}
 library(riskCommunicator)
 ```
 
