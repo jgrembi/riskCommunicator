@@ -16,4 +16,4 @@ devtools::install_github("jgrembi/riskCommunicator")
 
 Bugs and difficulties in using `riskCommunicator` are welcome on the issue tracker.
 
-Planned feature improvements are also publicly catalogued at on the "Issues" page for `riskCommunicator`: https://github.com/jgrembi/riskCommunicator/issues
+Planned feature improvements are also publicly catalogued on the "Issues" page for `riskCommunicator`: https://github.com/jgrembi/riskCommunicator/issues
