@@ -1,5 +1,5 @@
 Package: riskCommunicator
-Title: Estimation of Common Epidemiological Effect Measures.
+Title: G-Computation to Estimate Risk Differences/Ratios, Rate Differences/Ratios, and Other Epidemiological Effects.
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Jessica",
