@@ -28,20 +28,21 @@
 #' @importFrom tidyr pivot_longer gather
 #' @importFrom magrittr %>%
 #' @importFrom ggplot2 ggplot aes geom_histogram facet_grid facet_wrap geom_qq theme_bw geom_abline labs
+#' @importFrom rlang .data
 #'
 #' @keywords plot.gComp
 
 
 
 
-plot.gComp <- function(gComp.res) {
+plot.gComp <- function(gComp.res, ...) {
   #grepl(":", gComp.res$formula[3])
   if(gComp.res$boot.result$test[1] != "Estimate") {
     df <- gComp.res$boot.result %>%
       tibble::as_tibble() %>%
-      dplyr::group_by(test) %>%
-      tidyr::pivot_longer(cols = `Risk Difference`:`Number needed to treat`, names_to = "key", values_drop_na = TRUE) %>%
-      dplyr::mutate(key = factor(key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
+      dplyr::group_by(.data$test) %>%
+      tidyr::pivot_longer(cols = .data$`Risk Difference`:.data$`Number needed to treat`, names_to = "key", values_drop_na = TRUE) %>%
+      dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
                     value = as.numeric(value)) %>%
       na.omit() 
     
@@ -62,7 +63,7 @@ plot.gComp <- function(gComp.res) {
       tibble::as_tibble() %>%
       # dplyr::rename(`Risk Difference` = V1, `Risk Ratio` = V2, `Odds Ratio` = V3, `Incidence Rate Difference` = V4, `Incidence Rate Ratio` = V5, `Mrginal Difference` = V6, `Number needed to treat` = V7) %>% 
       tidyr::gather() %>%
-      dplyr::mutate(key = factor(key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
+      dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
              value = as.numeric(value)) %>%
       na.omit() 
     hist <- ggplot2::ggplot(df) + 

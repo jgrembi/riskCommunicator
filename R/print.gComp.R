@@ -2,8 +2,8 @@
 #'
 #' @description Print results from bootstrap computations of the g-computation
 #'
-#' @param gComp.res an object of class\code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
-#' @param 
+#' @param gComp.res an object of class \code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
+#' @param ...
 #' 
 #' @value the resulting point estimate and 95% confidence intervals of the difference and ratio estimates returned from R bootstrap iterations
 #' @export
@@ -18,7 +18,7 @@
 #' ## if they have a history of hypertension. 
 #' data(cvdd)
 #' diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", 
-#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), family = "binomial", R = 10)
+#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 10)
 #' print(diabetes.result)
 #' 
 #'
@@ -27,7 +27,7 @@
 
 
 
-print.gComp <- function(gComp.res) {
+print.gComp <- function(gComp.res, ...) {
   print(gComp.res$summary)
   
 }
