@@ -60,7 +60,7 @@ get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
            `Incidence Rate Difference` = ifelse(outcome.type %in% c("rate"), (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
            `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count"), ratio, NA),#only for poisson)
            `Mean Difference` = ifelse(outcome.type %in% c("continuous"), diff, NA),
-           `Number needed to treat` = ifelse(outcome.type %in% c("binary","count"), 1/diff, NA))
+           `Number needed to treat` = ifelse(outcome.type %in% c("binary"), 1/diff, NA))
   
   return(list(results_tbl, res))
 }
