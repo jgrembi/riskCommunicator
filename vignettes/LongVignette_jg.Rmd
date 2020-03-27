@@ -1,0 +1,304 @@
+---
+title: "riskCommunicator package vignette"
+author: "Jessica Grembi"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+      number_sections: no
+      toc: yes
+      toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{LongVignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{tidyverse}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction to `riskCommunicator`
+
+The `riskCommunicator` package facilitates the estimation of common epidemiological effect measures that are relevant to public health, but that are often not trivial to obtain from common regression models, like logistic regression. In particular, `riskCommunicator` estimates risk and rate differences, in addition to risk and rate ratios. The package estimates these effects using g-computation with the appropriate parametric model depending on the outcome (logistic regression for binary outcomes, Poisson regression for rate or count outcomes, and linear regression for continuous outcomes). Therefore, the package can handle binary, rate, count, and continuous outcomes and allows for dichotomous, categorical (>2 categories), or continuous exposure variables. Additional features include estimation of effects stratified by subgroup and adjustment of standard errors for clustering. Confidence intervals are constructed by bootstrap at the individual or cluster level, as appropriate. 
+
+This package operationalizes g-computation, which has not been widely adopted due to computational complexity, in an easy-to-use implementation tool to increase the reporting of more interpretable epidemiological results. To make the package accessible to a broad range of health researchers, our goal was to design a function that was as straightforward as the standard logistic regression functions in R (e.g. glm) and that would require little to no expertise in causal inference methods or advanced coding.
+
+# Description of main package function
+
+The `gComp` function is the main function in the `riskCommunicator` package and allows you to estimate a variety of effects depending on your outcome and exposure of interest. The function is coded as follows:
+
+
+`gComp(
+data,
+formula = NULL,
+Y = NULL,
+X = NULL,
+Z = NULL,
+subgroup = NULL,
+outcome.type = c("binary", "count", "rate", "continuous"),
+offset = NULL,
+rate.multiplier = 1,
+clusterID = NULL,
+R = 200
+)`
+
+The arguments should be specified as follows:
+
+`data`: your data set in the form of a data.frame or tibble. The data set should contain variables for the outcome (`Y`), exposure (`X`), and adjustment covariates (`Z`). If using a user-supplied model formula, all variables specified in the formula should be in your data set. 
+
+`formula`: (optional) specify the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). Formula can be supplied as a character or formula object. If no formula is provided, Y and X must be provided below.
+
+`Y`: (optional) specifies the outcome variable. Can optionally provide a formula instead of Y and X variables.
+
+`X`: (optional) specifies the exposure variable (or treatment group assignment), which can be binary, categorical, or continuous. This variable can be supplied as a factor variable, a numeric variable coded 0 or 1, or a continuous variable. Can optionally provide a formula instead of Y and X variables.
+
+`Z`: (optional) specifies the covariates or other variables to adjust for in the model. All variables should either be factors, continuous, or coded 0/1 (i.e. not character variables). `Z` can be either a single variable name or vector of quoted variable names.
+
+`subgroup`: (optional) variable name (in the form of a character string) that indicates subgroups for stratified analysis. Effects will be reported for each category of the subgroup variable. Variable will be automatically converted to a factor if not already.
+
+`outcome.type`: specify "binary" for binary outcome (uses logistic regression with g-computation), "count" for count outcome (uses Poisson regression), "rate" for rate (events/person-time) outcome (uses Poisson regression), "continuous" for continous outcome (uses linear regression)
+
+`offset`: (optional; only applicable for rate outcomes) specifies the person-time denominator for rate outcomes to be included as an offset in the Poisson regression model. Numeric variable should be on the linear scale; function will take natural log before including in the model.
+
+`rate.multiplier`: (optional; only applicable for rate outcomes) numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
+
+`clusterID`: (optional) variable name (in the form of a character string) for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The clusterID will be used as the level for resampling in the bootstrap procedure.
+
+`R`: The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate. Default is 200.
+
+
+
+# Getting started
+
+## Installation 
+The `riskCommunicator` R package is available as a source package through GitHub. Installation requires the ability to compile R packages. This means that R and the R tool-chain must be installed, which requires the Xcode command-line tools on Mac and Rtools on Windows.
+
+The easiest source installation method uses the devtools package:
+```{r installation, eval = F}
+library(devtools)
+devtools::install_github("jgrembi/riskCommunicator")
+```
+
+
+Add details here about how to install, can modify once its on CRAN
+
+Load packages:
+```{r setup}
+library(riskCommunicator)
+#library(tidyverse)
+```
+
+## Installing required packages
+
+Add details here about needing to install dependencies, though maybe that is fixed now...
+
+## Package documentation
+
+All package documentation can be found by typing `?riskCommunicator` into the console. Documentation for the gComp function can be found by typing `?gComp`
+
+## Preparing your data
+
+First, load your data into a data frame in R. If your data is a .csv file, use the following code:
+
+```{r load_other_data, eval = FALSE}
+mydata <- read.csv("C:/your/file/path/yourdata.csv")
+```
+
+The examples provided in this vigette will use the dataset **cvdd** and that data can be accessed with:
+```{r dataset}
+data(cvdd)
+```
+
+Next, ensure your variables are specified appropriately:
+- Exposure variable (x) must be coded as a factor  or as a binary variable with 0/1 coding. Variable type can be changed using the following code:
+
+```{r variable_check, eval = FALSE}
+cvdd$SEX <- as.factor(cvdd$SEX)
+```
+
+It's always a good idea to check for missing data. The package will estimate effects only for observations with complete data for the variables included in the model. The following code will return the number of missing values for all variables in your dataset:
+
+```{r, eval = FALSE}
+
+###Liz, from what I can see, this is the only thing in the vignette that is external to the package but uses tidyverse.  I've specified all of the internal functions and therefore we shouldn't be getting an error upon installation/use like you were initially  Can you try starting a new R session and see if the vignette runs ok for you without this and without using the library(tidyverse) call above? 
+#cvdd %>%
+#  select(everything()) %>%  
+#  summarise_all(funs(sum(is.na(.))))
+```
+
+
+# Vignette with the Framingham Heart Study
+
+We'll demonstrate how to use the package with data from the Framingham Heart Study. The following information is from the official Framingham study documentation (https://biolincc.nhlbi.nih.gov/teaching/):
+
+"The Framingham Heart Study is a long term prospective study of the etiology of cardiovascular disease among a population of free living subjects in the community of Framingham, Massachusetts. The Framingham Heart Study was a landmark study in epidemiology in that it was the first prospective study of cardiovascular disease and identified the concept of risk factors and their joint effects. The study began in 1948 and 5,209 subjects were initially enrolled in the study. Participants have been examined biennially since the inception of the study and all subjects are continuously followed through regular surveillance for cardiovascular outcomes. Clinic examination data has included cardiovascular disease risk factors and markers of disease such as blood pressure, blood chemistry, lung function, smoking history, health behaviors, ECG tracings, Echocardiography, and medication use. Through regular surveillance of area hospitals, participant contact, and death certificates, the Framingham Heart Study reviews and adjudicates events for the occurrence of Angina Pectoris, Myocardial Infarction, Heart Failure, and Cerebrovascular disease.
+
+**cvdd** is a subset of the data collected as part of the Framingham study from 4,240 participants who conducted a baseline exam and were free of prevalent coronary heart disease when they entered the study.
+Participant clinic data was collected during three examination periods, approximately 6 years apart, from roughly 1956 to 1968. Each participant was followed for a total of 24 years for the outcome of the following events: Angina Pectoris, Myocardial Infarction, Atherothrombotic Infarction or Cerebral Hemorrhage (Stroke) or death. 
+
+NOTE: This is a "teaching" dataset. Specific methods were employed to ensure an anonymous dataset that protects patient confidentiality; therefore, this dataset is inappropriate for publication purposes." The use of these data for the purposes of this package were approved on 11Mar2019 (request #7161) by NIH/NHLBI.
+
+In this vignette, we present several examples to estimate effect measures of interest from these data. The **cvdd** dataset has already been cleaned and formatted for these examples. 
+
+
+## Binary (dichotomous) outcome example
+
+Research question: what is the effect of having diabetes at the beginning of the study on the 24-year risk of cardiovascular disease or death due to any cause (a combined outcome)? 
+
+Here, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat. We will adjust for confounders: patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline), by including them as covariates in the model.  
+
+The gComp function is designed similarly to a normal regression model in R and takes as input either a formula or a specification of Y (outcome), X (exposure) and Z (covariates) (type `help(gcomp)` for additional details). In this example, logistic regression is used as the underlying parametric model for g-computation.
+
+```{r binary_outcome, cache = TRUE}
+
+## Specify the regression formula
+cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
+
+## For reproducibility, we should always set the seed since the g-computation uses random resampling of the data to calculate confidence intervals and random sampling of the distribution when predicting outcomes
+set.seed(1298)
+
+## Call the gComp function
+binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, offset = NULL)
+```
+
+
+Alternatively, we could run the same analysis by specifying the outcome, exposure, and covariates separately
+```{r binary_outcome_noFormula, cache = TRUE}
+set.seed(1298)
+
+binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+```
+
+Let's look at the results. Typing either of the below will provide the point estimate and the 95% confidence limits
+```{r binary_results_check}
+binary.res
+print(binary.res)
+```
+Not surprisingly, there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute 24-year risk of cardiovascular disease or death due to any cause is 28.7% (95% CI: 18.2, 35.2) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the 24-year risk is 70.0% (44.4, 87.3) higher. Because the outcome is common (41.8%), the odds ratio (4.55) is highly inflated compared to the risk ratio (1.70). This is a clear example where the odds ratio may be misleading since the odds ratio is commonly misinterpreted as a risk ratio. 
+
+We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 4 (95% CI: 3, 6) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
+
+The result obtained from the `gComp` function is an object of class **gComp** which is actually a list that contains additional information. See `help(gComp)`.  You can access the different pieces of information using the `$` operator as shown below.  
+```{r gComp_class_explaination}
+class(binary.res)
+# The names of the different items in the list 
+names(binary.res)
+# For a more detailed explanation of what each of these items contains, look in the **Values** section of the function documentation
+help(gComp)
+
+# For example, to see the sample size of the original data:
+binary.res$n 
+```
+
+
+We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
+
+```{r binary_outcome_subgroup, fig.width = 10, cache = TRUE}
+set.seed(1298)
+
+binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 200)
+
+binary.res.subgroup
+```
+
+## Categorical exposure example
+Question: what is the effect of obesity on the 24-year risk of cardiovascular disease or death due to any cause?
+
+You can do a similar analysis when your exposure variable is not binary (has more than 2 categories). In this example, we specify obesity as a cagetorical variable (`bmicat` coding: 0 = normal weight; 1=underweight; 2=overweight; 3=obese) and therefore have an exposure with more than 2 categories. You should code your categorical exposure with '0' coded as the referent to ensure that the effects are estimated with the referent of your choice.
+
+As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
+
+```{r categorical_exposure, fig.width = 12, cache = TRUE}
+catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+
+catExp.res
+```
+\textcolor{red}{NOTE: Liz, sholud we consider changing this to ask a different question since there doesn't seem to be much variation in the result?
+Jess, could consider the outcome to be acquisition of diabetes over follow-up? bmi will be a stronger predictor of that. would need to rework the data set to add it, but wouldnt be too bad.
+NOTE - Liz needs to add interpretation of result here!}
+
+
+## Rate outcome example
+While there was very little drop out in these data (<1%), let's say that we are interested in estimating the effect of diabetes on the rate of cardiovascular disease or death due to any cause. For this analysis, we will take into account the person-days at risk (**timeout**) and use Poisson regression as the underlying parametric model for g-computation. This analysis will estimate the incidence rate difference and incidence rate ratio.
+
+First, we need to modify the dataset to change the variable **cvd_dth** from a factor to a numeric variable since the outcome for Poisson regression must be numeric.
+```{r }
+cvdd.t <- cvdd %>%
+  dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)))
+```
+
+Then, we can run the analysis as above, first setting the seed and then calling the gComp function. Note that we have specified the `outcome.type` as "rate" and included **timeout** as the offset. Because our **timeout** variable is in units of person-days, we have included a `rate.multiplier` of 365.25*100 so that the estimates are returned with units of 100 person-years.
+
+```{r rate_outcome, fig.width = 10, cache = TRUE}
+set.seed(6534)
+
+rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+
+rate.res
+```
+  
+Alternatively, we could run the same analysis by first specifying the regression model formula.
+```{r, cache = TRUE}
+## Specify the regression formula
+cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
+
+set.seed(6534)
+
+## Call the gComp function
+rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+
+rate.res.alt
+```
+Similarly to the risk analysis above, this analysis suggests that there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute rate of cardiovascular disease or death due to any cause is 2.19 cases/100 person-years (95% CI: 1.55, 3.08) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the rate is 91.3% (63.2, 129.6) higher. You will note that the incidence rate ratio is further from the null than the risk ratio, but closer to the null than the odds ratio. This is expected based on the mathematical properties of these effect measures.
+
+
+## Countinuous outcome example
+Question: what is the effect of having diabetes at the beginning of the study on casual serum glucose (mg/dL) after 6 years of follow-up?
+
+This example estimates the marginal mean difference in the continuous outcome associated with the exposure. In this example, linear regression is used as the underlying parametric model for g-computation.
+
+```{r continuous_outcome, cache = TRUE}
+set.seed(9385)
+
+cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 200)
+
+cont.res
+```
+This analysis shows that individuals with diabetes at baseline have a 61.6 mg/dL (95% CI: 49.0, 74.7) higher casual serum gluose level after 6 years compared to individuals without diabetes at baseline.
+  
+## Count outcome example
+Question: what is the effect of having diabetes at the beginning of the study on the number of hospitalizations experienced over 24 years of follow-up?
+
+For this analysis, we will use Poisson regression as the underlying parametric model for g-computation because we have a count outcome. However, we will not include a person-time offset, since there was a fixed follow-up time for all individuals (24 years). This analysis will estimate the incidence rate difference, incidence rate ratio, and the number needed to treat.
+
+```{r count_outcome, fig.width = 10, cache = TRUE}
+set.seed(7295)
+
+count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"
+
+count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 200)
+
+count.res
+```
+This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI: -0.00, 0.10) more hospital admissions over the 24 years of follow-up compared to individuals without diabetes at baseline. In relative terms, individuals with diabetes have 53.7% (95% CI: -0.01, 109) more admissions than those without diabetes.
+
+
+# Checking model fit
+
+To ensure that the parameter estimates are normally distributed (among the bootstrap iterations), we can also look at the histogram and QQplots by calling:
+```{r binary_outcome_plot, fig.width = 10}
+plot(binary.res)
+```
+\textcolor{red}{NOTE: Liz, the QQ plot line currently uses the vector quantiles of c(0.25, 0.75). Do we want to change this at all?  
+NOTE: Jess, I think we move this to a separate section on checking model fit?}
+
+# Parallel computing for large R values
+
+
+```{r}
+sessionInfo()
+```
