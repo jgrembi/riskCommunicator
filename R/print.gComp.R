@@ -5,7 +5,7 @@
 #' @param gComp.res an object of class \code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
 #' @param ...
 #' 
-#' @value the resulting point estimate and 95% confidence intervals of the difference and ratio estimates returned from R bootstrap iterations
+#' @return The resulting point estimate and 95% confidence intervals of the difference and ratio.
 #' @export
 #'
 #' @examples

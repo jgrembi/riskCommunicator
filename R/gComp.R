@@ -25,7 +25,7 @@
 #' @param R (Optional) Default 200. The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate.
 #' @param clusterID (Optional) Default NULL. Character argument which specifies the variable name for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The \code{clusterID} will be used as the level for resampling in the bootstrap procedure.
 #' 
-#' @value the returned value is an object of class \code{gComp} containing the following:
+#' @return the returned value is an object of class \code{gComp} containing the following:
 #' \itemize{
 #' \item{"summary"} {summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
 #' \item{"results.df} {data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}

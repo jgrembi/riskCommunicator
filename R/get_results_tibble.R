@@ -11,7 +11,7 @@
 #' @param X (Required) Character argument which provides variable identifying exposure/treatment group assignment.
 #' @param rate.multiplier (Optional, only applicable for rate outcomes) Default 1. Numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
 #'
-#' @value A list containing the following components:
+#' @return A list containing the following components:
 #'  \describe{
 #'  \item{results_tbl}{A tibble of the results for each observation with treatment/no treatment for both risk and odds.}
 #'  \item{res}{The calculated results for the applicable measures (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio, Incidence Risk Difference, Incidence Risk Ratio, Mean Difference, Number Needed to Treat}
