@@ -24,7 +24,6 @@
 #' @param rate.multiplier (Optional, only applicable for rate outcomes) Default 1. Numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
 #' @param R (Optional) Default 200. The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate.
 #' @param clusterID (Optional) Default NULL. Character argument which specifies the variable name for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The \code{clusterID} will be used as the level for resampling in the bootstrap procedure.
-#' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
 #' 
 #' @value the returned value is an object of class \code{gComp} containing the following:
 #' \itemize{
@@ -71,8 +70,7 @@ gComp <- function(data,
                   offset = NULL, 
                   rate.multiplier = 1, 
                   R = 200,
-                  clusterID = NULL,
-                  ...) {
+                  clusterID = NULL) {
   ###need to check if X is categorical or 
   if (!is.null(X)) {
     X_type = ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
@@ -87,7 +85,7 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
   }
   
   ## Get point estimate for diff and ratio
-  pt_estimate <- pointEstimate(data, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, outcome.type = outcome.type, offset = offset, rate.multiplier = rate.multiplier, ...)
+  pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier)
   ## Nest df by bootstrap resampling unit
   if (is.null(clusterID)) {
     # ## run R bootstrap iterations to get 95% CI for diff and ratio

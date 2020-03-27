@@ -22,8 +22,7 @@
 #' @param subgroup (Optional) Default NULL. Character argument that indicates subgroups for stratified analysis. Effects will be reported for each category of the subgroup variable. Variable will be automatically converted to a factor if not already.  
 #' @param offset (Optional, only applicable for rate outcomes) Default NULL. Character argument which specifies the person-time denominator for rate outcomes to be included as an offset in the Poisson regression model. Numeric variable should be on the linear scale; function will take natural log before including in the model.
 #' @param rate.multiplier (Optional, only applicable for rate outcomes) Default 1. Numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
-#' @param ... Other named arguments for \code{glm} which are passed unchanged each time it is called. Arguments to \code{glm} should follow the specifications in the \code{\link{glm}} package.
-
+#' 
 #' @return A list containing the following:
 #' \itemize{
 #' \item{"parameter.estimates"} {point estimates for the risk difference, risk ratio, odds ratio, incidence rate difference, indicence rate ratio, mean difference and/or number needed to treat, depending on the outcome.type}
@@ -36,9 +35,6 @@
 #' \item{"predicted.data"} {a tibble with the predicted values for the naturnal course, and both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
 #' }
 #'   
-
-
-
 #' @export
 #'
 #' @examples
@@ -73,8 +69,7 @@ pointEstimate <- function(data,
                           Z = NULL, 
                           subgroup = NULL,  
                           offset = NULL, 
-                          rate.multiplier = 1,
-                          ...) {
+                          rate.multiplier = 1) {
   # data = cvdd
   # Y = "cvd_dth"
   #  X = "DIABETES"
@@ -175,9 +170,9 @@ pointEstimate <- function(data,
   if (!is.null(offset)) {
     data <- data %>%
       dplyr::mutate(offset2 = !!offset + 0.00001)
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(.data$offset2), ...)
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(.data$offset2))
   } else {
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, ...)
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
   }
   
   fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup)
