@@ -175,9 +175,9 @@ pointEstimate <- function(data,
   if (!is.null(offset)) {
     data <- data %>%
       dplyr::mutate(offset2 = !!offset + 0.00001)
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(.data$offset2))
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(.data$offset2), ...)
   } else {
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, ...)
   }
   
   fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup)
