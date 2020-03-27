@@ -51,7 +51,7 @@ devtools::install_github("jgrembi/riskCommunicator")
 Add details here about how to install, can modify once its on CRAN
 
 Load packages:
-```{r setup}
+```{r setup, eval = F}
 library(riskCommunicator)
 ```
 
@@ -116,7 +116,7 @@ Here, we will estimate the risk difference, risk ratio, odds ratio, and number n
 
 The gComp function is designed similarly to a normal regression model in R and takes as input either a formula or a specification of Y (outcome), X (exposure) and Z (covariates) (type `help(gcomp)` for additional details). In this example, logistic regression is used as the underlying parametric model for g-computation.
 
-```{r binary_outcome, cache = TRUE}
+```{r binary_outcome}
 
 ## Specify the regression formula
 cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
@@ -125,15 +125,15 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, offset = NULL)
+binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 20, offset = NULL)
 ```
 
 
 Alternatively, we could run the same analysis by specifying the outcome, exposure, and covariates separately
-```{r binary_outcome_noFormula, cache = TRUE}
+```{r binary_outcome_noFormula}
 set.seed(1298)
 
-binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 ```
 
 Let's look at the results. Typing either of the below will provide the point estimate and the 95% confidence limits
@@ -160,10 +160,10 @@ binary.res$n
 
 We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
 
-```{r binary_outcome_subgroup, fig.width = 10, cache = TRUE}
+```{r binary_outcome_subgroup, fig.width = 10}
 set.seed(1298)
 
-binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 200)
+binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 20)
 
 binary.res.subgroup
 ```
@@ -175,8 +175,8 @@ You can do a similar analysis when your exposure variable is not binary (has mor
 
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
-```{r categorical_exposure, fig.width = 12, cache = TRUE}
-catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+```{r categorical_exposure, fig.width = 12}
+catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 
 catExp.res
 ```
@@ -196,23 +196,23 @@ cvdd.t <- cvdd %>%
 
 Then, we can run the analysis as above, first setting the seed and then calling the gComp function. Note that we have specified the `outcome.type` as "rate" and included **timeout** as the offset. Because our **timeout** variable is in units of person-days, we have included a `rate.multiplier` of 365.25*100 so that the estimates are returned with units of 100 person-years.
 
-```{r rate_outcome, fig.width = 10, cache = TRUE}
+```{r rate_outcome, fig.width = 10}
 set.seed(6534)
 
-rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
 
 rate.res
 ```
   
 Alternatively, we could run the same analysis by first specifying the regression model formula.
-```{r, cache = TRUE}
+```{r}
 ## Specify the regression formula
 cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 
 set.seed(6534)
 
 ## Call the gComp function
-rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
 
 rate.res.alt
 ```
@@ -224,10 +224,10 @@ Question: what is the effect of having diabetes at the beginning of the study on
 
 This example estimates the marginal mean difference in the continuous outcome associated with the exposure. In this example, linear regression is used as the underlying parametric model for g-computation.
 
-```{r continuous_outcome, cache = TRUE}
+```{r continuous_outcome}
 set.seed(9385)
 
-cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 200)
+cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 20)
 
 cont.res
 ```
@@ -238,12 +238,12 @@ Question: what is the effect of having diabetes at the beginning of the study on
 
 For this analysis, we will use Poisson regression as the underlying parametric model for g-computation because we have a count outcome. However, we will not include a person-time offset, since there was a fixed follow-up time for all individuals (24 years). This analysis will estimate the incidence rate difference, incidence rate ratio, and the number needed to treat.
 
-```{r count_outcome, fig.width = 10, cache = TRUE}
+```{r count_outcome, fig.width = 10}
 set.seed(7295)
 
 count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"
 
-count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 200)
+count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 20)
 
 count.res
 ```
