@@ -4,18 +4,16 @@
 \alias{make_predict_df}
 \title{Using the \code{glm} results, predict outcomes for each individual at each level of treatment/exposure}
 \usage{
-make_predict_df(glm.res, df, X, subgroup = NULL, offset = NULL)
+make_predict_df(glm.res, df, X, subgroup = NULL)
 }
 \arguments{
-\item{glm.res}{}
+\item{glm.res}{(Required) A fitted object of class inheriting from "glm" that will be used with new dataset for prediciton.}
 
-\item{df}{}
+\item{df}{(Required) A new data frame in which to look for variables with which to predict. This is equivalent to the \code{newdata} argument in predict.glm.}
 
-\item{X}{}
+\item{X}{(Required) Character argument which provides variable identifying exposure/treatment group assignment.}
 
-\item{subgroup}{}
-
-\item{offset}{}
+\item{subgroup}{(Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such.}
 }
 \description{
 Using the \code{glm} results, predict outcomes for each individual at each level of treatment/exposure
