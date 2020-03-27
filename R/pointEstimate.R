@@ -49,7 +49,7 @@
 #' ptEstimate <- pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES", 
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
 #' 
-#' @importFrom tidyselect one_of contains
+#' @importFrom tidyselect one_of contains all_of
 #' @importFrom stats as.formula glm model.matrix contrasts binomial na.omit predict
 #' @importFrom dplyr expr select mutate select_if select_at rowwise funs vars        
 #' @importFrom tibble as_tibble tibble
@@ -140,11 +140,11 @@ pointEstimate <- function(data,
     allVars <- unlist(c(Y, as.character(X), Z, subgroup))
   }
   
-  if(!all(allVars %in% names(data))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
+  if (!all(allVars %in% names(data))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
   
   if (!is.null(X)) {
     X_type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
-    if(X_type == "numeric") {
+    if (X_type == "numeric") {
       message("Proceeding with X as a continuous variable, if it should be categorical, please reformat so that X is a factor variable")
       # if (nlevels(eval(dplyr::expr(`$`(data, !!X)))) != 2) {
       #   stop("Explanatory variable has more than 2 levels")
@@ -160,7 +160,16 @@ pointEstimate <- function(data,
     # }
   }
   
-  if(!is.null(subgroup)) {
+  # Ensure Z covariates are NOT character variables in the dataset
+  if (!is.null(Z)) {
+    test_for_char_df <- sapply(data %>% 
+      dplyr::select(tidyselect::all_of(Z)), is.character)
+    if (any(test_for_char_df)) {
+      stop("One of the covariates (Z) is supplied as a character variable in the dataset provided.  Please change to a factor or numeric.")
+    }
+  }
+  
+  if (!is.null(subgroup)) {
     data <- data %>% 
       dplyr::mutate(!!subgroup := factor(!!subgroup))
   }
