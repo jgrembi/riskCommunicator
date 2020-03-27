@@ -13,7 +13,6 @@
 #' For example, the rate for an offset provided in days could be converted to years by supplying rate.multiplier = 365. 
 #'
 #' @value
-#' @export
 #'
 #' @examples
 #' 

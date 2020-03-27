@@ -6,7 +6,6 @@
 #' @param subgroup (Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such.  
 #'
 #' @value
-#' @export
 #'
 #' @examples
 #'
