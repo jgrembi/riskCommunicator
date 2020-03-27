@@ -31,44 +31,9 @@ This package operationalizes g-computation, which has not been widely adopted du
 The `gComp` function is the main function in the `riskCommunicator` package and allows you to estimate a variety of effects depending on your outcome and exposure of interest. The function is coded as follows:
 
 
-`gComp(
-data,
-formula = NULL,
-Y = NULL,
-X = NULL,
-Z = NULL,
-subgroup = NULL,
-outcome.type = c("binary", "count", "rate", "continuous"),
-offset = NULL,
-rate.multiplier = 1,
-clusterID = NULL,
-R = 200
-)`
-
-The arguments should be specified as follows:
-
-`data`: your data set in the form of a data.frame or tibble. The data set should contain variables for the outcome (`Y`), exposure (`X`), and adjustment covariates (`Z`). If using a user-supplied model formula, all variables specified in the formula should be in your data set. 
-
-`formula`: (optional) specify the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). Formula can be supplied as a character or formula object. If no formula is provided, Y and X must be provided below.
-
-`Y`: (optional) specifies the outcome variable. Can optionally provide a formula instead of Y and X variables.
-
-`X`: (optional) specifies the exposure variable (or treatment group assignment), which can be binary, categorical, or continuous. This variable can be supplied as a factor variable, a numeric variable coded 0 or 1, or a continuous variable. Can optionally provide a formula instead of Y and X variables.
-
-`Z`: (optional) specifies the covariates or other variables to adjust for in the model. All variables should either be factors, continuous, or coded 0/1 (i.e. not character variables). `Z` can be either a single variable name or vector of quoted variable names.
-
-`subgroup`: (optional) variable name (in the form of a character string) that indicates subgroups for stratified analysis. Effects will be reported for each category of the subgroup variable. Variable will be automatically converted to a factor if not already.
-
-`outcome.type`: specify "binary" for binary outcome (uses logistic regression with g-computation), "count" for count outcome (uses Poisson regression), "rate" for rate (events/person-time) outcome (uses Poisson regression), "continuous" for continous outcome (uses linear regression)
-
-`offset`: (optional; only applicable for rate outcomes) specifies the person-time denominator for rate outcomes to be included as an offset in the Poisson regression model. Numeric variable should be on the linear scale; function will take natural log before including in the model.
-
-`rate.multiplier`: (optional; only applicable for rate outcomes) numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
-
-`clusterID`: (optional) variable name (in the form of a character string) for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The clusterID will be used as the level for resampling in the bootstrap procedure.
-
-`R`: The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate. Default is 200.
-
+```{r}
+?gComp
+```
 
 
 # Getting started
