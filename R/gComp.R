@@ -5,10 +5,10 @@
 #' @param data (Required) A data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula. Data set should also contain variables for the optinal \code{subgroup} and \code{offset}, if they are specified 
 #' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
 #'  \describe{
-#'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
-#'  \item{count}{A Poisson distribution with link = 'log' is used.}
-#'  \item{rate}{A Poisson distribution with link = 'log' is used.}
-#'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
+#'    \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
+#'    \item{count}{A Poisson distribution with link = 'log' is used.}
+#'    \item{rate}{A Poisson distribution with link = 'log' is used.}
+#'    \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
 #' }
 #' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). 
 #' Can be supplied as a character or formula object. If no formula is provided, Y and X must be provided.
@@ -17,7 +17,7 @@
 #' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
 #' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
 #' Character variables are not accepted and will throw an error.
-#' Can optionally provide a formula instead of \code{Y} and \code{X} variables. 
+#' Can optionally provide a formula instead of `Y` and `X` variables. 
 #' @param Z (Optional) Default NULL. List or single character vector which specifies the names of covariates or other variables to adjust for in the \code{glm} function to be used internally. Does not allow interaction terms.
 #' @param subgroup (Optional) Default NULL. Character argument that indicates subgroups for stratified analysis. Effects will be reported for each category of the subgroup variable. Variable will be automatically converted to a factor if not already.  
 #' @param offset (Optional, only applicable for rate outcomes) Default NULL. Character argument which specifies the person-time denominator for rate outcomes to be included as an offset in the Poisson regression model. Numeric variable should be on the linear scale; function will take natural log before including in the model.
@@ -25,18 +25,19 @@
 #' @param R (Optional) Default 200. The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate.
 #' @param clusterID (Optional) Default NULL. Character argument which specifies the variable name for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The \code{clusterID} will be used as the level for resampling in the bootstrap procedure.
 #' 
-#' @return the returned value is an object of class \code{gComp} containing the following:
+#' @return The returned value is an object of class `gComp` containing the following:
 #' \itemize{
-#' \item{"summary"} {summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
-#' \item{"results.df} {data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
-#' \item{"n"} {number of observations in the original dataset}
-#' \item{"R"} {number of bootstrap iterations}
-#' \item{"boot.result"} {a boot object containing the results of the \code{R} bootstrap iterations of the g-computation} 
-#' \item{"contrast"} {the contrast levels compared}
-#' \item{"family"} {the error distribution used in the model}
-#' \item{"formula"} {the model formula used to fit the \code{glm}}
-#' \item{"predictedDat"} {a tibble with the predicted values for the naturnal course, and both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
-
+#'   \item{summary}{summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
+#'   \item{results.df}{data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
+#'   \item{n}{number of observations in the original dataset}
+#'   \item{R}{number of bootstrap iterations}
+#'   \item{boot.result}{a boot object containing the results of the `R` bootstrap iterations of the g-computation} 
+#'   \item{contrast}{the contrast levels compared}
+#'   \item{family}{the error distribution used in the model}
+#'   \item{formula}{the model formula used to fit the `glm`}
+#'   \item{predicted.data}{a tibble with the predicted values for both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
+#' }
+#' 
 #' @export
 #'
 #' @examples
