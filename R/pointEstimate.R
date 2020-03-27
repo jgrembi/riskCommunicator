@@ -73,17 +73,18 @@ pointEstimate <- function(data,
                           Z = NULL, 
                           subgroup = NULL,  
                           offset = NULL, 
-                          rate.multiplier = 1) {
+                          rate.multiplier = 1,
+                          ...) {
   # data = cvdd
   # Y = "cvd_dth"
-  # # X = "DIABETES"
-  # # Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
+  #  X = "DIABETES"
+  #  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
   # X = "bmicat"
   # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
   # outcome.type = "binary"
   # offset = NULL
   # rate.multiplier = 1
-  # subgroup = NULL
+  # subgroup = "SEX"
   # formula = NULL
 
   outcome.type <- match.arg(outcome.type)
