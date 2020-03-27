@@ -96,7 +96,8 @@ pointEstimate <- function(data,
   } else {
     stop("This package only supports binary/dichotomous, count/rate, or continuous outcome variable models")
   }
-
+  
+  # Determine model formula, X, Y, and Z from specified terms, ensure sufficient info provided (either X & Y or formula)
   if (!is.null(X)) X <- rlang::sym(X)
   if (is.null(formula)) {
     if (is.null(Y) | is.null(X)) {

@@ -1,6 +1,6 @@
-#' Perform g-computation to estimate difference and ratio effects of an outcome exposure
+#' Perform g-computation to estimate difference and ratio effects and 95\% confidence intervals for a treatment/exposure.
 #'
-#' @description Obtain a point estimate and 95% confidence limits for the difference and ratio between treatment and non-treatment (or exposed/not exposed) groups.
+#' @description Obtain a point estimate and 95\% confidence interval for the difference and ratio between treatment and non-treatment (or exposed/not exposed) groups.
 #'
 #' @param data (Required) A data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula. Data set should also contain variables for the optinal \code{subgroup} and \code{offset}, if they are specified 
 #' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
@@ -71,7 +71,8 @@ gComp <- function(data,
                   rate.multiplier = 1, 
                   R = 200,
                   clusterID = NULL) {
-  ###need to check if X is categorical or 
+  
+  # Ensure X is categorical (factor) or numeric, throw error if character
   if (!is.null(X)) {
     X_type = ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
   } else {
@@ -79,51 +80,34 @@ gComp <- function(data,
     X <- rlang::sym(all.vars(formula[[3]])[1])
     X_type = ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
   }
-if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
-  if (X_type == "numeric") {
-    stop("Numeric explanitory variables not allowed at this time, we are still working on that feature!")
-  }
   
-  ## Get point estimate for diff and ratio
+  if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
+  
+  # if (X_type == "numeric") {
+  #   stop("Numeric explanitory variables not allowed at this time, we are still working on that feature!")
+  # }
+  
+  # Get point estimate for diff and ratio
   pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier)
-  ## Nest df by bootstrap resampling unit
-  if (is.null(clusterID)) {
-    # ## run R bootstrap iterations to get 95% CI for diff and ratio
-    # fun.statistic <- function(x, idx, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z) {
-    #   estimate <- pointEstimate(x[idx,], outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z)
-    #   if !is.null(subgroup) {
-    #     return(estimate$parameter.estimates)
-    #   }
-    #   return(estimate$parameter.estimates$Results)
-    # }
-    # ## I want to make sure I'm still allowing for the user to supply extra arguments to the boot call (e.g. weights).  Not sure this will allow that.
-    # boot_res <- boot::boot(data = data, statistic = fun.statistic, R = R, parallel = parallel, ncpus = ncpus, formula = formula, outcome.type = outcome.type, offset = offset, Y = Y, X = X, Z = Z)
-    # if (!is.null(subgroup)) {
-    #   boot_res <- boot::boot(data = data, statistic = fun.statistic, R = R, parallel = parallel, ncpus = ncpus, formula = formula, outcome.type = outcome.type, offset = offset, Y = Y, X = X, Z = Z)  
-    # } else {
-    #   res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
-    #     tibble::rownames_to_column("outcome") %>%
-    #     left_join(data.frame(outcome = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat"),
-    #                          ci.ll = sapply(1:7, function(i) stats::quantile(boot_res$t[,i], probs = 0.025, na.rm = T)),
-    #                          ci.ul = sapply(1:7, function(i) stats::quantile(boot_res$t[,i], probs = 0.975, na.rm = T)))) %>%
-    #     tibble::column_to_rownames("outcome") %>%
-    #     rename(Result = Results, `2.5% CI` = ci.ll, `97.5% CI` = ci.ul)
-    # }
+  
+  # Nest df by bootstrap resampling unit
+  if (is.null(clusterID)) { # By observation
     df <- data %>%
       tibble::rownames_to_column("dummy_id") %>%
       dplyr::group_by(.data$dummy_id) %>%
       tidyr::nest()
-    } else {
+    } else { # By specified cluster
       df <- data %>%
         dplyr::group_by(!!!clusterID) %>%
         tidyr::nest()
       
     }
-  ## Generate R bootstrap resampling units
+  
+  # Generate R bootstrap resampling units
   bs <- rsample::bootstraps(df, times = R)
   names(bs$splits) <- paste0("boot.", seq(1:R)) 
-  ## run R bootstrap iterations to get 95% CI for diff and ratio
   
+  # Run R bootstrap iterations to get R point estimates 
   boot_res <- furrr::future_map_dfr(bs$splits, function(x) {
      #x <- bs$splits[[1]]
      df <- rsample::analysis(x) %>%
@@ -140,9 +124,8 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
     return(result)
   })
   
-  # boot_res <- do.call(c, future.apply::future_apply(bs$splits, boot_fun, future.seed = TRUE))
-  
-  if(length(unique(boot_res$test)) > 1) {
+  # Use bootstrap results (boot_res) to calculate 95% CI for effect estimates
+  if(length(unique(boot_res$test)) > 1) { # For subgroups and/or >2 treatment/exposure levels
     ci <- boot_res %>%
       dplyr::group_by(.data$test) %>%
       dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat`),
@@ -177,14 +160,12 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
         dplyr::rename_all(.funs = funs(sub(t, "Estimate", .))) %>%
         dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
         dplyr::select(.data$Out)
-        # dplyr::rename(`Estimate (95% CI)` = .data$Out) %>%
-        # dplyr::select(.data$`Estimate (95% CI)`)# %>%
       names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
     })
     rownames(summary) <- rownames(res_ci_df %>% na.omit())
     
-  } else {
+  } else { # For no subgroups and only 2 treatment/exposure levels
     res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
       tibble::rownames_to_column("outcome") %>%
       dplyr::left_join(data.frame(outcome = rownames(pt_estimate$parameter.estimates),
@@ -201,8 +182,8 @@ if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
     rownames(summary) <- rownames(res_ci_df %>% na.omit())
   }
 
-  ## output results list
-  res <- list(#parameter.estimates = pt_estimate$parameter.estimates,
+  # Output results list
+  res <- list(
     summary = summary,
     results.df = res_ci_df %>% na.omit(), 
     n = dplyr::n_distinct(data), 
