@@ -6,7 +6,6 @@ output:
   rmarkdown::html_vignette:
       number_sections: no
       toc: yes
-      toc_float: yes
 vignette: >
   %\VignetteIndexEntry{riskCommunicator package extended vignette for newbie R users}
   %\VignetteEngine{knitr::rmarkdown}
