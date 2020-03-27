@@ -1,6 +1,6 @@
-#' Perform g-computation to estimate difference and ratio effects of an outcome.type exposure
+#' Perform g-computation to estimate difference and ratio effects of an exposure
 #'
-#' @description Generate a point estimate of the outcome difference and ratio
+#' @description Generate a point estimate of the outcome difference and ratio using G-computation
 #'
 #' @param data (Required) A data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula. Data set should also contain variables for the optinal \code{subgroup} and \code{offset}, if they are specified 
 #' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
@@ -82,8 +82,10 @@ pointEstimate <- function(data,
   # subgroup = "SEX"
   # formula = NULL
 
+  #Ensure outcome.type is one of the allowed responses
   outcome.type <- match.arg(outcome.type)
   
+  # Specify model family and link for the given outcome.type
   if (outcome.type %in% c("binary")) {
     family <- stats::binomial(link = 'logit')
   } else if (outcome.type %in% c("count", "rate")) {
@@ -115,20 +117,17 @@ pointEstimate <- function(data,
     Z <- all.vars(formula[[3]])[-1]
   }
   
+  # Specify interaction term in formula if subgroup provided
   if (!is.null(subgroup)) {
     interaction_term <- rlang::sym(paste(as.character(X), subgroup, sep = ":"))
     formula <- stats::as.formula(paste(paste(Y,X, sep = " ~ "), paste(Z, collapse = " + "), interaction_term, sep = " + "))
-    
   }
   
-  
-  #Ensure all variables are in the dataset
+  # Make list of variables that will be used (Y, X, Z, and subgroup/offset if specified)
   if (is.null(offset) & is.null(subgroup)) {
     allVars <- unlist(c(Y, as.character(X), Z))
   } else if (!is.null(offset)) {
     offset <- rlang::sym(offset)
-    # data <- data %>%
-    #   dplyr::mutate(!!offset := !!offset + 0.00001)
     if (!is.null(subgroup)){
       subgroup <- rlang::sym(subgroup)
       allVars <- unlist(c(Y, as.character(X), Z, offset, subgroup))
@@ -140,24 +139,15 @@ pointEstimate <- function(data,
     allVars <- unlist(c(Y, as.character(X), Z, subgroup))
   }
   
+  # Ensure all variables are provided in the dataset
   if (!all(allVars %in% names(data))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
   
+  # Ensure X is categorical (factor) or numeric, throw error if character
   if (!is.null(X)) {
     X_type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
     if (X_type == "numeric") {
       message("Proceeding with X as a continuous variable, if it should be categorical, please reformat so that X is a factor variable")
-      # if (nlevels(eval(dplyr::expr(`$`(data, !!X)))) != 2) {
-      #   stop("Explanatory variable has more than 2 levels")
-      # }
-    } #else {
-    #   # if (length(unique((eval(dplyr::expr(`$`(data, !!X)))))) == 2) {
-    #     ### could write more code to throw an error if the different values are not 0 or 1
-    #     data <- data %>% 
-    #       dplyr::mutate(!!X := factor(!!X))
-    #   # } else {
-    #     # stop("Explanatory variable has more than 2 levels")
-    #   #}
-    # }
+    } 
   }
   
   # Ensure Z covariates are NOT character variables in the dataset
@@ -169,30 +159,36 @@ pointEstimate <- function(data,
     }
   }
   
+  # Force subgroup to be a factor variable
   if (!is.null(subgroup)) {
     data <- data %>% 
       dplyr::mutate(!!subgroup := factor(!!subgroup))
   }
   
-  
-  ## Run GLM
+  # Run GLM
   if (!is.null(offset)) {
     data <- data %>%
       dplyr::mutate(offset2 = !!offset + 0.00001)
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(offset2))
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(.data$offset2))
   } else {
     glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
   }
   
+  # Predict outcomes for each observation/individual at each level of treatment/exposure
   fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup)
+  
+  # Set empty variable to fill for results
   results_tbl_all <- NULL
+  
+  # Get list of possible treatments/exposures (all levels of X)
   exposure_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
     stringr::str_subset(pattern = as.character(X))
   
-  if (!is.null(subgroup)) {
+  # Calculate estimates for risk/rate/mean differences & ratios
+  if (!is.null(subgroup)) { 
     subgroups_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
       stringr::str_subset(pattern = as.character(subgroup))
-    if (length(exposure_list) > 2) {
+    if (length(exposure_list) > 2) { # For when subgroups and exposure with more than 2 levels are both specified
       contrasts_list <- lapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]))
       subgroup_contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
         predict_df_e <- fn_output %>%
@@ -214,7 +210,7 @@ pointEstimate <- function(data,
         return(subgp_results)
       })
       results <- subgroup_contrasts_res
-    } else {
+    } else { # For when only subgroups are specified
       subgroup_res <- purrr::map_dfc(subgroups_list, function(s) {
         # s <- subgroups_list[1]
         predict_df_s = fn_output %>% 
@@ -231,7 +227,7 @@ pointEstimate <- function(data,
         as.data.frame()
       colnames(results) <- subgroups_list
     }
-  } else if (length(exposure_list) > 2) {
+  } else if (length(exposure_list) > 2) { # For when exposure with more than 2 levels is specified (but no subgroups)
     contrasts_list <- lapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]))
     contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
       # e <- exposure_list[2]
@@ -248,7 +244,7 @@ pointEstimate <- function(data,
     results <- contrasts_res %>%
       as.data.frame()
     colnames(results) <- contrasts_list
-  } else {
+  } else { # For when NO subgroups are specified and exposure has only 2 levels
     fn_results_tibble <- get_results_tibble(predict.df = fn_output, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
     tbl <- fn_results_tibble[[1]]
     pred_names <- c(sapply(exposure_list, function(x) paste0("predicted risk with ",x)), sapply(exposure_list, function(x) paste0("pred odds with ",x)))
@@ -262,15 +258,15 @@ pointEstimate <- function(data,
   }
   rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")
   
+  # Only return the predicted risk (not predicted odds) in the predicted.data output data.frame
   results_tbl_risk <- results_tbl_all %>%
     dplyr::select_at(dplyr::vars(tidyselect::contains("predicted risk")))
   
-  
+  # List of items to return to this function call
   res <- list(parameter.estimates = results,
               n = as.numeric(dplyr::summarise(data, n = dplyr::n())), 
-              #counterFactuals = c(counterFactControl = counterFactControl, counterFactTrt = counterFactTrt), 
               contrast = paste(paste0(names(glm_result$xlevels[1]), rev(unlist(glm_result$xlevels[1]))), collapse = " v. "), 
-              family = family,#paste0(glm_result$family$family, "(link = '", glm_result$family$link,"')"), 
+              family = family,
               formula = formula, 
               Y = Y, 
               covariates = ifelse(length(attr(glm_result$terms , "term.labels")) > 1, do.call(paste,as.list(attr(glm_result$terms , "term.labels")[-1])), NA),
