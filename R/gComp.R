@@ -26,7 +26,7 @@
 #' @param clusterID (Optional) Default NULL. Character argument which specifies the variable name for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The \code{clusterID} will be used as the level for resampling in the bootstrap procedure.
 #' 
 #' @return The returned value is an object of class `gComp` containing the following:
-#' \itemize{
+#' \describe{
 #'   \item{summary}{summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
 #'   \item{results.df}{data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
 #'   \item{n}{number of observations in the original dataset}
@@ -36,7 +36,7 @@
 #'   \item{family}{the error distribution used in the model}
 #'   \item{formula}{the model formula used to fit the `glm`}
 #'   \item{predicted.data}{a tibble with the predicted values for both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
-#' }
+#'   }
 #' 
 #' @export
 #'
