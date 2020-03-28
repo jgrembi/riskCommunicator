@@ -3,7 +3,7 @@
 #' @description Plot histograms and Q-Q plots for each the difference and ratio estimates
 #'
 #' @param x (Required) An object of class `gComp`.
-#' @param ... additional arguments to be supplied to the `geom_histogram` call (e.g. to adjust binwidth for histogram, assign colors, etc.).
+#' @param ... (Optional) additional arguments to be supplied to the `geom_histogram` call (e.g. to adjust binwidth for histogram, assign colors, etc.).
 #' 
 #' @return a plot containing histograms and Q-Q plots of the difference and ratio estimates returned from R bootstrap iterations
 #' @export

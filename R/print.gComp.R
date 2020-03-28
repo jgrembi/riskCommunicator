@@ -2,8 +2,8 @@
 #'
 #' @description Print results from bootstrap computations of the g-computation
 #'
-#' @param x An object of class `gComp`.
-#' @param ...
+#' @param x (Required) An object of class `gComp`.
+#' @param ... (Optional) Further arguments passed to or from other methods.
 #' 
 #' @return The resulting point estimate and 95% confidence intervals of the difference and ratio.
 #' @export
