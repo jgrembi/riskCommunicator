@@ -82,7 +82,10 @@ pointEstimate <- function(data,
   # subgroup = "SEX"
   # formula = NULL
 
-  #Ensure outcome.type is one of the allowed responses
+  # Bind variable locally to function for offset2
+  offset2 <- NULL
+  
+  # Ensure outcome.type is one of the allowed responses
   outcome.type <- match.arg(outcome.type)
   
   # Specify model family and link for the given outcome.type
