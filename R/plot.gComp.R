@@ -37,8 +37,8 @@
 
 plot.gComp <- function(x, ...) {
 
-  if(gComp.res$boot.result$test[1] != "Estimate") {
-    df <- gComp.res$boot.result %>%
+  if(x$boot.result$test[1] != "Estimate") {
+    df <- x$boot.result %>%
       tibble::as_tibble() %>%
       dplyr::group_by(.data$test) %>%
       tidyr::pivot_longer(cols = .data$`Risk Difference`:.data$`Number needed to treat`, names_to = "key", values_drop_na = TRUE) %>%
@@ -47,7 +47,7 @@ plot.gComp <- function(x, ...) {
       na.omit() 
     
     hist <- ggplot2::ggplot(df) + 
-      ggplot2::geom_histogram(ggplot2::aes(x = value), bins = gComp.res$R/(gComp.res$R*.05)) + 
+      ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
       ggplot2::facet_grid(key~test, scales = "free") + 
       ggplot2::theme_bw() + 
       ggplot2::labs(title = "Histograms")
@@ -59,14 +59,14 @@ plot.gComp <- function(x, ...) {
       ggplot2::labs(title = "Q-Q plots")
     
   } else {
-    df <- gComp.res$boot.result %>%
+    df <- x$boot.result %>%
       tibble::as_tibble() %>%
       tidyr::gather() %>%
       dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
                     value = as.numeric(value)) %>%
       na.omit() 
     hist <- ggplot2::ggplot(df) + 
-      ggplot2::geom_histogram(ggplot2::aes(x = value), bins = gComp.res$R/(gComp.res$R*.05)) + 
+      ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
       ggplot2::facet_wrap(~key, scales = "free", nrow = 2) + 
       ggplot2::theme_bw() + 
       ggplot2::labs(title = "Histograms")
