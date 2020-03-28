@@ -25,18 +25,18 @@
 #' @param R (Optional) Default 200. The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate.
 #' @param clusterID (Optional) Default NULL. Character argument which specifies the variable name for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The \code{clusterID} will be used as the level for resampling in the bootstrap procedure.
 #' 
-#' @return The returned value is an object of class `gComp` containing the following:
+#' @return An object of class `gComp` containing the following:
 #' \describe{
-#'   \item{summary}{summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
-#'   \item{results.df}{data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
-#'   \item{n}{number of observations in the original dataset}
-#'   \item{R}{number of bootstrap iterations}
-#'   \item{boot.result}{a boot object containing the results of the `R` bootstrap iterations of the g-computation} 
-#'   \item{contrast}{the contrast levels compared}
-#'   \item{family}{the error distribution used in the model}
-#'   \item{formula}{the model formula used to fit the `glm`}
-#'   \item{predicted.data}{a tibble with the predicted values for both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
-#'   }
+#'   \item{summary}{Summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
+#'   \item{results.df}{Data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
+#'   \item{n}{Number of observations in the original dataset}
+#'   \item{R}{Number of bootstrap iterations}
+#'   \item{boot.result}{Data.frame containing the results of the `R` bootstrap iterations of the g-computation} 
+#'   \item{contrast}{Cntrast levels compared}
+#'   \item{family}{Error distribution used in the model}
+#'   \item{formula}{Model formula used to fit the `glm`}
+#'   \item{predicted.data}{A tibble with the predicted values for both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
+#' }
 #' 
 #' @export
 #'
