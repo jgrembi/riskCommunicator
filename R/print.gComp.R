@@ -2,7 +2,7 @@
 #'
 #' @description Print results from bootstrap computations of the g-computation
 #'
-#' @param gComp.res an object of class \code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
+#' @param x an object of class \code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
 #' @param ...
 #' 
 #' @return The resulting point estimate and 95% confidence intervals of the difference and ratio.
@@ -27,7 +27,7 @@
 
 
 
-print.gComp <- function(gComp.res, ...) {
-  print(gComp.res$summary)
+print.gComp <- function(x, ...) {
+  print(x$summary)
   
 }
