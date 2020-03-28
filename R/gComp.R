@@ -10,7 +10,7 @@
 #'    \item{rate}{A Poisson distribution with link = 'log' is used.}
 #'    \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
 #' }
-#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). 
+#' @param formula (Optional) Default NULL. An object of class `formula` (or one that can be coerced to that class) which provides the the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). 
 #' Can be supplied as a character or formula object. If no formula is provided, Y and X must be provided.
 #' @param Y (Optional) Default NULL. Character argument which specifies the outcome variable. Can optionally provide a formula instead of \code{Y} and \code{X} variables.
 #' @param X (Optional) Default NULL. Character argument which specifies the exposure variable (or treatment group assignment), which can be binary, categorical, or continuous. This variable can be supplied as a factor variable, a numeric variable coded 0 or 1, or a continuous variable. 
@@ -25,18 +25,16 @@
 #' @param R (Optional) Default 200. The number of data resamples to be conducted to produce the bootstrap confidence interval of the estimate.
 #' @param clusterID (Optional) Default NULL. Character argument which specifies the variable name for the unique identifier for clusters. This option specifies that clustering should be accounted for in the calculation of confidence intervals. The \code{clusterID} will be used as the level for resampling in the bootstrap procedure.
 #' 
-#' @return An object of class `gComp` containing the following:
-#' \describe{
-#'   \item{summary}{Summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
-#'   \item{results.df}{Data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
-#'   \item{n}{Number of observations in the original dataset}
-#'   \item{R}{Number of bootstrap iterations}
-#'   \item{boot.result}{Data.frame containing the results of the `R` bootstrap iterations of the g-computation} 
-#'   \item{contrast}{Cntrast levels compared}
-#'   \item{family}{Error distribution used in the model}
-#'   \item{formula}{Model formula used to fit the `glm`}
-#'   \item{predicted.data}{A tibble with the predicted values for both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
-#' }
+#' @return An object of class \code{gComp} which is a list with components:
+#'    \item{summary}{Summary providing parameter estimates and 95% confidence limits of the outcome difference and ratio}
+#'    \item{results.df}{Data.frame with parameter estimates, 2.5% confidence limit, and 97.5% confidence limit each as a column}
+#'    \item{n}{Number of observations in the original dataset}
+#'    \item{R}{Number of bootstrap iterations}
+#'    \item{boot.result}{Data.frame containing the results of the \code{R} bootstrap iterations of the g-computation} 
+#'    \item{contrast}{Cntrast levels compared}
+#'    \item{family}{Error distribution used in the model}
+#'    \item{formula}{Model formula used to fit the \code{glm}}
+#'    \item{predicted.data}{A tibble with the predicted values for both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
 #' 
 #' @export
 #'
@@ -46,7 +44,6 @@
 #' data(cvdd)
 #' diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", 
 #' outcome.type = "binary", R = 200)
-
 #' 
 #' @importFrom rsample bootstraps analysis
 #' @importFrom stats quantile as.formula
@@ -61,6 +58,7 @@
 #' 
 #' 
 #' @keywords gComp
+#' 
 gComp <- function(data, 
                   outcome.type =  c("binary", "count","rate", "continuous"), 
                   formula = NULL, 
