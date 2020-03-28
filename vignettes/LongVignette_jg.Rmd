@@ -53,6 +53,7 @@ Add details here about how to install, can modify once its on CRAN
 Load packages:
 ```{r setup}
 library(riskCommunicator)
+library(tidyverse)
 ```
 
 ## Installing required packages
@@ -85,12 +86,10 @@ cvdd$SEX <- as.factor(cvdd$SEX)
 
 It's always a good idea to check for missing data. The package will estimate effects only for observations with complete data for the variables included in the model. The following code will return the number of missing values for all variables in your dataset:
 
-```{r, eval = FALSE}
-
-###Liz, from what I can see, this is the only thing in the vignette that is external to the package but uses tidyverse.  I've specified all of the internal functions and therefore we shouldn't be getting an error upon installation/use like you were initially  Can you try starting a new R session and see if the vignette runs ok for you without this and without using the library(tidyverse) call above? 
-#cvdd %>%
-#  select(everything()) %>%  
-#  summarise_all(funs(sum(is.na(.))))
+```{r}
+cvdd %>%
+ select(everything()) %>%
+ summarise_all(funs(sum(is.na(.))))
 ```
 
 
@@ -256,10 +255,12 @@ To ensure that the parameter estimates are normally distributed (among the boots
 ```{r binary_outcome_plot, fig.width = 10}
 plot(binary.res)
 ```
-\textcolor{red}{NOTE: Liz, the QQ plot line currently uses the vector quantiles of c(0.25, 0.75). Do we want to change this at all?  
-NOTE: Jess, I think we move this to a separate section on checking model fit?}
+\textcolor{red}{NOTE: Liz, the QQ plot line currently uses the vector quantiles of c(0.25, 0.75). Do we want to change this at all?}
 
 # Parallel computing for large R values
+
+The gComp function uses a default of 200 bootstrap resampling events (R) to obtain the 95\% confidence interval.  You can lower this number while getting your code working to reduce runtime.  However, you will want to increase that value to obtain a more precise estimate, once you have the code working.  We recommend using at least R = 1000 for final analyses. On a laptop, it takes ~3.2 min to run \code{binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)}.
+If you plan to run R = 10,000 or larger, one option to decrease the compute time is to use parallel computing. 
 
 
 ```{r}
