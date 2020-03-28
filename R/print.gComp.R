@@ -2,7 +2,7 @@
 #'
 #' @description Print results from bootstrap computations of the g-computation
 #'
-#' @param x an object of class \code{gComp} with R bootstrap iterations of a parameter estimate for difference and ratio.
+#' @param x An object of class `gComp`.
 #' @param ...
 #' 
 #' @return The resulting point estimate and 95% confidence intervals of the difference and ratio.
