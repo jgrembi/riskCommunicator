@@ -159,7 +159,7 @@ binary.res$n
 
 We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
 
-```{r binary_outcome_subgroup, fig.width = 10}
+```{r binary_outcome_subgroup}
 set.seed(1298)
 
 binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 20)
@@ -174,7 +174,7 @@ You can do a similar analysis when your exposure variable is not binary (has mor
 
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
-```{r categorical_exposure, fig.width = 12}
+```{r categorical_exposure}
 catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 
 catExp.res
@@ -195,7 +195,7 @@ cvdd.t <- cvdd %>%
 
 Then, we can run the analysis as above, first setting the seed and then calling the gComp function. Note that we have specified the `outcome.type` as "rate" and included **timeout** as the offset. Because our **timeout** variable is in units of person-days, we have included a `rate.multiplier` of 365.25*100 so that the estimates are returned with units of 100 person-years.
 
-```{r rate_outcome, fig.width = 10}
+```{r rate_outcome}
 set.seed(6534)
 
 rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
@@ -237,7 +237,7 @@ Question: what is the effect of having diabetes at the beginning of the study on
 
 For this analysis, we will use Poisson regression as the underlying parametric model for g-computation because we have a count outcome. However, we will not include a person-time offset, since there was a fixed follow-up time for all individuals (24 years). This analysis will estimate the incidence rate difference, incidence rate ratio, and the number needed to treat.
 
-```{r count_outcome, fig.width = 10}
+```{r count_outcome}
 set.seed(7295)
 
 count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"
@@ -252,7 +252,7 @@ This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI
 # Checking model fit
 
 To ensure that the parameter estimates are normally distributed (among the bootstrap iterations), we can also look at the histogram and QQplots by calling:
-```{r binary_outcome_plot, fig.width = 10}
+```{r binary_outcome_plot}
 plot(binary.res)
 ```
 \textcolor{red}{NOTE: Liz, the QQ plot line currently uses the vector quantiles of c(0.25, 0.75). Do we want to change this at all?}
