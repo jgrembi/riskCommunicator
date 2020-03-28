@@ -259,7 +259,7 @@ plot(binary.res)
 
 # Parallel computing for large R values
 
-The gComp function uses a default of 200 bootstrap resampling events (R) to obtain the 95\% confidence interval.  You can lower this number while getting your code working to reduce runtime.  However, you will want to increase that value to obtain a more precise estimate, once you have the code working.  We recommend using at least R = 1000 for final analyses. On a laptop, it takes ~3.2 min to run \code{binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)}.
+The gComp function uses a default of 200 bootstrap resampling events (R = 200) to obtain the 95\% confidence interval.  You can lower this number while getting your code working to reduce runtime.  However, you will want to increase that value to obtain a more precise estimate, once you have the code working.  We recommend using at least R = 1000 for final analyses. On a laptop, it takes ~3.2 min to run `binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)`.
 If you plan to run R = 10,000 or larger, one option to decrease the compute time is to use parallel computing. 
 
 
