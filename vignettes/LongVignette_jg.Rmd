@@ -269,7 +269,7 @@ The `gComp` function essentially executes four steps:
 \item{Estimates confidence interval with bootstrap resampling}{We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 10000.}
 }
 
-We suggest (X,Y,Z references) for a more detailed explination of g-computation.
+We suggest (X,Y,Z references) for a more detailed explaination of g-computation.
 
 # Parallel computing for large R values
 
