@@ -257,10 +257,43 @@ plot(binary.res)
 ```
 \textcolor{red}{NOTE: Liz, the QQ plot line currently uses the vector quantiles of c(0.25, 0.75). Do we want to change this at all?}
 
+
+# What's going on under the hood
+
+The `gComp` function essentially executes four steps:
+
+\itemize{
+\item{Fits regression model}{Fit a regression of the outcome on the exposure and relevant covariates, using the provided data set.}
+\item{Predicts counterfactuals}{Using the model fit in step 1, calculate predicted outcomes for each observation in the data set under each level of the treatment/exposure.}
+\item{Estimates the marginal difference/ratio of treatment effect}{This is done by taking the difference or ratio of the average of all observations under the treatment/no treatment regimes}
+\item{Estimates confidence interval with bootstrap resampling}{We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 10000.}
+}
+
+We suggest (X,Y,Z references) for a more detailed explination of g-computation.
+
 # Parallel computing for large R values
 
-The gComp function uses a default of 200 bootstrap resampling events (R = 200) to obtain the 95\% confidence interval.  You can lower this number while getting your code working to reduce runtime.  However, you will want to increase that value to obtain a more precise estimate, once you have the code working.  We recommend using at least R = 1000 for final analyses. On a laptop, it takes ~3.2 min to run `binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)`.
-If you plan to run R = 10,000 or larger, one option to decrease the compute time is to use parallel computing. 
+The gComp function uses a default of 200 bootstrap resampling events (R = 200) to obtain the 95\% confidence interval.  You can lower this number while getting your code working to reduce runtime.  However, you will want to increase that value to obtain a more precise estimate of the confidence interval once you have the code working.  We recommend using R = 10000 for final analyses. 
+
+On a laptop, it takes ~3.2 min to run R = 1000 (e.g. `binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)`).
+
+This means that R = 10000 will take ~30 min. One option to decrease the compute time is to use parallel computing. 
+
+
+```{r, future.fork.enable = F}
+
+# future::supportsMulticore()
+# future::plan("multisession", workers = 7L)
+# # future::plan("sequential")
+# future::availableCores(constraints = "sequential")
+# 
+# tictoc::tic()
+# binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)
+# tictoc::toc()
+# 
+# # Stop clusters
+# future:::ClusterRegistry("stop")
+```
 
 
 ```{r}
