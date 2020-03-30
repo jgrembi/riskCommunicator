@@ -1,5 +1,5 @@
 ---
-title: "riskCommunicator package extended vignette for newbie R users"
+title: "riskCommunicator package extended vignette"
 author: "Jessica Grembi, Elizabeth Rogawski McQuade"
 date: "`r Sys.Date()`"
 output: 
@@ -47,18 +47,11 @@ library(devtools)
 devtools::install_github("jgrembi/riskCommunicator")
 ```
 
-
-Add details here about how to install, can modify once its on CRAN
-
 Load packages:
 ```{r setup}
 library(riskCommunicator)
 library(tidyverse)
 ```
-
-## Installing required packages
-
-Add details here about needing to install dependencies, though maybe that is fixed now...
 
 ## Package documentation
 
@@ -77,11 +70,33 @@ The examples provided in this vigette will use the dataset **cvdd** and that dat
 data(cvdd)
 ```
 
-Next, ensure your variables are specified appropriately:
-- Exposure variable (x) must be coded as a factor  or as a binary variable with 0/1 coding. Variable type can be changed using the following code:
+Next, ensure your variables are specified appropriately. For example, the exposure variable (x) must be coded as a factor, as a binary variable with 0/1 coding, or as a continuous variable. Similarly, covariates Z cannot be coded as a character variable, otherwise you will get an error message. Variable type can be changed to a factor variable using the following code:
+
+```{r variable_check}
+cvdd$educ <- as.factor(cvdd$educ)
+#educ is now a factor with 4 levels
+
+str(cvdd$educ)
+```
+
+An example of the error message you will receive if one of your covariates is a character variable:
+
+```{r}
+cvdd.break <- cvdd %>% 
+  mutate(PREVHYP = as.character(PREVHYP))
+  
+binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+```
+
+You also want to make sure that the referent category for factor variables is the category of your choice. To change the referent category for a factor variable, you can use the following code. The referent category should be listed first.
 
 ```{r variable_check, eval = FALSE}
-cvdd$SEX <- as.factor(cvdd$SEX)
+str(cvdd$educ)
+
+cvdd$educ <- factor(cvdd$educ,levels = c("4","1","2","3"))
+#Category 4 is now the referent
+
+str(cvdd$educ)
 ```
 
 It's always a good idea to check for missing data. The package will estimate effects only for observations with complete data for the variables included in the model. The following code will return the number of missing values for all variables in your dataset:
