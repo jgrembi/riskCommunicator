@@ -81,7 +81,7 @@ str(cvdd$educ)
 
 An example of the error message you will receive if one of your covariates is a character variable:
 
-```{r}
+```{r error = TRUE}
 cvdd.break <- cvdd %>% 
   mutate(PREVHYP = as.character(PREVHYP))
   
@@ -90,7 +90,7 @@ binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = 
 
 You also want to make sure that the referent category for factor variables is the category of your choice. To change the referent category for a factor variable, you can use the following code. The referent category should be listed first.
 
-```{r variable_check, eval = FALSE}
+```{r factor_check}
 str(cvdd$educ)
 
 cvdd$educ <- factor(cvdd$educ,levels = c("4","1","2","3"))
@@ -139,7 +139,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, offset = NULL)
+binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 20, offset = NULL)
 ```
 
 
@@ -147,7 +147,7 @@ Alternatively, we could run the same analysis by specifying the outcome, exposur
 ```{r binary_outcome_noFormula}
 set.seed(1298)
 
-binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 ```
 
 Let's look at the results. Typing either of the below will provide the point estimate and the 95% confidence limits
@@ -177,7 +177,7 @@ We can also do the same analysis within subgroups. Here we'll estimate effects s
 ```{r binary_outcome_subgroup}
 set.seed(1298)
 
-binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 200)
+binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 20)
 
 binary.res.subgroup
 ```
@@ -194,7 +194,7 @@ As above, we will estimate the risk difference, risk ratio, odds ratio, and numb
 table(cvdd$bmicat)
 prop.table(table(cvdd$bmicat))*100
 
-catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 
 catExp.res
 ```
@@ -215,7 +215,7 @@ Then, we can run the analysis as above, first setting the seed and then calling 
 ```{r rate_outcome}
 set.seed(6534)
 
-rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
 
 rate.res
 ```
@@ -228,7 +228,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(6534)
 
 ## Call the gComp function
-rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
 
 rate.res.alt
 ```
@@ -243,7 +243,7 @@ This example estimates the marginal mean difference in the continuous outcome as
 ```{r continuous_outcome}
 set.seed(9385)
 
-cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 200)
+cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 20)
 
 cont.res
 ```
@@ -259,7 +259,7 @@ set.seed(7295)
 
 count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"
 
-count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 200)
+count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 20)
 
 count.res
 ```
@@ -278,12 +278,11 @@ We expect to see the histograms to look approximately normally distributed and t
 
 The `gComp` function essentially executes four steps:
 
-\itemize{
-\item{Fits regression model}{Fit a regression of the outcome on the exposure and relevant covariates, using the provided data set.}
-\item{Predicts counterfactuals}{Using the model fit in step 1, calculate predicted outcomes for each observation in the data set under each level of the treatment/exposure.}
-\item{Estimates the marginal difference/ratio of treatment effect}{This is done by taking the difference or ratio of the average of all observations under the treatment/no treatment regimes}
-\item{Estimates confidence interval with bootstrap resampling}{We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 10000.}
-}
+1. *Fits regression model.*   Fit a regression of the outcome on the exposure and relevant covariates, using the provided data set.}    
+2. *Predicts counterfactuals.*  Using the model fit in step 1, calculate predicted outcomes for each observation in the data set under each level of the treatment/exposure.    
+3. *Estimates the marginal difference/ratio of treatment effect.*  This is done by taking the difference or ratio of the average of all observations under the treatment/no treatment regimes.    
+4. *Estimates confidence interval with bootstrap resampling.*  We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 10000.
+
 
 We suggest (X,Y,Z references) for a more detailed explaination of g-computation.
 
