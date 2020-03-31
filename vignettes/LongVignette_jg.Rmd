@@ -124,7 +124,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 20, offset = NULL)
+binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, offset = NULL)
 ```
 
 
@@ -132,7 +132,7 @@ Alternatively, we could run the same analysis by specifying the outcome, exposur
 ```{r binary_outcome_noFormula}
 set.seed(1298)
 
-binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 ```
 
 Let's look at the results. Typing either of the below will provide the point estimate and the 95% confidence limits
@@ -162,7 +162,7 @@ We can also do the same analysis within subgroups. Here we'll estimate effects s
 ```{r binary_outcome_subgroup}
 set.seed(1298)
 
-binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 20)
+binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 200)
 
 binary.res.subgroup
 ```
@@ -170,18 +170,20 @@ binary.res.subgroup
 ## Categorical exposure example
 Question: what is the effect of obesity on the 24-year risk of cardiovascular disease or death due to any cause?
 
-You can do a similar analysis when your exposure variable is not binary (has more than 2 categories). In this example, we specify obesity as a cagetorical variable (`bmicat` coding: 0 = normal weight; 1=underweight; 2=overweight; 3=obese) and therefore have an exposure with more than 2 categories. You should code your categorical exposure with '0' coded as the referent to ensure that the effects are estimated with the referent of your choice.
+You can do a similar analysis when your exposure variable is not binary (has more than 2 categories). In this example, we specify obesity as a cagetorical variable (`bmicat` coding: 0 = normal weight; 1=underweight; 2=overweight; 3=obese) and therefore have an exposure with more than 2 categories. To ensure that the effects are estimated with the referent of your choice, you can change the referent category using code provided above or you could code your categorical exposure with '0' coded as the referent.
 
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
 ```{r categorical_exposure}
-catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+#number and percent of subjects in each BMI category 
+table(cvdd$bmicat)
+prop.table(table(cvdd$bmicat))*100
+
+catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 
 catExp.res
 ```
-\textcolor{red}{NOTE: Liz, sholud we consider changing this to ask a different question since there doesn't seem to be much variation in the result?
-Jess, could consider the outcome to be acquisition of diabetes over follow-up? bmi will be a stronger predictor of that. would need to rework the data set to add it, but wouldnt be too bad.
-NOTE - Liz needs to add interpretation of result here!}
+From these results, we see that obese persons have the highest increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, moreso than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
 
 
 ## Rate outcome example
@@ -198,7 +200,7 @@ Then, we can run the analysis as above, first setting the seed and then calling 
 ```{r rate_outcome}
 set.seed(6534)
 
-rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
+rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
 
 rate.res
 ```
@@ -211,7 +213,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(6534)
 
 ## Call the gComp function
-rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
+rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
 
 rate.res.alt
 ```
@@ -226,7 +228,7 @@ This example estimates the marginal mean difference in the continuous outcome as
 ```{r continuous_outcome}
 set.seed(9385)
 
-cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 20)
+cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 200)
 
 cont.res
 ```
@@ -242,7 +244,7 @@ set.seed(7295)
 
 count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"
 
-count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 20)
+count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 200)
 
 count.res
 ```
@@ -251,12 +253,11 @@ This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI
 
 # Checking model fit
 
-To ensure that the parameter estimates are normally distributed (among the bootstrap iterations), we can also look at the histogram and QQplots by calling:
+To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estiamtes by calling:
 ```{r binary_outcome_plot}
 plot(binary.res)
 ```
-\textcolor{red}{NOTE: Liz, the QQ plot line currently uses the vector quantiles of c(0.25, 0.75). Do we want to change this at all?}
-
+We expect to see the histograms to look approximately normally distributed and the estimates to fall close to the dotted red line on the Q-Q plots.
 
 # What's going on under the hood
 
