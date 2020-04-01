@@ -2,22 +2,32 @@
 % Please edit documentation in R/make_predict_df.R
 \name{make_predict_df}
 \alias{make_predict_df}
-\title{Using the \code{glm} results, predict outcomes for each individual at each level of treatment/exposure}
+\title{Using \code{glm} results, predict outcomes for each individual at each level
+of treatment/exposure}
 \usage{
 make_predict_df(glm.res, df, X, subgroup = NULL)
 }
 \arguments{
-\item{glm.res}{(Required) A fitted object of class inheriting from "glm" that will be used with new dataset for prediciton.}
+\item{glm.res}{(Required) A fitted object of class inheriting from "glm" that
+will be used with new dataset for prediciton.}
 
-\item{df}{(Required) A new data frame in which to look for variables with which to predict. This is equivalent to the \code{newdata} argument in predict.glm.}
+\item{df}{(Required) A new data frame in which to look for variables with
+which to predict. This is equivalent to the \code{newdata} argument in
+predict.glm.}
 
-\item{X}{(Required) Character argument which provides variable identifying exposure/treatment group assignment.}
+\item{X}{(Required) Character argument which provides variable identifying
+exposure/treatment group assignment.}
 
-\item{subgroup}{(Optional) Default NULL. Character argument of the variable name to use for subgroup analyses. Variable automatically transformed to a favtor within the funciton if not supplied as such.}
+\item{subgroup}{(Optional) Default NULL. Character argument of the variable
+name to use for subgroup analyses. Variable automatically transformed to a
+favtor within the funciton if not supplied as such.}
+}
+\value{
+A data.frame of predicted outcomes for each level of
+  treatment/exposure.  Additional columns are provided for each subgroup
+  *x*treatment, if specified.
 }
 \description{
-Using the \code{glm} results, predict outcomes for each individual at each level of treatment/exposure
-}
-\examples{
-
+Using \code{glm} results, predict outcomes for each individual at each level
+of treatment/exposure
 }

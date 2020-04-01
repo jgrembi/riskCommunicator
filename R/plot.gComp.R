@@ -1,33 +1,39 @@
-#' Plot estimates of difference and ratio effects obtained in the bootstrap computations of the g-computation
+#' Plot estimates of difference and ratio effects obtained in the bootstrap
+#' computations of the g-computation
 #'
-#' @description Plot histograms and Q-Q plots for each the difference and ratio estimates
+#' @description Plot histograms and Q-Q plots for each the difference and ratio
+#'   estimates
 #'
 #' @param x (Required) An object of class \code{gComp}.
-#' @param ... (Optional) additional arguments to be supplied to the `\code{geom_histogram} call (e.g. to adjust binwidth for histogram, assign colors, etc.).
-#' 
-#' @return a plot containing histograms and Q-Q plots of the difference and ratio estimates returned from R bootstrap iterations
+#' @param ... (Optional) additional arguments to be supplied to the
+#'   `\code{geom_histogram} call (e.g. to adjust binwidth for histogram, assign
+#'   colors, etc.).
+#'
+#' @return a plot containing histograms and Q-Q plots of the difference and
+#'   ratio estimates returned from R bootstrap iterations
 #' @export
 #'
 #' @examples
-#' ## Obtain the risk difference and risk ratio for cardiovascular disease or death 
-#' ## between patients with and without diabetes, while controlling for 
+#' ## Obtain the risk difference and risk ratio for cardiovascular disease or death
+#' ## between patients with and without diabetes, while controlling for
 #' ## age,
-#' ## sex, 
-#' ## BMI, 
-#' ## whether the individual is currently a smoker, and 
-#' ## if they have a history of hypertension. 
+#' ## sex,
+#' ## BMI,
+#' ## whether the individual is currently a smoker, and
+#' ## if they have a history of hypertension.
 #' data(cvdd)
-#' diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", 
+#' diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES",
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 10)
 #' plot(diabetes.result)
-#' 
-#' @importFrom gridExtra grid.arrange 
+#'
+#' @importFrom gridExtra grid.arrange
 #' @importFrom dplyr rename group_by mutate
-#' @importFrom stats var        
+#' @importFrom stats var
 #' @importFrom tibble as_tibble
 #' @importFrom tidyr pivot_longer gather
 #' @importFrom magrittr %>%
-#' @importFrom ggplot2 ggplot aes geom_histogram facet_grid facet_wrap geom_qq theme_bw geom_abline labs
+#' @importFrom ggplot2 ggplot aes geom_histogram facet_grid facet_wrap geom_qq
+#'   theme_bw geom_abline labs
 #' @importFrom rlang .data
 #'
 #' @keywords plot.gComp

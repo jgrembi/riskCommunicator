@@ -2,77 +2,117 @@
 % Please edit documentation in R/gComp.R
 \name{gComp}
 \alias{gComp}
-\title{Perform g-computation to estimate difference and ratio effects of an outcome exposure}
+\title{Perform g-computation to estimate difference and ratio effects and 95\%
+confidence intervals for a treatment/exposure.}
 \usage{
 gComp(
   data,
+  outcome.type = c("binary", "count", "rate", "continuous"),
   formula = NULL,
   Y = NULL,
   X = NULL,
   Z = NULL,
-  outcome.type = c("binary", "count", "rate", "continuous"),
+  subgroup = NULL,
   offset = NULL,
   rate.multiplier = 1,
-  clusterID = NULL,
-  R = 100,
-  parallel = c("no", "multicore", "snow"),
-  ncpus = getOption("boot.ncpus", 1L),
-  subgroup = NULL,
-  ...
+  R = 200,
+  clusterID = NULL
 )
 }
 \arguments{
-\item{data}{the data as a data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula.}
+\item{data}{(Required) A data.frame or tibble containing variables for
+\code{Y}, \code{X}, and \code{Z} or with variables matching the model
+variables specified in a user-supplied formula. Data set should also
+contain variables for the optinal \code{subgroup} and \code{offset}, if
+they are specified}
 
-\item{formula}{optional argument which provides the model formula for the \code{glm} function to be used internally. 
-Can be supplied as a character or formula object, the function will internally convert it to a formula if not supplied as such. 
-If no formula is provided, Y and X must be provided.}
+\item{outcome.type}{(Required) Character argument to describe the outcome
+type. Acceptable responses, and the corresponding error distribution and
+link function used in the \code{glm}, include: \describe{
+\item{binary}{(Default) A binomial distribution with link = 'logit' is
+used.} \item{count}{A Poisson distribution with link = 'log' is used.}
+\item{rate}{A Poisson distribution with link = 'log' is used.}
+\item{continuous}{A gaussian distribution with link = 'identity' is used.}
+}}
 
-\item{Y}{optional argument which provides the response variable that will be supplied to the \code{glm} function internally.
-Must also provide \code{X} in order for the function to work.  Can optinoally provide a formula instead of \code{Y} and \code{X} variables.}
+\item{formula}{(Optional) Default NULL. An object of class \code{formula} (or
+one that can be coerced to that class) which provides the the complete
+model formula, similar to the formula for the glm function in R (e.g. `Y ~
+X + Z1 + Z2 + Z3`). Can be supplied as a character or formula object. If no
+formula is provided, Y and X must be provided.}
 
-\item{X}{optional argument which provides the binary exposure/treatment group assignment that will be supplied to the \code{glm} function internally.
-This variable can be supplied as a factor variable or as a numeric of 0 or 1. Must also provide \code{Y} in order for the function to work.  
-Can optinoally provide a formula instead of \code{Y} and \code{X} variables.}
+\item{Y}{(Optional) Default NULL. Character argument which specifies the
+outcome variable. Can optionally provide a formula instead of \code{Y} and
+\code{X} variables.}
 
-\item{Z}{optional argument which provides the covariates or other variables to adjust for in the \code{glm} function to be used internally.
-Can be either a single expression or vector of quoted variable names.}
+\item{X}{(Optional) Default NULL. Character argument which specifies the
+exposure variable (or treatment group assignment), which can be binary,
+categorical, or continuous. This variable can be supplied as a factor
+variable, a numeric variable coded 0 or 1, or a continuous variable.
+Preferrably, \code{X} is supplied as a factor with the lowest level set to
+the desired comparator. Numeric variables are accepted, and coerced to
+factor with lowest level being the smallest number. Character variables are
+not accepted and will throw an error. Can optionally provide a formula
+instead of \code{Y} and \code{X} variables.}
 
-\item{outcome.type}{a description of the error distribution and link function to be used in the model when calling the \code{glm} function internally. 
-For gComp this can currenlty only be a binomial distribution and the link function will be forced to 'logit' but updates are forthcoming to handle various distributions.}
+\item{Z}{(Optional) Default NULL. List or single character vector which
+specifies the names of covariates or other variables to adjust for in the
+\code{glm} function to be used internally. Does not allow interaction
+terms.}
 
-\item{offset}{An optional numeric value that can be used to specify an *a priori* known component to be included in the linear predictor during fitting.}
+\item{subgroup}{(Optional) Default NULL. Character argument that indicates
+subgroups for stratified analysis. Effects will be reported for each
+category of the subgroup variable. Variable will be automatically converted
+to a factor if not already.}
 
-\item{rate.multiplier}{An optional numeric value to}
+\item{offset}{(Optional, only applicable for rate outcomes) Default NULL.
+Character argument which specifies the person-time denominator for rate
+outcomes to be included as an offset in the Poisson regression model.
+Numeric variable should be on the linear scale; function will take natural
+log before including in the model.}
 
-\item{clusterID}{An optinal character string of the variable name to use as the level for resampling if the bootstrap resampling should be done at any level other than random resampling of the dataset.}
+\item{rate.multiplier}{(Optional, only applicable for rate outcomes) Default
+1. Numeric value to multiply to the rate-based effect measures. This option
+facilitates reporting effects with interpretable person-time denominators.
+For example, if the person-time variable (offset) is in days, a multiplier
+of 365*100 would result in estimates of rate differences per 100
+person-years.}
 
-\item{R}{The number of bootstrap replicates. Usually this will be a single positive integer.
-For importance resampling, some resamples may use one set of weights and others use a different set of weights.  
-In this case \code{R} would be a vector of integers where each component gives the number of resamples from each of the rows of weights.}
+\item{R}{(Optional) Default 200. The number of data resamples to be conducted
+to produce the bootstrap confidence interval of the estimate.}
 
-\item{parallel}{The type of parallel operation to be used (if any) in the underlying bootstrap calculation of the confidence interval.
-If missing, the default is taken from the option \code{"boot.parallel"} (and if that is not set, \code{"no"}).}
-
-\item{ncpus}{integer: number of processes to be used in parallel operation for the bootstrap calculation.
-Typically one would chose this to the number of available CPUs.}
-
-\item{subgroup}{An optinal character string of the variable name to use for subgroup analyses.}
-
-\item{...}{Other named arguments for \code{boot} which are passed unchanged each time it is called. Arguments to boot should follow the specifications in the \code{\link{boot}} package}
-
-\item{cl}{An optional \pkg{parallel} or \pkg{snow} cluster for use if \code{parallel = "snow"}.
-If not supplied, a cluster on the local machine is created for the duration of the \code{boot} call.}
+\item{clusterID}{(Optional) Default NULL. Character argument which specifies
+the variable name for the unique identifier for clusters. This option
+specifies that clustering should be accounted for in the calculation of
+confidence intervals. The \code{clusterID} will be used as the level for
+resampling in the bootstrap procedure.}
+}
+\value{
+An object of class \code{gComp} which is a list with components:
+  \item{summary}{Summary providing parameter estimates and 95\% confidence
+  limits of the outcome difference and ratio} \item{results.df}{Data.frame
+  with parameter estimates, 2.5\% confidence limit, and 97.5\% confidence
+  limit each as a column} \item{n}{Number of observations in the original
+  dataset} \item{R}{Number of bootstrap iterations}
+  \item{boot.result}{Data.frame containing the results of the \code{R}
+  bootstrap iterations of the g-computation} \item{contrast}{Cntrast levels
+  compared} \item{family}{Error distribution used in the model}
+  \item{formula}{Model formula used to fit the \code{glm}}
+  \item{predicted.data}{A tibble with the predicted values for both treatment
+  and no treatment counterfactual predicitions for each observation in the
+  original dataset}
 }
 \description{
-Obtain a point estimate and 95% confidence limits for the difference and ratio between treatment and non-treatment (or exposed/not exposed) groups.
+Obtain a point estimate and 95\% confidence interval for the
+  difference and ratio between treatment and non-treatment (or exposed/not
+  exposed) groups.
 }
 \examples{
-## Obtain the risk difference and risk ratio for cardiovascular disease or death between 
-## patients with and without diabetes.  
+## Obtain the risk difference and risk ratio for cardiovascular disease or death between
+## patients with and without diabetes.
 data(cvdd)
-diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", 
-outcome.type = "binary", R = 10)
+diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
+outcome.type = "binary", R = 200)
 
 }
 \keyword{gComp}

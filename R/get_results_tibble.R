@@ -1,21 +1,33 @@
-#' Take predicted dataframe and calculate the outcome (risk difference/ratio, incidence rate difference/ratio, mean difference, and/or number needed to treat)
+#' Take predicted dataframe and calculate the outcome (risk difference/ratio,
+#' incidence rate difference/ratio, mean difference, and/or number needed to
+#' treat)
 #'
-#' @param predict.df (Required) A data.frame output from the \code{make_predict_df} function with predicted outcome for each observation at each level of treatment/exposure.
-#' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
-#'  \describe{
-#'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
-#'  \item{count}{A Poisson distribution with link = 'log' is used.}
-#'  \item{rate}{A Poisson distribution with link = 'log' is used.}
-#'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
-#' }
-#' @param X (Required) Character argument which provides variable identifying exposure/treatment group assignment.
-#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default 1. Numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
+#' @param predict.df (Required) A data.frame output from the
+#'   \code{make_predict_df} function with predicted outcome for each observation
+#'   at each level of treatment/exposure.
+#' @param outcome.type (Required) Character argument to describe the outcome
+#'   type. Acceptable responses, and the corresponding error distribution and
+#'   link function used in the \code{glm}, include: \describe{
+#'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
+#'   used.} \item{count}{A Poisson distribution with link = 'log' is used.}
+#'   \item{rate}{A Poisson distribution with link = 'log' is used.}
+#'   \item{continuous}{A gaussian distribution with link = 'identity' is used.}
+#'   }
+#' @param X (Required) Character argument which provides variable identifying
+#'   exposure/treatment group assignment.
+#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default
+#'   1. Numeric value to multiply to the rate-based effect measures. This option
+#'   facilitates reporting effects with interpretable person-time denominators.
+#'   For example, if the person-time variable (offset) is in days, a multiplier
+#'   of 365*100 would result in estimates of rate differences per 100
+#'   person-years.
 #'
-#' @return A list containing the following components:
-#'  \describe{
-#'  \item{results_tbl}{A tibble of the results for each observation with treatment/no treatment for both risk and odds.}
-#'  \item{res}{The calculated results for the applicable measures (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio, Incidence Risk Difference, Incidence Risk Ratio, Mean Difference, Number Needed to Treat}
-#' }
+#' @return A list containing the following components: \describe{
+#'   \item{results_tbl}{A tibble of the results for each observation with
+#'   treatment/no treatment for both risk and odds.} \item{res}{The calculated
+#'   results for the applicable measures (based on the outcome.type): Risk
+#'   Difference, Risk Ratio, Odds Ratio, Incidence Risk Difference, Incidence
+#'   Risk Ratio, Mean Difference, Number Needed to Treat} }
 #' @importFrom dplyr select pull
 #' @importFrom tibble tibble
 #' @importFrom stringr str_subset str_split

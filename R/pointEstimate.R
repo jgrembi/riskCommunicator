@@ -1,57 +1,89 @@
 #' Perform g-computation to estimate difference and ratio effects of an exposure
 #'
-#' @description Generate a point estimate of the outcome difference and ratio using G-computation
+#' @description Generate a point estimate of the outcome difference and ratio
+#'   using G-computation
 #'
-#' @param data (Required) A data.frame or tibble containing variables for \code{Y}, \code{X}, and \code{Z} or with variables matching the model variables specified in a user-supplied formula. Data set should also contain variables for the optinal \code{subgroup} and \code{offset}, if they are specified 
-#' @param outcome.type (Required) Character argument to describe the outcome type. Acceptable responses, and the corresponding error distribution and link function used in the \code{glm}, include:
-#'  \describe{
-#'  \item{binary}{(Default) A binomial distribution with link = 'logit' is used.}
-#'  \item{count}{A Poisson distribution with link = 'log' is used.}
-#'  \item{rate}{A Poisson distribution with link = 'log' is used.}
-#'  \item{continuous}{A gaussian distribution with link = 'identity' is used.} 
-#' }
-#' @param formula (Optional) Default NULL. An object of class "formula" (or one that can be coerced to that class) which provides the the complete model formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1 + Z2 + Z3`). 
-#' Can be supplied as a character or formula object. If no formula is provided, Y and X must be provided.
-#' @param Y (Optional) Default NULL. Character argument which specifies the outcome variable. Can optionally provide a formula instead of \code{Y} and \code{X} variables.
-#' @param X (Optional) Default NULL. Character argument which specifies the exposure variable (or treatment group assignment), which can be binary, categorical, or continuous. This variable can be supplied as a factor variable, a numeric variable coded 0 or 1, or a continuous variable. 
-#' Preferrably, \code{X} is supplied as a factor with the lowest level set to the desired comparator. 
-#' Numeric variables are accepted, and coerced to factor with lowest level being the smallest number. 
-#' Character variables are not accepted and will throw an error.
-#' Can optionally provide a formula instead of \code{Y} and \code{X} variables. 
-#' @param Z (Optional) Default NULL. List or single character vector which specifies the names of covariates or other variables to adjust for in the \code{glm} function to be used internally. Does not allow interaction terms.
-#' @param subgroup (Optional) Default NULL. Character argument that indicates subgroups for stratified analysis. Effects will be reported for each category of the subgroup variable. Variable will be automatically converted to a factor if not already.  
-#' @param offset (Optional, only applicable for rate outcomes) Default NULL. Character argument which specifies the person-time denominator for rate outcomes to be included as an offset in the Poisson regression model. Numeric variable should be on the linear scale; function will take natural log before including in the model.
-#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default 1. Numeric value to multiply to the rate-based effect measures. This option facilitates reporting effects with interpretable person-time denominators. For example, if the person-time variable (offset) is in days, a multiplier of 365*100 would result in estimates of rate differences per 100 person-years.
-#' 
-#' @return A list containing the following:
-#' \itemize{
-#' \item{"parameter.estimates"} {point estimates for the risk difference, risk ratio, odds ratio, incidence rate difference, indicence rate ratio, mean difference and/or number needed to treat, depending on the outcome.type}
-#' \item{"n} {number of observations provided to the model}
-#' \item{"contrast"} {the contrast levels compared}
-#' \item{"family"} {the error distribution used in the model}
-#' \item{"formula"} {the model formula used to fit the \code{glm}}
-#' \item{"Y"} {the response variable}
-#' \item{"covariates"} {covariates used in the model}
-#' \item{"predicted.data"} {a tibble with the predicted values for the naturnal course, and both treatment and no treatment counterfactual predicitions for each observation in the original dataset}
-#' }
-#'   
+#' @param data (Required) A data.frame or tibble containing variables for
+#'   \code{Y}, \code{X}, and \code{Z} or with variables matching the model
+#'   variables specified in a user-supplied formula. Data set should also
+#'   contain variables for the optinal \code{subgroup} and \code{offset}, if
+#'   they are specified
+#' @param outcome.type (Required) Character argument to describe the outcome
+#'   type. Acceptable responses, and the corresponding error distribution and
+#'   link function used in the \code{glm}, include: \describe{
+#'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
+#'   used.} \item{count}{A Poisson distribution with link = 'log' is used.}
+#'   \item{rate}{A Poisson distribution with link = 'log' is used.}
+#'   \item{continuous}{A gaussian distribution with link = 'identity' is used.}
+#'   }
+#' @param formula (Optional) Default NULL. An object of class "formula" (or one
+#'   that can be coerced to that class) which provides the the complete model
+#'   formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1
+#'   + Z2 + Z3`). Can be supplied as a character or formula object. If no
+#'   formula is provided, Y and X must be provided.
+#' @param Y (Optional) Default NULL. Character argument which specifies the
+#'   outcome variable. Can optionally provide a formula instead of \code{Y} and
+#'   \code{X} variables.
+#' @param X (Optional) Default NULL. Character argument which specifies the
+#'   exposure variable (or treatment group assignment), which can be binary,
+#'   categorical, or continuous. This variable can be supplied as a factor
+#'   variable, a numeric variable coded 0 or 1, or a continuous variable.
+#'   Preferrably, \code{X} is supplied as a factor with the lowest level set to
+#'   the desired comparator. Numeric variables are accepted, and coerced to
+#'   factor with lowest level being the smallest number. Character variables are
+#'   not accepted and will throw an error. Can optionally provide a formula
+#'   instead of \code{Y} and \code{X} variables.
+#' @param Z (Optional) Default NULL. List or single character vector which
+#'   specifies the names of covariates or other variables to adjust for in the
+#'   \code{glm} function to be used internally. Does not allow interaction
+#'   terms.
+#' @param subgroup (Optional) Default NULL. Character argument that indicates
+#'   subgroups for stratified analysis. Effects will be reported for each
+#'   category of the subgroup variable. Variable will be automatically converted
+#'   to a factor if not already.
+#' @param offset (Optional, only applicable for rate outcomes) Default NULL.
+#'   Character argument which specifies the person-time denominator for rate
+#'   outcomes to be included as an offset in the Poisson regression model.
+#'   Numeric variable should be on the linear scale; function will take natural
+#'   log before including in the model.
+#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default
+#'   1. Numeric value to multiply to the rate-based effect measures. This option
+#'   facilitates reporting effects with interpretable person-time denominators.
+#'   For example, if the person-time variable (offset) is in days, a multiplier
+#'   of 365*100 would result in estimates of rate differences per 100
+#'   person-years.
+#'
+#' @return A list containing the following: \itemize{
+#'   \item{"parameter.estimates"} {point estimates for the risk difference, risk
+#'   ratio, odds ratio, incidence rate difference, indicence rate ratio, mean
+#'   difference and/or number needed to treat, depending on the outcome.type}
+#'   \item{"n} {number of observations provided to the model} \item{"contrast"}
+#'   {the contrast levels compared} \item{"family"} {the error distribution used
+#'   in the model} \item{"formula"} {the model formula used to fit the
+#'   \code{glm}} \item{"Y"} {the response variable} \item{"covariates"}
+#'   {covariates used in the model} \item{"predicted.data"} {a tibble with the
+#'   predicted values for the naturnal course, and both treatment and no
+#'   treatment counterfactual predicitions for each observation in the original
+#'   dataset} }
+#'
 #' @export
 #'
 #' @examples
-#' ## Obtain the risk difference and risk ratio for cardiovascular disease or death 
+#' ## Obtain the risk difference and risk ratio for cardiovascular disease or death
 #' ## between patients with and without diabetes, while controlling for
-#' ## age, 
-#' ## sex, 
-#' ## BMI, 
+#' ## age,
+#' ## sex,
+#' ## BMI,
 #' ## whether the individual is currently a smoker, and
-#' ## if they have a history of hypertension. 
+#' ## if they have a history of hypertension.
 #' data(cvdd)
-#' ptEstimate <- pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES", 
+#' ptEstimate <- pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES",
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
-#' 
+#'
 #' @importFrom tidyselect one_of contains all_of
-#' @importFrom stats as.formula glm model.matrix contrasts binomial na.omit predict
-#' @importFrom dplyr expr select mutate select_if select_at rowwise funs vars        
+#' @importFrom stats as.formula glm model.matrix contrasts binomial na.omit
+#'   predict
+#' @importFrom dplyr expr select mutate select_if select_at rowwise funs vars
 #' @importFrom tibble as_tibble tibble
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
