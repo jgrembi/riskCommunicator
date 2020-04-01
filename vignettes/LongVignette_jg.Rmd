@@ -243,9 +243,10 @@ This example estimates the marginal mean difference in the continuous outcome as
 ```{r continuous_outcome}
 set.seed(9385)
 
-cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 20)
+cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 200)
 
 cont.res
+plot(cont.res)
 ```
 This analysis shows that individuals with diabetes at baseline have a 61.6 mg/dL (95% CI: 49.0, 74.7) higher casual serum gluose level after 6 years compared to individuals without diabetes at baseline.
   
