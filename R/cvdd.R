@@ -40,7 +40,7 @@
 #' \item{drop}{Participant dropped out of the study before 24 months complete followup. 0 = no, 1 = yes}
 #' \item{glucoseyear6}{}
 #' \item{logpdays}{Nautral log of \code{timeout}.}
-#' \item{bmicat}{}
+#' \item{bmicat}{BMI category. o = Normal, 1 = Underweight, 2 = Overweight, 3 = Obese.}
 #' \item{nhosp}{Simulated number of hospitalizations over 24 months.}
 #' }
 #' @name cvdd
