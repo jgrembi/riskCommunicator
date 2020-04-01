@@ -20,7 +20,7 @@ A data frame with 11627 rows and 39 variables:
 \item{BPMEDS}{Use of Anti-hypertensive medication at exam. 0 = Not currently used (n = 10090), 1 = Current use (n = 944).}
 \item{HEARTRTE}{Heart rate (Ventricular rate) in beats/min. Values range from 37-220.}
 \item{GLUCOSE}{Casual serum glucose (mg/dL). Values range from 39-478.}
-\item{educ}{}
+\item{educ}{} 
 \item{PREVCHD}{Prevalent Coronary Heart Disease defined as pre-existing Angina Pectoris, Myocardial Infarction (hospitalized, silent or unrecognized), or Coronary Insufficiency (unstable angina). 0 = Free of disease (n = 10785), 1 = Prevalent disease (n = 842).}
 \item{PREVAP}{Prevalent Angina Pectoris at exam. 0 = Free of disease (n = 11000), 1 = Prevalent disease (n = 627).}
 \item{PREVMI}{Prevalent Myocardial Infarction. 0 = Free of disease (n = 11253), 1 = Prevalent disease (n = 374).}

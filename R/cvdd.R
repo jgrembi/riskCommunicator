@@ -42,6 +42,7 @@
 #' \item{logpdays}{Nautral log of \code{timeout}.}
 #' \item{bmicat}{BMI category. o = Normal, 1 = Underweight, 2 = Overweight, 3 = Obese.}
 #' \item{nhosp}{Simulated number of hospitalizations over 24 months.}
+#' \item{HELP!}{Please let this work!}
 #' }
 #' @name cvdd
 #' @docType data
