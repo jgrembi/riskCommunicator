@@ -5,55 +5,7 @@
 #'   difference and ratio between treatment and non-treatment (or exposed/not
 #'   exposed) groups using g-computation.
 #'
-#' @param data (Required) A data.frame or tibble containing variables for
-#'   \code{Y}, \code{X}, and \code{Z} or with variables matching the model
-#'   variables specified in a user-supplied formula. Data set should also
-#'   contain variables for the optinal \code{subgroup} and \code{offset}, if
-#'   they are specified
-#' @param outcome.type (Required) Character argument to describe the outcome
-#'   type. Acceptable responses, and the corresponding error distribution and
-#'   link function used in the \code{glm}, include: \describe{
-#'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
-#'   used.} \item{count}{A Poisson distribution with link = 'log' is used.}
-#'   \item{rate}{A Poisson distribution with link = 'log' is used.}
-#'   \item{continuous}{A gaussian distribution with link = 'identity' is used.}
-#'   }
-#' @param formula (Optional) Default NULL. An object of class \code{formula} (or
-#'   one that can be coerced to that class) which provides the the complete
-#'   model formula, similar to the formula for the glm function in R (e.g. `Y ~
-#'   X + Z1 + Z2 + Z3`). Can be supplied as a character or formula object. If no
-#'   formula is provided, Y and X must be provided.
-#' @param Y (Optional) Default NULL. Character argument which specifies the
-#'   outcome variable. Can optionally provide a formula instead of \code{Y} and
-#'   \code{X} variables.
-#' @param X (Optional) Default NULL. Character argument which specifies the
-#'   exposure variable (or treatment group assignment), which can be binary,
-#'   categorical, or continuous. This variable can be supplied as a factor
-#'   variable, a numeric variable coded 0 or 1, or a continuous variable.
-#'   Preferrably, \code{X} is supplied as a factor with the lowest level set to
-#'   the desired comparator. Numeric variables are accepted, and coerced to
-#'   factor with lowest level being the smallest number. Character variables are
-#'   not accepted and will throw an error. Can optionally provide a formula
-#'   instead of \code{Y} and \code{X} variables.
-#' @param Z (Optional) Default NULL. List or single character vector which
-#'   specifies the names of covariates or other variables to adjust for in the
-#'   \code{glm} function to be used internally. Does not allow interaction
-#'   terms.
-#' @param subgroup (Optional) Default NULL. Character argument that indicates
-#'   subgroups for stratified analysis. Effects will be reported for each
-#'   category of the subgroup variable. Variable will be automatically converted
-#'   to a factor if not already.
-#' @param offset (Optional, only applicable for rate outcomes) Default NULL.
-#'   Character argument which specifies the person-time denominator for rate
-#'   outcomes to be included as an offset in the Poisson regression model.
-#'   Numeric variable should be on the linear scale; function will take natural
-#'   log before including in the model.
-#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default
-#'   1. Numeric value to multiply to the rate-based effect measures. This option
-#'   facilitates reporting effects with interpretable person-time denominators.
-#'   For example, if the person-time variable (offset) is in days, a multiplier
-#'   of 365*100 would result in estimates of rate differences per 100
-#'   person-years.
+#' @inheritParams pointEstimate
 #' @param R (Optional) Default 200. The number of data resamples to be conducted
 #'   to produce the bootstrap confidence interval of the estimate.
 #' @param clusterID (Optional) Default NULL. Character argument which specifies
@@ -94,8 +46,6 @@
 #'   set a seed (\code{\link[base]{set.seed}} for reproducible
 #'   confidence intervals.
 #'
-#'
-#'
 #' @export
 #'
 #' @examples
@@ -118,7 +68,6 @@
 #' @importFrom magrittr %>%
 #'
 #' @seealso \code{\link{pointEstimate}}
-
 #'   
 gComp <- function(data, 
                   outcome.type =  c("binary", "count","rate", "continuous"), 

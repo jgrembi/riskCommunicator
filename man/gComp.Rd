@@ -35,10 +35,10 @@ used.} \item{count}{A Poisson distribution with link = 'log' is used.}
 \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 }}
 
-\item{formula}{(Optional) Default NULL. An object of class \code{formula} (or
-one that can be coerced to that class) which provides the the complete
-model formula, similar to the formula for the glm function in R (e.g. `Y ~
-X + Z1 + Z2 + Z3`). Can be supplied as a character or formula object. If no
+\item{formula}{(Optional) Default NULL. An object of class "formula" (or one
+that can be coerced to that class) which provides the the complete model
+formula, similar to the formula for the glm function in R (e.g. `Y ~ X + Z1
++ Z2 + Z3`). Can be supplied as a character or formula object. If no
 formula is provided, Y and X must be provided.}
 
 \item{Y}{(Optional) Default NULL. Character argument which specifies the

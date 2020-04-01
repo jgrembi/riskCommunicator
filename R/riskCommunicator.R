@@ -31,9 +31,11 @@
 #' @name riskCommunicator
 #'   
 NULL
-utils::globalVariables(names = c("offset2"))
+utils::globalVariables(names = c("value",
+                                 ".",
+                                 ":="))
 
-# utils::globalVariables(names = c("V1", 
+# utils::globalVariables(names = c("V1",
 #                                  "V2",
 #                                  "value",
 #                                  "var",
