@@ -137,4 +137,3 @@ outcome.type = "binary", R = 100)
 \seealso{
 \code{\link{pointEstimate}}
 }
-\keyword{gComp}

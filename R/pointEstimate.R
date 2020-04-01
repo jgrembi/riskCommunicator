@@ -108,7 +108,7 @@
 #' @importFrom purrr negate
 #'
 #' @seealso \code{\link{gComp}}
-#' @keywords pointEstimate
+
 
 
 

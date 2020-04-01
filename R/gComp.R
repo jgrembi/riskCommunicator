@@ -118,7 +118,7 @@
 #' @importFrom magrittr %>%
 #'
 #' @seealso \code{\link{pointEstimate}}
-#' @keywords gComp
+
 #'   
 gComp <- function(data, 
                   outcome.type =  c("binary", "count","rate", "continuous"), 

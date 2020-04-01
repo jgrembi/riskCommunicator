@@ -127,4 +127,3 @@ Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
 \seealso{
 \code{\link{gComp}}
 }
-\keyword{pointEstimate}
