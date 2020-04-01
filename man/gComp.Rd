@@ -2,8 +2,8 @@
 % Please edit documentation in R/gComp.R
 \name{gComp}
 \alias{gComp}
-\title{Perform g-computation to estimate difference and ratio effects and 95\%
-confidence intervals for a treatment/exposure.}
+\title{Estimate difference and ratio effects and 95\% confidence intervals for a
+treatment/exposure.}
 \usage{
 gComp(
   data,
@@ -105,14 +105,36 @@ An object of class \code{gComp} which is a list with components:
 \description{
 Obtain a point estimate and 95\% confidence interval for the
   difference and ratio between treatment and non-treatment (or exposed/not
-  exposed) groups.
+  exposed) groups using g-computation.
+}
+\details{
+The \code{gComp} function executes the following steps: 
+\enumerate{
+  \item Calls the \code{\link{pointEstimate}} function on the data to obtain
+  an estimate of the difference and ratio of the treatment/exposure. 
+  \item Generates \code{R} bootstrap resamples of the data, with replacement. If
+  the resampling is to be done at the cluster level (set using the
+  \code{clusterID} argument), the number of clusters will remain constant but
+  the total number of observations in each resampled data set might be
+  different if clusters are not balanced. 
+  \item Calls the \code{\link{pointEstimate}} function on each of the resampled data sets.
+  \item Calculates the 95\% confidence interval of the difference and ratio
+  estimates using the results obtained from the \code{R} resampled parameter
+  estimates. }   
+  
+  As bootstrap resamples are generated with random sampling, users should
+  set a seed (\code{\link[base]{set.seed}} for reproducible
+  confidence intervals.
 }
 \examples{
 ## Obtain the risk difference and risk ratio for cardiovascular disease or death between
 ## patients with and without diabetes.
 data(cvdd)
 diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
-outcome.type = "binary", R = 200)
+outcome.type = "binary", R = 100)
 
+}
+\seealso{
+\code{\link{pointEstimate}}
 }
 \keyword{gComp}

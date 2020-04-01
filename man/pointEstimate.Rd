@@ -93,6 +93,24 @@ A list containing the following: \itemize{
 Generate a point estimate of the outcome difference and ratio
   using G-computation
 }
+\details{
+The \code{pointEstimate} function executes the following steps on
+  the data: 
+  \enumerate{ 
+  \item Fit a regression of the outcome on the exposure
+  and relevant covariates, using the provided data set. 
+  \item Using the
+  modelfit in step 1, predict counterfactuals (e.g. calculate predicted
+  outcomes for each observation in the data set under each level of the
+  treatment/exposure). 
+  \item Estimate the marginal difference/ratio of
+  treatment effect by taking the difference or ratio of the average of all
+  observations under the treatment/no treatment regimes. }
+
+  As counterfactual predictions are generated with random sampling of the
+  distribution, users should set a seed (\code{\link[base]{set.seed}} for
+  reproducible confidence intervals.
+}
 \examples{
 ## Obtain the risk difference and risk ratio for cardiovascular disease or death
 ## between patients with and without diabetes, while controlling for
@@ -105,5 +123,8 @@ data(cvdd)
 ptEstimate <- pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES",
 Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
 
+}
+\seealso{
+\code{\link{gComp}}
 }
 \keyword{pointEstimate}

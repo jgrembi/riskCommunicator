@@ -66,6 +66,24 @@
 #'   treatment counterfactual predicitions for each observation in the original
 #'   dataset} }
 #'
+#' @details The \code{pointEstimate} function executes the following steps on
+#'   the data: 
+#'   \enumerate{ 
+#'   \item Fit a regression of the outcome on the exposure
+#'   and relevant covariates, using the provided data set. 
+#'   \item Using the
+#'   modelfit in step 1, predict counterfactuals (e.g. calculate predicted
+#'   outcomes for each observation in the data set under each level of the
+#'   treatment/exposure). 
+#'   \item Estimate the marginal difference/ratio of
+#'   treatment effect by taking the difference or ratio of the average of all
+#'   observations under the treatment/no treatment regimes. }
+#'
+#'   As counterfactual predictions are generated with random sampling of the
+#'   distribution, users should set a seed (\code{\link[base]{set.seed}} for
+#'   reproducible confidence intervals.
+#'
+#'
 #' @export
 #'
 #' @examples
@@ -89,6 +107,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom purrr negate
 #'
+#' @seealso \code{\link{gComp}}
 #' @keywords pointEstimate
 
 

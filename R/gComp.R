@@ -1,9 +1,9 @@
-#' Perform g-computation to estimate difference and ratio effects and 95\%
-#' confidence intervals for a treatment/exposure.
+#' Estimate difference and ratio effects and 95\% confidence intervals for a
+#' treatment/exposure.
 #'
 #' @description Obtain a point estimate and 95\% confidence interval for the
 #'   difference and ratio between treatment and non-treatment (or exposed/not
-#'   exposed) groups.
+#'   exposed) groups using g-computation.
 #'
 #' @param data (Required) A data.frame or tibble containing variables for
 #'   \code{Y}, \code{X}, and \code{Z} or with variables matching the model
@@ -76,6 +76,26 @@
 #'   and no treatment counterfactual predicitions for each observation in the
 #'   original dataset}
 #'
+#' @details The \code{gComp} function executes the following steps: 
+#' \enumerate{
+#'   \item Calls the \code{\link{pointEstimate}} function on the data to obtain
+#'   an estimate of the difference and ratio of the treatment/exposure. 
+#'   \item Generates \code{R} bootstrap resamples of the data, with replacement. If
+#'   the resampling is to be done at the cluster level (set using the
+#'   \code{clusterID} argument), the number of clusters will remain constant but
+#'   the total number of observations in each resampled data set might be
+#'   different if clusters are not balanced. 
+#'   \item Calls the \code{\link{pointEstimate}} function on each of the resampled data sets.
+#'   \item Calculates the 95\% confidence interval of the difference and ratio
+#'   estimates using the results obtained from the \code{R} resampled parameter
+#'   estimates. }   
+#'   
+#'   As bootstrap resamples are generated with random sampling, users should
+#'   set a seed (\code{\link[base]{set.seed}} for reproducible
+#'   confidence intervals.
+#'
+#'
+#'
 #' @export
 #'
 #' @examples
@@ -83,7 +103,7 @@
 #' ## patients with and without diabetes.
 #' data(cvdd)
 #' diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
-#' outcome.type = "binary", R = 200)
+#' outcome.type = "binary", R = 100)
 #'
 #' @importFrom rsample bootstraps analysis
 #' @importFrom stats quantile as.formula
@@ -97,7 +117,7 @@
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
 #'
-#'
+#' @seealso \code{\link{pointEstimate}}
 #' @keywords gComp
 #'   
 gComp <- function(data, 
