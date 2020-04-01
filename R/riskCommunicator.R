@@ -34,17 +34,3 @@ NULL
 utils::globalVariables(names = c("value",
                                  ".",
                                  ":="))
-
-# utils::globalVariables(names = c("V1",
-#                                  "V2",
-#                                  "value",
-#                                  "var",
-#                                  ":=",
-#                                  ".",
-#                                  "predValue",
-#                                  "naturalCoursep",
-#                                  "noTxP",
-#                                  "TxP",
-#                                  "naturalCourse.predict",
-#                                  "noTx.predict",
-#                                  "Tx.predict"))
