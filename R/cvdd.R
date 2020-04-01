@@ -37,7 +37,7 @@
 #' \item{HYPERTEN}{Hypertensive. Defined as the first exam treated for high blood pressure or second exam in which either Systolic is 6 140 mmHg or Diastolic 6 90mmHg. 0 = Did not occur during followup, 1 = Did occur during followup.}
 #' \item{cvd_dth}{Cardiovascular disease OR death. 0 = Did not occur during followup, 1 = Did occur during followup.}
 #' \item{timeout}{Number of days from the start of the study to cardiovascular disease or death.}
-#' \item{drop}{}
+#' \item{drop}{Participant dropped out of the study before 24 months complete followup. 0 = no, 1 = yes}
 #' \item{glucoseyear6}{}
 #' \item{logpdays}{Nautral log of \code{timeout}.}
 #' \item{bmicat}{}
