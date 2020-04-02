@@ -32,7 +32,7 @@ The `gComp` function is the main function in the `riskCommunicator` package and 
 
 
 ```{r}
-?gComp
+??gComp
 ```
 
 
@@ -64,6 +64,7 @@ First, load your data into a data frame in R. If your data is a .csv file, use t
 ```{r load_other_data, eval = FALSE}
 mydata <- read.csv("C:/your/file/path/yourdata.csv")
 ```
+
 
 The examples provided in this vigette will use the dataset **cvdd** and that data can be accessed with:
 ```{r dataset}
