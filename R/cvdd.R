@@ -24,7 +24,7 @@
 #' \item{BPMEDS}{Use of Anti-hypertensive medication at exam. 0 = Not currently used, 1 = Current use.}
 #' \item{HEARTRTE}{Heart rate (Ventricular rate) in beats/min.}
 #' \item{GLUCOSE}{Casual serum glucose (mg/dL).}
-#' \item{educ}{}
+#' \item{educ}{Level of completed education. 1 = 0-11 years, 2 = high school or GED, 3 = some college, 4 = college graduate or higher.}
 #' \item{PREVSTRK}{Prevalent Stroke. 0 = Free of disease, 1 = Prevalent disease.}
 #' \item{PREVHYP}{Prevalent Hypertensive. Subject was defined as hypertensive if treated or if second exam at which mean systolic was >=140 mmHg or mean Diastolic >=90 mmHg. 0 = Free of disease, 1 = Prevalent disease.}
 #' \item{DEATH}{Death from any cause. 0 = Did not occur during followup, 1 = Did occur during followup.}
@@ -38,10 +38,10 @@
 #' \item{cvd_dth}{Cardiovascular disease OR death. 0 = Did not occur during followup, 1 = Did occur during followup.}
 #' \item{timeout}{Number of days from the start of the study to cardiovascular disease or death.}
 #' \item{drop}{Participant dropped out of the study before 24 months complete followup. 0 = no, 1 = yes}
-#' \item{glucoseyear6}{}
+#' \item{glucoseyear6}{Casual serum glucose (mg/dL) after 6 years of follow-up}
 #' \item{logpdays}{Nautral log of \code{timeout}.}
-#' \item{bmicat}{BMI category. o = Normal, 1 = Underweight, 2 = Overweight, 3 = Obese.}
-#' \item{nhosp}{Simulated number of hospitalizations over 24 months.}
+#' \item{bmicat}{BMI category. 0 = Normal, 1 = Underweight, 2 = Overweight, 3 = Obese.}
+#' \item{nhosp}{Simulated number of hospitalizations over 24 months (not in original Framingham data).}
 #' }
 #' @name cvdd
 #' @docType data
