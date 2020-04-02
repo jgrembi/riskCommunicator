@@ -127,7 +127,7 @@ Research question: what is the effect of having diabetes at the beginning of the
 
 Here, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat. We will adjust for confounders: patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline), by including them as covariates in the model.  
 
-The gComp function is designed similarly to a normal regression model in R and takes as input either a formula or a specification of Y (outcome), X (exposure) and Z (covariates) (type `help(gcomp)` for additional details). In this example, logistic regression is used as the underlying parametric model for g-computation.
+The gComp function is designed similarly to a normal regression model in R and takes as input either a formula or a specification of Y (outcome), X (exposure) and Z (covariates) (type `help(gComp)` for additional details). In this example, logistic regression is used as the underlying parametric model for g-computation.
 
 ```{r binary_outcome}
 
@@ -158,13 +158,11 @@ Not surprisingly, there is a large effect of diabetes on cardiovascular disease.
 
 We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 4 (95% CI: 3, 6) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
 
-The result obtained from the `gComp` function is an object of class **gComp** which is actually a list that contains additional information. See `help(gComp)`.  You can access the different pieces of information using the `$` operator as shown below.  
+The result obtained from the `gComp` function is an object of class **gComp** which is actually a list that contains additional information. See`help(gComp)` or `?gComp` for a more detailed explanation of what each of these items contains.  You can access the different pieces of information using the `$` operator as shown below.  
 ```{r gComp_class_explaination}
 class(binary.res)
 # The names of the different items in the list 
 names(binary.res)
-# For a more detailed explanation of what each of these items contains, look in the **Values** section of the function documentation
-help(gComp)
 
 # For example, to see the sample size of the original data:
 binary.res$n 
