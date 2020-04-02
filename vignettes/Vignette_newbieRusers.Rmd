@@ -48,10 +48,12 @@ library(tidyverse)
 The `gComp` function is the main function in the `riskCommunicator` package and allows you to estimate a variety of effects depending on your outcome and exposure of interest. The function is coded as follows:
 
 ```{r}
-?gComp
+??gComp
 ```
 
-All package documentation can be found by typing `?riskCommunicator` into the console. Documentation for individual functions can be found by typing `?` and then the function name (e.g. `?gComp` as shown above).  
+All package documentation can be found by typing `?riskCommunicator` into the console. Documentation for individual functions can be found by typing `?` followed by the function name (e.g. `?gComp` as shown above).  
+
+
 ## Preparing your data
 
 First, load your data into a data frame in R. If your data is a .csv file, use the following code:
