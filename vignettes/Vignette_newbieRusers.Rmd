@@ -26,15 +26,6 @@ The `riskCommunicator` package facilitates the estimation of common epidemiologi
 
 This package operationalizes g-computation, which has not been widely adopted due to computational complexity, in an easy-to-use implementation tool to increase the reporting of more interpretable epidemiological results. To make the package accessible to a broad range of health researchers, our goal was to design a function that was as straightforward as the standard logistic regression functions in R (e.g. glm) and that would require little to no expertise in causal inference methods or advanced coding.
 
-# Description of main package function
-
-The `gComp` function is the main function in the `riskCommunicator` package and allows you to estimate a variety of effects depending on your outcome and exposure of interest. The function is coded as follows:
-
-
-```{r}
-??gComp
-```
-
 
 # Getting started
 
@@ -52,11 +43,15 @@ Load packages:
 library(riskCommunicator)
 library(tidyverse)
 ```
+## Description of main package function and accessing package documentation
 
-## Package documentation
+The `gComp` function is the main function in the `riskCommunicator` package and allows you to estimate a variety of effects depending on your outcome and exposure of interest. The function is coded as follows:
 
-All package documentation can be found by typing `?riskCommunicator` into the console. Documentation for the gComp function can be found by typing `?gComp`
+```{r}
+?gComp
+```
 
+All package documentation can be found by typing `?riskCommunicator` into the console. Documentation for individual functions can be found by typing `?` and then the function name (e.g. `?gComp` as shown above).  
 ## Preparing your data
 
 First, load your data into a data frame in R. If your data is a .csv file, use the following code:
