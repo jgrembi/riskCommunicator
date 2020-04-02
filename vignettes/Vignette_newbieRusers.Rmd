@@ -42,16 +42,17 @@ Load packages:
 ```{r setup}
 library(riskCommunicator)
 library(tidyverse)
+library(printr)
 ```
 ## Description of main package function and accessing package documentation
 
 The `gComp` function is the main function in the `riskCommunicator` package and allows you to estimate a variety of effects depending on your outcome and exposure of interest. The function is coded as follows:
 
-```{r}
-??gComp
+```{r, printr.help.sections = c('usage','arguments')}
+?gComp
 ```
 
-All package documentation can be found by typing `?riskCommunicator` into the console. Documentation for individual functions can be found by typing `?` followed by the function name (e.g. `?gComp` as shown above).  
+All package documentation can be found by typing `?riskCommunicator` into the console. Documentation for individual functions can be found by typing `?` followed by the function name (e.g. `?gComp` as shown above).  Note, in the example above, we have not printed all of the information contained in the documentation, additional info can be found on the output values and formatting as well as details on what the function is doing under the hood.
 
 
 ## Preparing your data
