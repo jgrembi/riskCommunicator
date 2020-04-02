@@ -104,7 +104,7 @@ It's always a good idea to check for missing data. The package will estimate eff
 ```{r}
 cvdd %>%
  select(everything()) %>%
- summarise_all(funs(sum(is.na(.))))
+ summarise_all(list(~sum(is.na(.))))
 ```
 
 
