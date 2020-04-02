@@ -3,9 +3,9 @@
 #' A subset of the \code{framingham} dataset containing the following changes:
 #' \itemize{
 #' \item{removal of all observations where PERIOD == 2 or PERIOD == 3 (i.e. keep only PERIOD == 1)}
-#' \item{removal of all observations where PREVCHD == 1 (i.e. all patients with coronary heart disease)}
+#' \item{removal of all observations where PREVCHD == 1 (i.e. all patients with coronary heart disease at baseline)}
 #' \item{created a new variable, \code{cvd_dth} signifying an outcome of cardiovascular disease OR death (i.e. if the patient had either CVD or DEATH, this new variable is 1, otherwise 0)}
-#' \item{created a new variable, \code{timeout}, which calculates the number of days from the start of the study to cardiovascular disease or death}
+#' \item{created a new variable, \code{timeout}, which calculates the number of days from the start of the study to cardiovascular disease, death, or loss to follow-up}
 #' \item{created a new variable, \code{logpdays}, which is the log of \code{timeout}}
 #' \item{created a new variable, \code{nhosp}, which is a simulated number of hospitalizations}
 #' }
@@ -36,12 +36,12 @@
 #' \item{CVD}{Myocardial infarction (Hospitalized and silent or unrecognized), Fatal Coronary Heart Disease, Atherothrombotic infarction, Cerebral Embolism, Intracerebral Hemorrhage, or Subarachnoid Hemorrhage or Fatal Cerebrovascular Disease. 0 = Did not occur during followup, 1 = Did occur during followup.}
 #' \item{HYPERTEN}{Hypertensive. Defined as the first exam treated for high blood pressure or second exam in which either Systolic is 6 140 mmHg or Diastolic 6 90mmHg. 0 = Did not occur during followup, 1 = Did occur during followup.}
 #' \item{cvd_dth}{Cardiovascular disease OR death. 0 = Did not occur during followup, 1 = Did occur during followup.}
-#' \item{timeout}{Number of days from the start of the study to cardiovascular disease or death.}
-#' \item{drop}{Participant dropped out of the study before 24 months complete followup. 0 = no, 1 = yes}
+#' \item{timeout}{Number of days from the start of the study to cardiovascular disease, death, or loss to follow-up.}
+#' \item{drop}{Participant was lost to follow-up before 24 months complete followup. 0 = no, 1 = yes}
 #' \item{glucoseyear6}{Casual serum glucose (mg/dL) after 6 years of follow-up}
-#' \item{logpdays}{Nautral log of \code{timeout}.}
+#' \item{logpdays}{Natural log of \code{timeout}.}
 #' \item{bmicat}{BMI category. 0 = Normal, 1 = Underweight, 2 = Overweight, 3 = Obese.}
-#' \item{nhosp}{Simulated number of hospitalizations over 24 months (not in original Framingham data).}
+#' \item{nhosp}{Simulated number of hospitalizations over 24 months, associated with age, sex, BMI, and diabetes (not collected in the Framingham study).}
 #' }
 #' @name cvdd
 #' @docType data
