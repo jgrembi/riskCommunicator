@@ -1,9 +1,8 @@
-#' Estimate difference and ratio effects and 95\% confidence intervals for a
-#' treatment/exposure.
+#' Estimate difference and ratio effects with 95\% confidence intervals.
 #'
-#' @description Obtain a point estimate and 95\% confidence interval for the
-#'   difference and ratio between treatment and non-treatment (or exposed/not
-#'   exposed) groups using g-computation.
+#' @description Obtain a point estimate and 95\% confidence interval for
+#'   difference and ratio effects comparing exposed and unexposed (or treatment and non-treatment)
+#'   groups using g-computation.
 #'
 #' @inheritParams pointEstimate
 #' @param R (Optional) Default 200. The number of data resamples to be conducted
@@ -24,8 +23,8 @@
 #'   bootstrap iterations of the g-computation} \item{contrast}{Contrast levels
 #'   compared} \item{family}{Error distribution used in the model}
 #'   \item{formula}{Model formula used to fit the \code{glm}}
-#'   \item{predicted.data}{A tibble with the predicted values for both treatment
-#'   and no treatment counterfactual predicitions for each observation in the
+#'   \item{predicted.data}{A tibble with the predicted values for both exposed
+#'   and unexposed counterfactual predictions for each observation in the
 #'   original dataset}
 #'
 #' @details The \code{gComp} function executes the following steps: 
