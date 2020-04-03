@@ -77,14 +77,14 @@ person-years.}
 }
 \value{
 A list containing the following: \itemize{
-  \item{"parameter.estimates"} {point estimates for the risk difference, risk
+  \item{parameter.estimates} {Point estimates for the risk difference, risk
   ratio, odds ratio, incidence rate difference, indicence rate ratio, mean
   difference and/or number needed to treat, depending on the outcome.type}
-  \item{"n} {number of observations provided to the model} \item{"contrast"}
-  {the contrast levels compared} \item{"family"} {the error distribution used
-  in the model} \item{"formula"} {the model formula used to fit the
-  \code{glm}} \item{"Y"} {the response variable} \item{"covariates"}
-  {covariates used in the model} \item{"predicted.data"} {a tibble with the
+  \item{n} {Number of observations provided to the model} \item{contrast}
+  {Contrast levels compared} \item{family} {Error distribution used
+  in the model} \item{formula} {Model formula used to fit the
+  \code{glm}} \item{Y} {The response variable} \item{covariates}
+  {Covariates used in the model} \item{predicted.data} {A tibble with the
   predicted values for the naturnal course, and both treatment and no
   treatment counterfactual predicitions for each observation in the original
   dataset} }

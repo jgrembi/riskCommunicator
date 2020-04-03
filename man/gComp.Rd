@@ -95,7 +95,7 @@ An object of class \code{gComp} which is a list with components:
   limit each as a column} \item{n}{Number of observations in the original
   dataset} \item{R}{Number of bootstrap iterations}
   \item{boot.result}{Data.frame containing the results of the \code{R}
-  bootstrap iterations of the g-computation} \item{contrast}{Cntrast levels
+  bootstrap iterations of the g-computation} \item{contrast}{Contrast levels
   compared} \item{family}{Error distribution used in the model}
   \item{formula}{Model formula used to fit the \code{glm}}
   \item{predicted.data}{A tibble with the predicted values for both treatment
