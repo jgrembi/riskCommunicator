@@ -15,6 +15,7 @@ The easiest source installation method uses the devtools package:
 library(devtools)
 devtools::install_github("jgrembi/riskCommunicator")
 ```
+You will likely get asked if you want to update several pacakges, we recomend updating all to ensure compatability (might take a few minutes).  If you get an error related to namespace being already loaded (in older version), we suggest trying `install.packages("<name of package causing error>")` followed by restarting your R session.
 
 # Other Resources
 
