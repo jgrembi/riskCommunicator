@@ -30,7 +30,7 @@
 #' @details The \code{gComp} function executes the following steps: 
 #' \enumerate{
 #'   \item Calls the \code{\link{pointEstimate}} function on the data to obtain
-#'   an estimate of the difference and ratio of the treatment/exposure. 
+#'   an estimate of the difference and ratio effects. 
 #'   \item Generates \code{R} bootstrap resamples of the data, with replacement. If
 #'   the resampling is to be done at the cluster level (set using the
 #'   \code{clusterID} argument), the number of clusters will remain constant but
