@@ -87,7 +87,7 @@ An example of the error message you will receive if one of your covariates is a 
 cvdd.break <- cvdd %>% 
   mutate(PREVHYP = as.character(PREVHYP))
   
-binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 ```
 
 You also want to make sure that the referent category for factor variables is the category of your choice. To change the referent category for a factor variable, you can use the following code. The referent category should be listed first.
@@ -141,7 +141,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 20, offset = NULL)
+binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, offset = NULL)
 ```
 
 
@@ -149,7 +149,7 @@ Alternatively, we could run the same analysis by specifying the outcome, exposur
 ```{r binary_outcome_noFormula}
 set.seed(1298)
 
-binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 ```
 
 Let's look at the results. Typing either of the below will provide the point estimate and the 95% confidence limits
@@ -177,7 +177,7 @@ We can also do the same analysis within subgroups. Here we'll estimate effects s
 ```{r binary_outcome_subgroup}
 set.seed(1298)
 
-binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 20)
+binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 200)
 
 binary.res.subgroup
 ```
@@ -194,7 +194,7 @@ As above, we will estimate the risk difference, risk ratio, odds ratio, and numb
 table(cvdd$bmicat)
 prop.table(table(cvdd$bmicat))*100
 
-catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 
 catExp.res
 ```
@@ -215,7 +215,7 @@ Then, we can run the analysis as above, first setting the seed and then calling 
 ```{r rate_outcome}
 set.seed(6534)
 
-rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
+rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
 
 rate.res
 ```
@@ -228,7 +228,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(6534)
 
 ## Call the gComp function
-rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)
+rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
 
 rate.res.alt
 ```
@@ -259,7 +259,7 @@ set.seed(7295)
 
 count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"
 
-count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 20)
+count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 200)
 
 count.res
 ```
