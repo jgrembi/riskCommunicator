@@ -158,7 +158,7 @@ Not surprisingly, there is a large effect of diabetes on cardiovascular disease.
 
 We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 4 (95% CI: 3, 6) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
 
-The result obtained from the `gComp` function is an object of class **gComp** which is actually a list that contains additional information. See`help(gComp)` or `?gComp` for a more detailed explanation of what each of these items contains.  You can access the different pieces of information using the `$` operator as shown below.  
+The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results (what is seen when you print), plus 8 additional items: `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, and`predicted.data` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  You can access the different items using the `$` operator as shown below.  
 ```{r gComp_class_explaination}
 class(binary.res)
 # The names of the different items in the list 
