@@ -10,7 +10,7 @@
 #'   exposure/treatment group assignment.
 #' @param subgroup (Optional) Default NULL. Character argument of the variable
 #'   name to use for subgroup analyses. Variable automatically transformed to a
-#'   favtor within the funciton if not supplied as such.
+#'   factor within the function if not supplied as such.
 #'
 #' @return A data.frame of predicted outcomes for each level of
 #'   treatment/exposure.  Additional columns are provided for each subgroup
