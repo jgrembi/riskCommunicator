@@ -12,9 +12,11 @@
 #'   type. Acceptable responses, and the corresponding error distribution and
 #'   link function used in the \code{glm}, include: \describe{
 #'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
-#'   used.} \item{count}{A Poisson distribution with link = 'log' is used.}
-#'   \item{rate}{A Poisson distribution with link = 'log' is used.}
-#'   \item{continuous}{A gaussian distribution with link = 'identity' is used.}
+#'   used; ideal for binary outcomes.} \item{count}{A Poisson distribution 
+#'   with link = 'log' is used; ideal for count outcomes.}
+#'   \item{rate}{A Poisson distribution with link = 'log' is used; ideal for rate
+#'    (events/person-time)outcomes.} \item{continuous}{A gaussian distribution 
+#'    with link = 'identity' is used; ideal for continuous outcomes.}
 #'   }
 #' @param formula (Optional) Default NULL. An object of class "formula" (or one
 #'   that can be coerced to that class) which provides the the complete model
@@ -29,14 +31,14 @@
 #'   categorical, or continuous. This variable can be supplied as a factor
 #'   variable, a numeric variable coded 0 or 1, or a continuous variable.
 #'   Preferrably, \code{X} is supplied as a factor with the lowest level set to
-#'   the desired comparator. Numeric variables are accepted, and coerced to
-#'   factor with lowest level being the smallest number. Character variables are
+#'   the desired referent. Numeric variables are accepted, and coerced to
+#'   factor with lowest level (referent) being the smallest number. Character variables are
 #'   not accepted and will throw an error. Can optionally provide a formula
 #'   instead of \code{Y} and \code{X} variables.
 #' @param Z (Optional) Default NULL. List or single character vector which
 #'   specifies the names of covariates or other variables to adjust for in the
-#'   \code{glm} function to be used internally. Does not allow interaction
-#'   terms.
+#'   \code{glm} function. All variables should either be factors, continuous, 
+#'   or coded 0/1 (i.e. not character variables). Does not allow interaction terms.
 #' @param subgroup (Optional) Default NULL. Character argument that indicates
 #'   subgroups for stratified analysis. Effects will be reported for each
 #'   category of the subgroup variable. Variable will be automatically converted
@@ -55,16 +57,15 @@
 #'
 #' @return A list containing the following: \itemize{
 #'   \item{parameter.estimates} {Point estimates for the risk difference, risk
-#'   ratio, odds ratio, incidence rate difference, indicence rate ratio, mean
+#'   ratio, odds ratio, incidence rate difference, incidence rate ratio, mean
 #'   difference and/or number needed to treat, depending on the outcome.type}
 #'   \item{n} {Number of observations provided to the model} \item{contrast}
 #'   {Contrast levels compared} \item{family} {Error distribution used
 #'   in the model} \item{formula} {Model formula used to fit the
 #'   \code{glm}} \item{Y} {The response variable} \item{covariates}
 #'   {Covariates used in the model} \item{predicted.data} {A tibble with the
-#'   predicted values for the naturnal course, and both treatment and no
-#'   treatment counterfactual predicitions for each observation in the original
-#'   dataset} }
+#'   predicted values for the exposed and unexposed counterfactual predictions 
+#'   for each observation in the original dataset} }
 #'
 #' @details The \code{pointEstimate} function executes the following steps on
 #'   the data: 
