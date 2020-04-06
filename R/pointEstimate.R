@@ -185,7 +185,8 @@ pointEstimate <- function(data,
   } else if (!is.null(offset)) {
     offset <- rlang::sym(offset)
     data <- data %>%
-      dplyr::mutate(logOffset = log(!!offset + 0.00002))
+      dplyr::mutate(offset2 = !!offset + 0.00001,
+                    logOffset = log(offset2))
     if (!is.null(subgroup)){
       subgroup <- rlang::sym(subgroup)
       allVars <- unlist(c(Y, as.character(X), Z, offset, subgroup))
@@ -225,7 +226,7 @@ pointEstimate <- function(data,
   
   # Run GLM
   if (!is.null(offset)) {
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = logOffset)
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = data$logOffset)
   } else {
     glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
   }
