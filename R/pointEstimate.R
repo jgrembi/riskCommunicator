@@ -226,7 +226,7 @@ pointEstimate <- function(data,
   
   # Run GLM
   if (!is.null(offset)) {
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = data$logOffset)
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = .data$logOffset)
   } else {
     glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
   }
