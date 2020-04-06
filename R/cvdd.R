@@ -12,7 +12,7 @@
 #' @format A data frame with 4240 rows and 31 variables:
 #' \describe{
 #' \item{RANDID}{Unique identification number for each participant.}
-#' \item{SEX}{Participant sex. 1 = Male, 2 = Female.}
+#' \item{SEX}{Participant sex. 0 = Male, 1 = Female.}
 #' \item{TOTCHOL}{Serum Total Cholesterol (mg/dL).}
 #' \item{AGE}{Age at exam (years).}
 #' \item{SYSBP}{Systolic Blood Pressure (mean of last two of three measurements) (mmHg).}

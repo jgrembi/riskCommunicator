@@ -157,7 +157,7 @@ Let's look at the results. Typing either of the below will provide the point est
 binary.res
 print(binary.res)
 ```
-Not surprisingly, there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute 24-year risk of cardiovascular disease or death due to any cause is 28.7% (95% CI: 18.2, 35.2) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the 24-year risk is 70.0% (44.4, 87.3) higher. Because the outcome is common (41.8%), the odds ratio (4.55) is highly inflated compared to the risk ratio (1.70). This is a clear example where the odds ratio may be misleading since the odds ratio is commonly misinterpreted as a risk ratio. 
+Not surprisingly, there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute 24-year risk of cardiovascular disease or death due to any cause is 28.7% (95% CI: 19.2, 39.2) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the 24-year risk is 70.0% (95% CI: 46.1, 95.8) higher. Because the outcome is common (41.8%), the odds ratio (4.55) is highly inflated compared to the risk ratio (1.70). This is a clear example where the odds ratio may be misleading since the odds ratio is commonly misinterpreted as a risk ratio. 
 
 We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 4 (95% CI: 3, 6) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
 
@@ -170,7 +170,7 @@ names(binary.res)
 # For example, to see the sample size of the original data:
 binary.res$n 
 ```
-
+From these results, we see that females (sex = 1) have a larger increase in the absolute 24-year risk of cardiovascular disease or death associated with diabetes than males (sex = 0). They also have a larger relative increase in risk than males.
 
 We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
 
@@ -215,7 +215,7 @@ Then, we can run the analysis as above, first setting the seed and then calling 
 ```{r rate_outcome}
 set.seed(6534)
 
-rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
 
 rate.res
 ```
@@ -232,7 +232,7 @@ rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rat
 
 rate.res.alt
 ```
-Similarly to the risk analysis above, this analysis suggests that there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute rate of cardiovascular disease or death due to any cause is 2.19 cases/100 person-years (95% CI: 1.55, 3.08) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the rate is 91.3% (63.2, 129.6) higher. You will note that the incidence rate ratio is further from the null than the risk ratio, but closer to the null than the odds ratio. This is expected based on the mathematical properties of these effect measures.
+Similarly to the risk analysis above, this analysis suggests that there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute rate of cardiovascular disease or death due to any cause is 2.19 cases/100 person-years (95% CI: 1.55, 3.08) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the rate is 91.3% (95% CI: 56.1, 133.9) higher. You will note that the incidence rate ratio is further from the null than the risk ratio, but closer to the null than the odds ratio. This is expected based on the mathematical properties of these effect measures.
 
 
 ## Countinuous outcome example
@@ -247,7 +247,7 @@ cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", 
 
 cont.res
 ```
-This analysis shows that individuals with diabetes at baseline have a 61.6 mg/dL (95% CI: 49.0, 74.7) higher casual serum gluose level after 6 years compared to individuals without diabetes at baseline.
+This analysis shows that individuals with diabetes at baseline have a 61.6 mg/dL (95% CI: 49.1, 80.8) higher casual serum gluose level after 6 years compared to individuals without diabetes at baseline.
   
 ## Count outcome example
 Question: what is the effect of having diabetes at the beginning of the study on the number of hospitalizations experienced over 24 years of follow-up?
@@ -263,7 +263,7 @@ count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count",
 
 count.res
 ```
-This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI: -0.00, 0.10) more hospital admissions over the 24 years of follow-up compared to individuals without diabetes at baseline. In relative terms, individuals with diabetes have 53.7% (95% CI: -0.01, 109) more admissions than those without diabetes.
+This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI: -0.01, 0.10) more hospital admissions over the 24 years of follow-up compared to individuals without diabetes at baseline. In relative terms, individuals with diabetes have 53.7% (95% CI: -7.7, 116.4) more admissions than those without diabetes.
 
 
 # Checking model fit
@@ -272,6 +272,7 @@ To ensure that the parameter estimates from each bootstrap iteration are normall
 ```{r binary_outcome_plot}
 plot(binary.res)
 ```
+
 We expect to see the histograms to look approximately normally distributed and the estimates to fall close to the dotted red line on the Q-Q plots.
 
 # What's going on under the hood
