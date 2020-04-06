@@ -122,7 +122,7 @@ gComp <- function(data,
       tidyr::unnest_legacy(., cols = c(data)) %>%
       dplyr::ungroup() %>%
       dplyr::select(-tidyselect::matches("dummy_id"))
-    estimate <- pointEstimate(df, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier)
+    estimate <- pointEstimate(df, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier)
     result <- estimate$parameter.estimates %>%
       t() %>%
       as.data.frame() %>% 
