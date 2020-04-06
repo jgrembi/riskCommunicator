@@ -185,7 +185,7 @@ pointEstimate <- function(data,
   } else if (!is.null(offset)) {
     offset <- rlang::sym(offset)
     data <- data %>%
-      dplyr::mutate(logOffset := log(!!offset + 0.00001))
+      dplyr::mutate(logOffset = log(!!offset + 0.00002))
     if (!is.null(subgroup)){
       subgroup <- rlang::sym(subgroup)
       allVars <- unlist(c(Y, as.character(X), Z, offset, subgroup))
