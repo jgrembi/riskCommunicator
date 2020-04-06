@@ -184,9 +184,9 @@ pointEstimate <- function(data,
     allVars <- unlist(c(Y, as.character(X), Z))
   } else if (!is.null(offset)) {
     offset <- rlang::sym(offset)
-    data <- data %>%
-      dplyr::mutate(offset2 = !!offset + 0.00001,
-                    logOffset = log(offset2))
+    # data <- data %>%
+    #   dplyr::mutate(offset2 = !!offset + 0.00001,
+    #                 logOffset = log(offset2))
     if (!is.null(subgroup)){
       subgroup <- rlang::sym(subgroup)
       allVars <- unlist(c(Y, as.character(X), Z, offset, subgroup))
@@ -226,13 +226,15 @@ pointEstimate <- function(data,
   
   # Run GLM
   if (!is.null(offset)) {
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = logOffset)
+    data <- data %>%
+      dplyr::mutate(offset2 = !!offset + 0.00001)
+    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(offset2))
   } else {
     glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
   }
   
   # Predict outcomes for each observation/individual at each level of treatment/exposure
-  fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup)
+  fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup, offset = offset)
   
   # Set empty variable to fill for results
   results_tbl_all <- NULL

@@ -20,8 +20,14 @@
 #' @importFrom purrr map_dfc
 #' @importFrom stats predict
 #'   
-make_predict_df <- function(glm.res, df, X, subgroup = NULL) {
-  # For each observation in the dataframe, predict (using the supplied glm result) data for each level of the treatment/exposure.
+make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL) {
+ 
+  if (!is.null(offset)) {
+    df <- df %>%
+      dplyr::mutate(offset2 = 1)
+  }
+  
+   # For each observation in the dataframe, predict (using the supplied glm result) data for each level of the treatment/exposure.
   result.output.final <- purrr::map_dfc(levels(df[[X]]), function(x) {  # For each level of X (treatment/exposure), do the following...
     if(!is.null(subgroup)) { # If subgroups are present, do for each subgroup separately.
       res.df <- purrr::map_dfc(levels(df[[subgroup]]), function(s) {
