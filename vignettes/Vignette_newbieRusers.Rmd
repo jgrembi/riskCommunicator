@@ -271,7 +271,7 @@ This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI
 # Checking model fit
 
 To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estiamtes by calling:
-```{r binary_outcome_plot}
+```{r binary_outcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
 plot(binary.res)
 ```
 
