@@ -166,7 +166,7 @@ pointEstimate <- function(data,
   } else {
     formula = stats::as.formula(formula)
     if (any(unlist(sapply(formula[[3]], function(x) grepl(":", x)))) | any(unlist(sapply(formula[[3]], function(x) grepl("\\*", x))))) {
-      stop("g-computation function not currently able to handle interaction terms")
+      stop("Package not currently able to handle interaction terms")
     } 
     Y <- as.character(formula[[2]])
     X <- rlang::sym(all.vars(formula[[3]])[1])
