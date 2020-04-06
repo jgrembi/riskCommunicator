@@ -6,7 +6,7 @@
 incidence rate difference/ratio, mean difference, and/or number needed to
 treat)}
 \usage{
-get_results_tibble(predict.df, outcome.type, X, rate.multiplier = 1)
+get_results_tibble(predict.df, outcome.type, X, rate.multiplier)
 }
 \arguments{
 \item{predict.df}{(Required) A data.frame output from the

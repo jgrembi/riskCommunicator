@@ -134,8 +134,8 @@ pointEstimate <- function(data,
   # subgroup = "SEX"
   # formula = NULL
 
-  # # Bind variable locally to function for offset2
-  # offset2 <- NULL
+  # Bind variable locally to function for offset2
+  offset2 <- NULL
   
   # Ensure outcome.type is one of the allowed responses
   outcome.type <- match.arg(outcome.type)

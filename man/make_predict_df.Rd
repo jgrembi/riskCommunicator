@@ -5,7 +5,7 @@
 \title{Using \code{glm} results, predict outcomes for each individual at each level
 of treatment/exposure}
 \usage{
-make_predict_df(glm.res, df, X, subgroup = NULL)
+make_predict_df(glm.res, df, X, subgroup = NULL, offset = NULL)
 }
 \arguments{
 \item{glm.res}{(Required) A fitted object of class inheriting from "glm" that
@@ -20,7 +20,13 @@ exposure/treatment group assignment.}
 
 \item{subgroup}{(Optional) Default NULL. Character argument of the variable
 name to use for subgroup analyses. Variable automatically transformed to a
-favtor within the funciton if not supplied as such.}
+factor within the function if not supplied as such.}
+
+\item{offset}{(Optional, only applicable for rate outcomes) Default NULL.
+Character argument which specifies the person-time denominator for rate
+outcomes to be included as an offset in the Poisson regression model.
+Numeric variable should be on the linear scale; function will take natural
+log before including in the model.}
 }
 \value{
 A data.frame of predicted outcomes for each level of

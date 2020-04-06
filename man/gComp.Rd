@@ -2,8 +2,7 @@
 % Please edit documentation in R/gComp.R
 \name{gComp}
 \alias{gComp}
-\title{Estimate difference and ratio effects and 95\% confidence intervals for a
-treatment/exposure.}
+\title{Estimate difference and ratio effects with 95\% confidence intervals.}
 \usage{
 gComp(
   data,
@@ -30,9 +29,11 @@ they are specified}
 type. Acceptable responses, and the corresponding error distribution and
 link function used in the \code{glm}, include: \describe{
 \item{binary}{(Default) A binomial distribution with link = 'logit' is
-used.} \item{count}{A Poisson distribution with link = 'log' is used.}
-\item{rate}{A Poisson distribution with link = 'log' is used.}
-\item{continuous}{A gaussian distribution with link = 'identity' is used.}
+used; ideal for binary outcomes.} \item{count}{A Poisson distribution 
+with link = 'log' is used; ideal for count outcomes.}
+\item{rate}{A Poisson distribution with link = 'log' is used; ideal for rate
+ (events/person-time)outcomes.} \item{continuous}{A gaussian distribution 
+ with link = 'identity' is used; ideal for continuous outcomes.}
 }}
 
 \item{formula}{(Optional) Default NULL. An object of class "formula" (or one
@@ -50,15 +51,15 @@ exposure variable (or treatment group assignment), which can be binary,
 categorical, or continuous. This variable can be supplied as a factor
 variable, a numeric variable coded 0 or 1, or a continuous variable.
 Preferrably, \code{X} is supplied as a factor with the lowest level set to
-the desired comparator. Numeric variables are accepted, and coerced to
-factor with lowest level being the smallest number. Character variables are
+the desired referent. Numeric variables are accepted, and coerced to
+factor with lowest level (referent) being the smallest number. Character variables are
 not accepted and will throw an error. Can optionally provide a formula
 instead of \code{Y} and \code{X} variables.}
 
 \item{Z}{(Optional) Default NULL. List or single character vector which
 specifies the names of covariates or other variables to adjust for in the
-\code{glm} function to be used internally. Does not allow interaction
-terms.}
+\code{glm} function. All variables should either be factors, continuous, 
+or coded 0/1 (i.e. not character variables). Does not allow interaction terms.}
 
 \item{subgroup}{(Optional) Default NULL. Character argument that indicates
 subgroups for stratified analysis. Effects will be reported for each
@@ -98,20 +99,20 @@ An object of class \code{gComp} which is a list with components:
   bootstrap iterations of the g-computation} \item{contrast}{Contrast levels
   compared} \item{family}{Error distribution used in the model}
   \item{formula}{Model formula used to fit the \code{glm}}
-  \item{predicted.data}{A tibble with the predicted values for both treatment
-  and no treatment counterfactual predicitions for each observation in the
+  \item{predicted.data}{A tibble with the predicted values for both exposed
+  and unexposed counterfactual predictions for each observation in the
   original dataset}
 }
 \description{
-Obtain a point estimate and 95\% confidence interval for the
-  difference and ratio between treatment and non-treatment (or exposed/not
-  exposed) groups using g-computation.
+Obtain a point estimate and 95\% confidence interval for
+  difference and ratio effects comparing exposed and unexposed (or treatment and non-treatment)
+  groups using g-computation.
 }
 \details{
 The \code{gComp} function executes the following steps: 
 \enumerate{
   \item Calls the \code{\link{pointEstimate}} function on the data to obtain
-  an estimate of the difference and ratio of the treatment/exposure. 
+  an estimate of the difference and ratio effects. 
   \item Generates \code{R} bootstrap resamples of the data, with replacement. If
   the resampling is to be done at the cluster level (set using the
   \code{clusterID} argument), the number of clusters will remain constant but

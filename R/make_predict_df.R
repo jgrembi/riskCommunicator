@@ -11,6 +11,11 @@
 #' @param subgroup (Optional) Default NULL. Character argument of the variable
 #'   name to use for subgroup analyses. Variable automatically transformed to a
 #'   factor within the function if not supplied as such.
+#' @param offset (Optional, only applicable for rate outcomes) Default NULL.
+#'   Character argument which specifies the person-time denominator for rate
+#'   outcomes to be included as an offset in the Poisson regression model.
+#'   Numeric variable should be on the linear scale; function will take natural
+#'   log before including in the model.
 #'
 #' @return A data.frame of predicted outcomes for each level of
 #'   treatment/exposure.  Additional columns are provided for each subgroup
@@ -22,6 +27,7 @@
 #'   
 make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL) {
  
+  # Define variable offset2 in dataset since it was used in the original glm.  We set it to 1 because log(1) = 0 and therefore no offset is used in the 
   if (!is.null(offset)) {
     df <- df %>%
       dplyr::mutate(offset2 = 1)
