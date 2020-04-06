@@ -33,7 +33,7 @@
 #' @importFrom stringr str_subset str_split
 #' @importFrom tidyselect starts_with
 
-get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier = 1) {
+get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
 
   col.names <- unique(unlist(stringr::str_split(names(predict.df), "_"))) %>%
     stringr::str_subset(pattern = as.character(X))
@@ -65,13 +65,13 @@ get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier = 1)
   diff <- mean(results_tbl$Tx, na.rm = T) - mean(results_tbl$noTx, na.rm = T)
   ratio <- mean(results_tbl$Tx, na.rm = T)/mean(results_tbl$noTx, na.rm = T)
   ratio_odds <- ifelse(outcome.type == "binary", mean(results_tbl$Tx_odds, na.rm = T)/mean(results_tbl$noTx_odds, na.rm = T), NA)
-  res <- c(`Risk Difference` = ifelse(outcome.type %in% c("binary"), diff, NA),
-           `Risk Ratio` = ifelse(outcome.type %in% c("binary"), ratio, NA),
-           `Odds Ratio` = ifelse(outcome.type %in% c("binary"), ratio_odds, NA),
-           `Incidence Rate Difference` = ifelse(outcome.type %in% c("rate"), (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
-           `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count"), ratio, NA),#only for poisson)
-           `Mean Difference` = ifelse(outcome.type %in% c("continuous"), diff, NA),
-           `Number needed to treat` = ifelse(outcome.type %in% c("binary"), 1/diff, NA))
+  res <- c(`Risk Difference` = ifelse(outcome.type == "binary", diff, NA),
+           `Risk Ratio` = ifelse(outcome.type == "binary", ratio, NA),
+           `Odds Ratio` = ifelse(outcome.type == "binary", ratio_odds, NA),
+           `Incidence Rate Difference` = ifelse(outcome.type == "rate", (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
+           `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count"), ratio, NA),
+           `Mean Difference` = ifelse(outcome.type == "continuous", diff, NA),
+           `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA))
   
   return(list(results_tbl, res))
 }
