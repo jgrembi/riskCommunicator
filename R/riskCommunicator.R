@@ -33,5 +33,4 @@
 NULL
 utils::globalVariables(names = c("value",
                                  ".",
-                                 ":=",
-                                 "offsest2"))
+                                 ":="))
