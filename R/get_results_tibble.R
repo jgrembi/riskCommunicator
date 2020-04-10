@@ -32,7 +32,6 @@
 #' @importFrom tidyselect starts_with
 
 get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
-  print("doing more updated new results tibble")
   
   col.names <- unique(unlist(stringr::str_split(names(predict.df), "_"))) %>%
     stringr::str_subset(pattern = as.character(X))
