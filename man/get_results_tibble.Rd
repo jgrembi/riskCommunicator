@@ -33,12 +33,10 @@ of 365*100 would result in estimates of rate differences per 100
 person-years.}
 }
 \value{
-A list containing the following components: \describe{
-  \item{results_tbl}{A tibble of the results for each observation with
-  treatment/no treatment for both risk and odds.} \item{res}{The calculated
-  results for the applicable measures (based on the outcome.type): Risk
-  Difference, Risk Ratio, Odds Ratio, Incidence Risk Difference, Incidence
-  Risk Ratio, Mean Difference, Number Needed to Treat} }
+A list containing the calculated results for the applicable measures
+  (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio,
+  Incidence Risk Difference, Incidence Risk Ratio, Mean Difference, Number
+  Needed to Treat
 }
 \description{
 Take predicted dataframe and calculate the outcome (risk difference/ratio,

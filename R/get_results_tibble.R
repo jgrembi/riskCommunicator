@@ -22,49 +22,58 @@
 #'   of 365*100 would result in estimates of rate differences per 100
 #'   person-years.
 #'
-#' @return A list containing the following components: \describe{
-#'   \item{results_tbl}{A tibble of the results for each observation with
-#'   treatment/no treatment for both risk and odds.} \item{res}{The calculated
-#'   results for the applicable measures (based on the outcome.type): Risk
-#'   Difference, Risk Ratio, Odds Ratio, Incidence Risk Difference, Incidence
-#'   Risk Ratio, Mean Difference, Number Needed to Treat} }
+#' @return A list containing the calculated results for the applicable measures
+#'   (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio,
+#'   Incidence Risk Difference, Incidence Risk Ratio, Mean Difference, Number
+#'   Needed to Treat
 #' @importFrom dplyr select pull
 #' @importFrom tibble tibble
 #' @importFrom stringr str_subset str_split
 #' @importFrom tidyselect starts_with
 
 get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
-
+  print("doing more updated new results tibble")
+  
   col.names <- unique(unlist(stringr::str_split(names(predict.df), "_"))) %>%
     stringr::str_subset(pattern = as.character(X))
-  noTx.predict = predict.df %>%
+  noTx.predict <-  predict.df %>%
     dplyr::select(tidyselect::starts_with(col.names[1])) %>%
-    dplyr::pull()
-  Tx.predict = predict.df %>%
+    dplyr::pull() 
+  
+  noTx_odds <- noTx.predict %>%
+    exp() %>%
+    mean(na.rm = T)
+  
+  Tx.predict <-  predict.df %>%
     dplyr::select(tidyselect::starts_with(col.names[2])) %>%
-    dplyr::pull()
+    dplyr::pull() 
+  
+  Tx_odds <- Tx.predict %>%
+    exp() %>%
+    mean(na.rm = T)
+  
   if (outcome.type == "binary") {
-    results_tbl <- tibble::tibble(noTx =  exp(noTx.predict)/(1 + exp(noTx.predict)),
-                                  Tx = exp(Tx.predict)/(1 + exp(Tx.predict)),
-                                  noTx_odds = exp(noTx.predict),
-                                  Tx_odds = exp(Tx.predict)) 
+    results_tbl <- tibble::tibble(noTx =  noTx_odds/(1 + noTx_odds),
+                                  Tx = Tx_odds/(1 + Tx_odds),
+                                  noTx_odds = noTx_odds,
+                                  Tx_odds = Tx_odds) 
   } else if (outcome.type %in% c("rate", "count")) {
-    results_tbl <- tibble::tibble(noTx =  exp(noTx.predict),
-                                  Tx = exp(Tx.predict),
+    results_tbl <- tibble::tibble(noTx =  noTx_odds,
+                                  Tx = Tx_odds,
                                   noTx_odds = NA,
                                   Tx_odds = NA)
   } else if (outcome.type == "continuous") {
-    results_tbl <- tibble::tibble(noTx =  noTx.predict,
-                                  Tx = Tx.predict,
+    results_tbl <- tibble::tibble(noTx =  mean(noTx.predict, na.rm = T),
+                                  Tx = mean(Tx.predict, na.rm = T),
                                   noTx_odds = NA,
                                   Tx_odds = NA)
   } else {
     stop("outcome.type not supported")
   }
   
-  diff <- mean(results_tbl$Tx, na.rm = T) - mean(results_tbl$noTx, na.rm = T)
-  ratio <- mean(results_tbl$Tx, na.rm = T)/mean(results_tbl$noTx, na.rm = T)
-  ratio_odds <- ifelse(outcome.type == "binary", mean(results_tbl$Tx_odds, na.rm = T)/mean(results_tbl$noTx_odds, na.rm = T), NA)
+  diff <- results_tbl$Tx - results_tbl$noTx
+  ratio <- results_tbl$Tx/results_tbl$noTx
+  ratio_odds <- results_tbl$Tx_odds/results_tbl$noTx_odds
   res <- c(`Risk Difference` = ifelse(outcome.type == "binary", diff, NA),
            `Risk Ratio` = ifelse(outcome.type == "binary", ratio, NA),
            `Odds Ratio` = ifelse(outcome.type == "binary", ratio_odds, NA),
@@ -73,5 +82,5 @@ get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
            `Mean Difference` = ifelse(outcome.type == "continuous", diff, NA),
            `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA))
   
-  return(list(results_tbl, res))
+  return(res)
 }
