@@ -126,13 +126,14 @@ pointEstimate <- function(data,
   # Y = "cvd_dth"
   #  X = "DIABETES"
   #  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
-  # X = "bmicat"
-  # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
+  # # X = "bmicat"
+  # # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
   # outcome.type = "binary"
   # offset = NULL
   # rate.multiplier = 1
   # subgroup = "SEX"
-  # formula = NULL
+  # formula = cvdd.formula
+  # X <- Y <- Z <- NULL
 
   # Bind variable locally to function for offset2
   offset2 <- NULL
@@ -236,8 +237,9 @@ pointEstimate <- function(data,
   # Predict outcomes for each observation/individual at each level of treatment/exposure
   fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup, offset = offset)
   
-  # Set empty variable to fill for results
-  results_tbl_all <- NULL
+  # Rename vars in predicted dataset so it's clear
+  results_tbl_all <- fn_output
+  names(results_tbl_all) <- c(sapply(names(fn_output), function(x) paste0("predicted value with ",x)))
   
   # Get list of possible treatments/exposures (all levels of X)
   exposure_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
@@ -256,12 +258,7 @@ pointEstimate <- function(data,
           predict_df_s = fn_output %>% 
             dplyr::select(tidyselect::contains(s))
           fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-          tbl_s <- fn_results_tibble[[1]]
-          names(tbl_s) <- 
-            x <- c(paste0("predicted risk with ", exposure_list[1], ", ", s), paste0("predicted risk with ", e, ", ", s), paste0("pred odds with ", exposure_list[1], ", ", s), paste0("pred odds with ", e, ", ", s))
-          results_tbl_all <<- results_tbl_all %>%
-            dplyr::bind_cols(tbl_s)
-          return(fn_results_tibble[[2]])
+          return(fn_results_tibble)
         })
         subgp_results <- subgroup_res %>%
           as.data.frame()
@@ -275,12 +272,7 @@ pointEstimate <- function(data,
         predict_df_s = fn_output %>% 
           dplyr::select(tidyselect::contains(s))
         fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-        tbl_s <- fn_results_tibble[[1]]
-        pred_names <- c(sapply(exposure_list, function(x) paste0("predicted risk with ",x, ", ", s)), sapply(exposure_list, function(x) paste0("predicted odds with ",x, ", ", s)))
-        names(tbl_s) <- pred_names
-        results_tbl_all <<- results_tbl_all %>%
-          dplyr::bind_cols(tbl_s)
-        return(fn_results_tibble[[2]])
+        return(fn_results_tibble)
       })
       results <- subgroup_res %>%
         as.data.frame()
@@ -293,33 +285,24 @@ pointEstimate <- function(data,
       predict_df_e <- fn_output %>%
         dplyr::select(tidyselect::contains(exposure_list[1]), tidyselect::contains(e))
       fn_results_tibble <- get_results_tibble(predict.df = predict_df_e, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-      tbl_e <- fn_results_tibble[[1]]
-      pred_names <- c(paste0("predicted risk with ", exposure_list[1]), paste0("predicted risk with ", e), paste0("pred odds with ", exposure_list[1]), paste0("pred odds with ", e))
-      names(tbl_e) <- pred_names
-      results_tbl_all <<- results_tbl_all %>%
-        dplyr::bind_cols(tbl_e)
-      return(fn_results_tibble[[2]])
+      return(fn_results_tibble)
     })
     results <- contrasts_res %>%
       as.data.frame()
     colnames(results) <- contrasts_list
   } else { # For when NO subgroups are specified and exposure has only 2 levels
     fn_results_tibble <- get_results_tibble(predict.df = fn_output, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
-    tbl <- fn_results_tibble[[1]]
-    pred_names <- c(sapply(exposure_list, function(x) paste0("predicted risk with ",x)), sapply(exposure_list, function(x) paste0("pred odds with ",x)))
-    names(tbl) <- pred_names
-    results_tbl_all <- results_tbl_all %>%
-      dplyr::bind_cols(tbl)
-    results <- fn_results_tibble[[2]] %>%
+    
+    results <- fn_results_tibble %>%
       as.data.frame() %>%
       dplyr::rename(Estimate = ".") %>%
       dplyr::mutate_if(is.numeric, round, digits = 4)
   }
   rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")
   
-  # Only return the predicted risk (not predicted odds) in the predicted.data output data.frame
-  results_tbl_risk <- results_tbl_all %>%
-    dplyr::select_at(dplyr::vars(tidyselect::contains("predicted risk")))
+  # # Only return the predicted risk (not predicted odds) in the predicted.data output data.frame
+  # results_tbl_risk <- results_tbl_all %>%
+  #   dplyr::select_at(dplyr::vars(tidyselect::contains("predicted risk")))
   
   # List of items to return to this function call
   res <- list(parameter.estimates = results,
@@ -329,6 +312,6 @@ pointEstimate <- function(data,
               formula = formula, 
               Y = Y, 
               covariates = ifelse(length(attr(glm_result$terms , "term.labels")) > 1, do.call(paste,as.list(attr(glm_result$terms , "term.labels")[-1])), NA),
-              predicted.data = results_tbl_risk)
+              predicted.data = results_tbl_all)
   return(res)
 }
