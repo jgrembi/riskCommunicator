@@ -166,7 +166,7 @@ gComp <- function(data,
         stats::na.omit() %>%
         dplyr::select(tidyselect::contains(t)) %>%
         dplyr::rename_all(.funs = funs(sub(t, "Estimate", .))) %>%
-        dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
+        dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 2), format = "f", digits = 2), " (", formatC(round(.data$`Estimate_2.5% CL`, 2), format = "f", digits = 2), ", ", formatC(round(.data$`Estimate_97.5% CL`, 2), format = "f", digits = 2), ")")) %>%
         dplyr::select(.data$Out)
       names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
@@ -184,7 +184,7 @@ gComp <- function(data,
       dplyr::rename(`2.5% CL` = .data$ci.ll, `97.5% CL` = .data$ci.ul)
     summary <- res_ci_df %>% 
       stats::na.omit() %>%
-      dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
+      dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 2), format = "f", digits = 2), " (", formatC(round(.data$`2.5% CL`, 2), format = "f", digits = 2), ", ", formatC(round(.data$`97.5% CL`, 2), format = "f", digits = 2), ")")) %>%
       dplyr::select(-(.data$Estimate:.data$`97.5% CL`)) %>%
       dplyr::rename(`Estimate (95% CI)` = .data$Out)
     rownames(summary) <- rownames(res_ci_df %>% na.omit())
