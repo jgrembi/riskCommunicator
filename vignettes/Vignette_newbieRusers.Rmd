@@ -160,7 +160,7 @@ print(binary.res)
 ```
 Not surprisingly, there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute 24-year risk of cardiovascular disease or death due to any cause is 30.0% (95% CI: 21.5, 37.5) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the 24-year risk is 55.2% (95% CI: 38.6, 696) higher. Because the outcome is common (41.8%), the odds ratio (4.55) is highly inflated compared to the risk ratio (1.55). This is a clear example where the odds ratio may be misleading since the odds ratio is commonly misinterpreted as a risk ratio. 
 
-We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 3 (95% CI: 3, 5) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
+We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 4 (95% CI: 3, 5) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
 
 The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results (what is seen when you print), plus 8 additional items: `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, and`predicted.data` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  You can access the different items using the `$` operator as shown below.  
 ```{r gComp_class_explaination}
@@ -171,7 +171,7 @@ names(binary.res)
 # For example, to see the sample size of the original data:
 binary.res$n 
 ```
-From these results, we see that females (sex = 1) have a larger increase in the absolute 24-year risk of cardiovascular disease or death associated with diabetes than males (sex = 0). They also have a larger relative increase in risk than males.
+
 
 We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
 
@@ -182,6 +182,8 @@ binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("
 
 binary.res.subgroup
 ```
+
+From these results, we see that females (sex = 1) have a larger increase in the absolute 24-year risk of cardiovascular disease or death associated with diabetes than males (sex = 0). They also have a larger relative increase in risk than males.
 
 ## Categorical exposure example
 Question: what is the effect of obesity on the 24-year risk of cardiovascular disease or death due to any cause?
