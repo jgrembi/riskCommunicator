@@ -23,7 +23,7 @@ gComp(
 \code{Y}, \code{X}, and \code{Z} or with variables matching the model
 variables specified in a user-supplied formula. Data set should also
 contain variables for the optinal \code{subgroup} and \code{offset}, if
-they are specified}
+they are specified.}
 
 \item{outcome.type}{(Required) Character argument to describe the outcome
 type. Acceptable responses, and the corresponding error distribution and
@@ -32,7 +32,7 @@ link function used in the \code{glm}, include: \describe{
 used; ideal for binary outcomes.} \item{count}{A Poisson distribution 
 with link = 'log' is used; ideal for count outcomes.}
 \item{rate}{A Poisson distribution with link = 'log' is used; ideal for rate
- (events/person-time)outcomes.} \item{continuous}{A gaussian distribution 
+ (events/person-time) outcomes.} \item{continuous}{A gaussian distribution 
  with link = 'identity' is used; ideal for continuous outcomes.}
 }}
 
@@ -50,7 +50,7 @@ outcome variable. Can optionally provide a formula instead of \code{Y} and
 exposure variable (or treatment group assignment), which can be binary,
 categorical, or continuous. This variable can be supplied as a factor
 variable, a numeric variable coded 0 or 1, or a continuous variable.
-Preferrably, \code{X} is supplied as a factor with the lowest level set to
+Preferably, \code{X} is supplied as a factor with the lowest level set to
 the desired referent. Numeric variables are accepted, and coerced to
 factor with lowest level (referent) being the smallest number. Character variables are
 not accepted and will throw an error. Can optionally provide a formula
