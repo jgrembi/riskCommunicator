@@ -5,7 +5,7 @@
 \title{Print estimates of difference and ratio effects obtained in the bootstrap
 computations of the g-computation}
 \usage{
-\method{print}{gComp}(x, ...)
+\method{gComp}{print}(x, ...)
 }
 \arguments{
 \item{x}{(Required) An object of class \code{gComp}.}

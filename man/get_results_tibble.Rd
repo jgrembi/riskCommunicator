@@ -6,7 +6,7 @@
 incidence rate difference/ratio, mean difference, and/or number needed to
 treat)}
 \usage{
-get_results_tibble(predict.df, outcome.type, X, rate.multiplier)
+get_results_tibble(predict.df, outcome.type, rate.multiplier)
 }
 \arguments{
 \item{predict.df}{(Required) A data.frame output from the
@@ -21,9 +21,6 @@ used.} \item{count}{A Poisson distribution with link = 'log' is used.}
 \item{rate}{A Poisson distribution with link = 'log' is used.}
 \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 }}
-
-\item{X}{(Required) Character argument which provides variable identifying
-exposure/treatment group assignment.}
 
 \item{rate.multiplier}{(Optional, only applicable for rate outcomes) Default
 1. Numeric value to multiply to the rate-based effect measures. This option

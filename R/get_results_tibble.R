@@ -13,8 +13,6 @@
 #'   \item{rate}{A Poisson distribution with link = 'log' is used.}
 #'   \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 #'   }
-#' @param X (Required) Character argument which provides variable identifying
-#'   exposure/treatment group assignment.
 #' @param rate.multiplier (Optional, only applicable for rate outcomes) Default
 #'   1. Numeric value to multiply to the rate-based effect measures. This option
 #'   facilitates reporting effects with interpretable person-time denominators.
@@ -31,10 +29,11 @@
 #' @importFrom stringr str_subset str_split
 #' @importFrom tidyselect starts_with
 
-get_results_tibble <- function(predict.df, outcome.type, X, rate.multiplier) {
+get_results_tibble <- function(predict.df, outcome.type, rate.multiplier) {
   
-  col.names <- unique(unlist(stringr::str_split(names(predict.df), "_"))) %>%
-    stringr::str_subset(pattern = as.character(X))
+  col.names <- names(predict.df)
+    # unique(unlist(stringr::str_split(names(predict.df), "_"))) %>%
+    # stringr::str_subset(pattern = as.character(X))
   noTx.predict <-  predict.df %>%
     dplyr::select(tidyselect::starts_with(col.names[1])) %>%
     dplyr::pull() 

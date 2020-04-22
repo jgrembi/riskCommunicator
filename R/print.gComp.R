@@ -9,6 +9,7 @@
 #' @return The resulting point estimate and 95% confidence intervals of the
 #'   difference and ratio.
 #' @export
+#' @method gComp print
 #'
 #' @examples
 #' ## Obtain the risk difference and risk ratio for cardiovascular disease or 

@@ -242,22 +242,23 @@ pointEstimate <- function(data,
   names(results_tbl_all) <- c(sapply(names(fn_output), function(x) paste0("predicted value with ",x)))
   
   # Get list of possible treatments/exposures (all levels of X)
-  exposure_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
-    stringr::str_subset(pattern = as.character(X))
-  
+  exposure_list <- sapply(levels(data[[X]]), function(x) paste0(X,x), USE.NAMES = F)
+ 
   # Calculate estimates for risk/rate/mean differences & ratios
   if (!is.null(subgroup)) { 
-    subgroups_list <- unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
-      stringr::str_subset(pattern = as.character(subgroup))
+    subgroups_list <- sapply(levels(data[[subgroup]]), function(x) paste0(subgroup,x), USE.NAMES = F)
+      # unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
+      # stringr::str_subset(pattern = as.character(subgroup))
     if (length(exposure_list) > 2) { # For when subgroups and exposure with more than 2 levels are both specified
-      contrasts_list <- lapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]))
+      contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
       subgroup_contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
+        
         predict_df_e <- fn_output %>%
-          dplyr::select(tidyselect::contains(exposure_list[1]), tidyselect::contains(e))
+          dplyr::select(tidyselect::contains(match = c(exposure_list[1], e)))#, tidyselect::contains(e))
         subgroup_res <- purrr::map_dfc(subgroups_list, function(s) {
           predict_df_s = fn_output %>% 
             dplyr::select(tidyselect::contains(s))
-          fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+          fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
           return(fn_results_tibble)
         })
         subgp_results <- subgroup_res %>%
@@ -271,7 +272,7 @@ pointEstimate <- function(data,
         # s <- subgroups_list[1]
         predict_df_s = fn_output %>% 
           dplyr::select(tidyselect::contains(s))
-        fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+        fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
         return(fn_results_tibble)
       })
       results <- subgroup_res %>%
@@ -279,19 +280,19 @@ pointEstimate <- function(data,
       colnames(results) <- subgroups_list
     }
   } else if (length(exposure_list) > 2) { # For when exposure with more than 2 levels is specified (but no subgroups)
-    contrasts_list <- lapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]))
+    contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
     contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
       # e <- exposure_list[2]
       predict_df_e <- fn_output %>%
-        dplyr::select(tidyselect::contains(exposure_list[1]), tidyselect::contains(e))
-      fn_results_tibble <- get_results_tibble(predict.df = predict_df_e, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+        dplyr::select(tidyselect::contains(match = c(exposure_list[1], e))) #contains(exposure_list[1]), tidyselect::contains(e))
+      fn_results_tibble <- get_results_tibble(predict.df = predict_df_e, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
       return(fn_results_tibble)
     })
     results <- contrasts_res %>%
       as.data.frame()
     colnames(results) <- contrasts_list
   } else { # For when NO subgroups are specified and exposure has only 2 levels
-    fn_results_tibble <- get_results_tibble(predict.df = fn_output, outcome.type = outcome.type, X = X, rate.multiplier = rate.multiplier)
+    fn_results_tibble <- get_results_tibble(predict.df = fn_output, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
     
     results <- fn_results_tibble %>%
       as.data.frame() %>%
