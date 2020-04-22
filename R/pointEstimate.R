@@ -247,8 +247,7 @@ pointEstimate <- function(data,
   # Calculate estimates for risk/rate/mean differences & ratios
   if (!is.null(subgroup)) { 
     subgroups_list <- sapply(levels(data[[subgroup]]), function(x) paste0(subgroup,x), USE.NAMES = F)
-      # unique(unlist(stringr::str_split(names(fn_output), "_"))) %>%
-      # stringr::str_subset(pattern = as.character(subgroup))
+      
     if (length(exposure_list) > 2) { # For when subgroups and exposure with more than 2 levels are both specified
       contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
       subgroup_contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
@@ -300,10 +299,6 @@ pointEstimate <- function(data,
       dplyr::mutate_if(is.numeric, round, digits = 4)
   }
   rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")
-  
-  # # Only return the predicted risk (not predicted odds) in the predicted.data output data.frame
-  # results_tbl_risk <- results_tbl_all %>%
-  #   dplyr::select_at(dplyr::vars(tidyselect::contains("predicted risk")))
   
   # List of items to return to this function call
   res <- list(parameter.estimates = results,

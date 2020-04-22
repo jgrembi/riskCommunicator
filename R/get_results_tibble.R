@@ -32,8 +32,7 @@
 get_results_tibble <- function(predict.df, outcome.type, rate.multiplier) {
   
   col.names <- names(predict.df)
-    # unique(unlist(stringr::str_split(names(predict.df), "_"))) %>%
-    # stringr::str_subset(pattern = as.character(X))
+  
   noTx.predict <-  predict.df %>%
     dplyr::select(tidyselect::starts_with(col.names[1])) %>%
     dplyr::pull() 
