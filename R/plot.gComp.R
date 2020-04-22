@@ -12,7 +12,7 @@
 #' @return a plot containing histograms and Q-Q plots of the difference and
 #'   ratio estimates returned from R bootstrap iterations
 #' @export
-#' @method gComp plot
+#' @method plot gComp
 #'
 #' @examples
 #' ## Obtain the risk difference and risk ratio for cardiovascular disease or death

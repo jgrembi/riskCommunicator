@@ -5,7 +5,7 @@
 \title{Plot estimates of difference and ratio effects obtained in the bootstrap
 computations of the g-computation}
 \usage{
-\method{gComp}{plot}(x, ...)
+\method{plot}{gComp}(x, ...)
 }
 \arguments{
 \item{x}{(Required) An object of class \code{gComp}.}
