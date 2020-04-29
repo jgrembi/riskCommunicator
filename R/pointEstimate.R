@@ -12,11 +12,11 @@
 #'   type. Acceptable responses, and the corresponding error distribution and
 #'   link function used in the \code{glm}, include: \describe{
 #'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
-#'   used; ideal for binary outcomes.} \item{count}{A Poisson distribution 
-#'   with link = 'log' is used; ideal for count outcomes.}
-#'   \item{rate}{A Poisson distribution with link = 'log' is used; ideal for rate
-#'    (events/person-time) outcomes.} \item{continuous}{A gaussian distribution 
-#'    with link = 'identity' is used; ideal for continuous outcomes.}
+#'   used.} \item{count}{A Poisson distribution 
+#'   with link = 'log' is used.}
+#'   \item{rate}{A Poisson distribution with link = 'log' is used; ideal for 
+#'    events/person-time outcomes.} \item{continuous}{A gaussian distribution 
+#'    with link = 'identity' is used.}
 #'   }
 #' @param formula (Optional) Default NULL. An object of class "formula" (or one
 #'   that can be coerced to that class) which provides the the complete model
