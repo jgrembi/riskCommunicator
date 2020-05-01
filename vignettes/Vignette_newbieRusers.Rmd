@@ -141,7 +141,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, offset = NULL)
+binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 20, offset = NULL)
 
 ```
 
@@ -154,7 +154,7 @@ binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE",
 ```
 
 Let's look at the results. Typing either of the below will provide the point estimate and the 95% confidence limits
-```{r binary_results_check}
+```{r binary_results_check, paged.print = FALSE}
 binary.res
 print(binary.res)
 ```
@@ -178,10 +178,10 @@ binary.res$contrast
 
 We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
 
-```{r binary_outcome_subgroup}
+```{r binary_outcome_subgroup, paged.print = FALSE}
 set.seed(1298)
 
-binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 200)
+binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 20)
 
 binary.res.subgroup
 ```
@@ -195,12 +195,12 @@ You can do a similar analysis when your exposure variable is not binary (has mor
 
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
-```{r categorical_exposure}
+```{r categorical_exposure, paged.print = FALSE}
 #number and percent of subjects in each BMI category 
 table(cvdd$bmicat)
 prop.table(table(cvdd$bmicat))*100
 
-catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)
 
 catExp.res
 ```
@@ -219,7 +219,7 @@ cvdd.t <- cvdd %>%
 
 Then, we can run the analysis as above, first setting the seed and then calling the gComp function. Note that we have specified the `outcome.type` as "rate" and included **timeout** as the offset. Because our **timeout** variable is in units of person-days, we have included a `rate.multiplier` of 365.25*100 so that the estimates are returned with units of 100 person-years.
 
-```{r rate_outcome}
+```{r rate_outcome, paged.print = FALSE}
 set.seed(6534)
 
 rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
@@ -228,7 +228,7 @@ rate.res
 ```
   
 Alternatively, we could run the same analysis by first specifying the regression model formula.
-```{r}
+```{r, paged.print = FALSE}
 ## Specify the regression formula
 cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 
@@ -248,7 +248,7 @@ Question: what is the effect of having diabetes at the beginning of the study on
 
 This example estimates the marginal mean difference in the continuous outcome associated with the exposure. In this example, linear regression is used as the underlying parametric model for g-computation.
 
-```{r continuous_outcome}
+```{r continuous_outcome, paged.print = FALSE}
 set.seed(9385)
 
 cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 200)
@@ -262,7 +262,7 @@ Question: what is the effect of having diabetes at the beginning of the study on
 
 For this analysis, we will use Poisson regression as the underlying parametric model for g-computation because we have a count outcome. However, we will not include a person-time offset, since there was a fixed follow-up time for all individuals (24 years). This analysis will estimate the incidence rate difference, incidence rate ratio, and the number needed to treat.
 
-```{r count_outcome}
+```{r count_outcome, paged.print = FALSE}
 set.seed(7295)
 
 count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"

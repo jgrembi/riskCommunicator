@@ -28,6 +28,14 @@
 
 
 print.gComp <- function(x, ...) {
-  print(x$summary)
+  cat("Formula:", "\n")
+  cat(format(x$formula), "\n") 
+  cat("\n")
+  cat("Parameter estimates:", "\n")
+  print(format(x$summary))
   
 }
+
+
+
+
