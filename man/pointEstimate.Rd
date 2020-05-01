@@ -81,7 +81,7 @@ person-years.}
 A list containing the following: \itemize{
   \item{parameter.estimates} {Point estimates for the risk difference, risk
   ratio, odds ratio, incidence rate difference, incidence rate ratio, mean
-  difference and/or number needed to treat, depending on the outcome.type}
+  difference and/or number needed to treat/harm, depending on the outcome.type}
   \item{n} {Number of observations provided to the model} \item{contrast}
   {Contrast levels compared} \item{family} {Error distribution used
   in the model} \item{formula} {Model formula used to fit the

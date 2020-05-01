@@ -58,7 +58,7 @@
 #' @return A list containing the following: \itemize{
 #'   \item{parameter.estimates} {Point estimates for the risk difference, risk
 #'   ratio, odds ratio, incidence rate difference, incidence rate ratio, mean
-#'   difference and/or number needed to treat, depending on the outcome.type}
+#'   difference and/or number needed to treat/harm, depending on the outcome.type}
 #'   \item{n} {Number of observations provided to the model} \item{contrast}
 #'   {Contrast levels compared} \item{family} {Error distribution used
 #'   in the model} \item{formula} {Model formula used to fit the
@@ -298,7 +298,7 @@ pointEstimate <- function(data,
       dplyr::rename(Estimate = ".") %>%
       dplyr::mutate_if(is.numeric, round, digits = 4)
   }
-  rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")
+  rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm")
   
   # List of items to return to this function call
   res <- list(parameter.estimates = results,

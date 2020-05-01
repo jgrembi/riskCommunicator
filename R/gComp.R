@@ -128,7 +128,7 @@ gComp <- function(data,
       as.data.frame() %>% 
       tibble::rownames_to_column("test") %>%
       dplyr::mutate(boot = as.character(x$id))
-    names(result) <- c("test","Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat", "boot")
+    names(result) <- c("test","Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm", "boot")
     return(result)
   })
   
@@ -136,7 +136,7 @@ gComp <- function(data,
   if(length(unique(boot_res$test)) > 1) { # For subgroups and/or >2 treatment/exposure levels
     ci <- boot_res %>%
       dplyr::group_by(.data$test) %>%
-      dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat`),
+      dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat/harm`),
                           ~stats::quantile(., probs = 0.025, na.rm = T)) %>%
       dplyr::mutate(test = paste0(.data$test,"_2.5% CL")) %>%
       dplyr::ungroup() %>%
@@ -144,7 +144,7 @@ gComp <- function(data,
       tidyr::spread(.data$test, value) %>%
       dplyr::left_join(boot_res %>%
                          dplyr::group_by(.data$test) %>%
-                         dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat`),
+                         dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat/harm`),
                                              ~stats::quantile(., probs = 0.975, na.rm = T)) %>%
                          dplyr::mutate(test = paste0(.data$test, "_97.5% CL")) %>%
                          dplyr::ungroup() %>%
