@@ -14,8 +14,7 @@ testthat::test_that("Y and X vars are both provided if no formula is given", {
 })
 
 
-testthat::test_that("X variable is a binary (either a factor with 2 levels, or numeric with only 2 values)", {
-  testthat::expect_error(pointEstimate(data = cvdd, formula = CVD ~ BMI + AGE, outcome.type = "binary"))
+testthat::test_that("X variable is a binary (either a factor with 2+ levels, or numeric)", {
   testthat::expect_error(pointEstimate(data = cvdd %>% mutate(DIABETES = as.character(DIABETES)), formula = cvd_dth ~ DIABETES + SEX, outcome.type = "binary"))
 })
 
@@ -24,4 +23,14 @@ testthat::test_that("outcome is expected value", {
   testthat::expect_equal(round(pointEstimate(data = cvdd, formula = CVD ~ SEX + BMI + AGE, outcome.type = "binary")$parameter.estimates[[1,1]],3), -0.164)
   testthat::expect_equal(round(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type = "binary")$parameter.estimates[[2,1]], 3), 1.187)
   testthat::expect_equal(pointEstimate(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type  = "binary")$formula, formula(DEATH ~ DIABETES + SEX + AGE))
+  testthat::expect_equal(pointEstimate(data = cvdd, formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP, outcome.type  = "binary")$parameter.estimates$Estimate[7], 3.3304)
+  testthat::expect_equal(pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary")$parameter.estimates$SEX0[[1]], 0.2395556)
+  testthat::expect_equal(pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary")$parameter.estimates$SEX1[[7]], 2.7900080)
+  testthat::expect_equal(pointEstimate(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary")$parameterEstimate$bmicat3_v._bmicat0[[1]], 0.1157133)
+  testthat::expect_equal(pointEstimate(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous")$parameterEstimate$Estimate[[6]], 61.6257)
+  testthat::expect_equal(pointEstimate(data = cvdd, formula = cvd_dth ~ AGE + DIABETES + SEX + BMI + CURSMOKE + PREVHYP, outcome.type = "binary")$parameterEstimate$Estimate[[1]], 0.0006)
+  testthat::expect_equal(pointEstimate(data = cvdd, formula = cvd_dth ~ AGE + DIABETES + SEX + BMI + CURSMOKE + PREVHYP, outcome.type = "binary")$parameterEstimate$Estimate[[2]], 1.1072)
+  testthat::expect_equal(pointEstimate(data = cvdd %>% dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)),
+                                                       timeout = as.numeric(timeout)), 
+                                       Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout")$parameterEstimate$Estimate[[4]], 2.1892)
 })
