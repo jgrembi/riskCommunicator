@@ -84,6 +84,28 @@
 #'   distribution, users should set a seed (\code{\link[base]{set.seed}} for
 #'   reproducible confidence intervals.
 #'
+#' @references 
+#'  Ahern J, Hubbard A, Galea S. Estimating the effects of potential public health 
+#'   interventions on population disease burden: a step-by-step illustration of 
+#'   causal inference methods. Am. J. Epidemiol. 2009;169(9):1140–1147.
+#'  
+#'  Altman DG, Deeks JJ, Sackett DL. Odds ratios should be avoided when events 
+#'   are common. BMJ. 1998;317(7168):1318.
+#' 
+#'  Hernán MA, Robins JM (2020). Causal Inference: What If. Boca Raton: 
+#'   Chapman & Hall/CRC. /href{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}{Book link}
+#' 
+#'  Robins J. A new approach to causal inference in mortality studies with a 
+#'   sustained exposure period—application to control of the healthy worker 
+#'   survivor effect. Mathematical Modelling. 1986;7(9):1393–1512.
+#'   
+#'  Snowden JM, Rose S, Mortimer KM. Implementation of G-computation on a 
+#'   simulated data set: demonstration of a causal inference technique. 
+#'   Am. J. Epidemiol. 2011;173(7):731–738.
+#'   
+#'  Westreich D, Cole SR, Young JG, et al. The parametric g-formula to 
+#'   estimate the effect of highly active antiretroviral therapy on incident 
+#'    AIDS or death. Stat Med. 2012;31(18):2000–2009.
 #'
 #' @export
 #'
@@ -206,7 +228,7 @@ pointEstimate <- function(data,
   if (!is.null(X)) {
     X_type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
     if (X_type == "numeric") {
-      message("Proceeding with X as a continuous variable, if it should be categorical, please reformat so that X is a factor variable")
+      message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
     } 
   }
   

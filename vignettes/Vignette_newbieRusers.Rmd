@@ -130,7 +130,9 @@ Research question: what is the effect of having diabetes at the beginning of the
 
 Here, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat. We will adjust for confounders: patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline), by including them as covariates in the model.  
 
-The gComp function is designed similarly to a normal regression model in R and takes as input either a formula or a specification of Y (outcome), X (exposure) and Z (covariates) (type `help(gComp)` for additional details). In this example, logistic regression is used as the underlying parametric model for g-computation.
+Note that for a protective exposure (risk difference less than 0), the NNT is interpreted as the number needed to treat, and for a harmful exposure (risk difference greater than 0), the NNT is interpreted as the number needed to harm. Note also that confidence intervals are not reported for the NNT. If the confidence interval (CI) for the risk difference crosses the null, the construction of the CI for the NNT is not well defined. Challenges and options for reporting the NNT CI are reviewed extensively in Altman 1998, Hutton 2000, and Stang 2010, with a consensus that an appropriate interval would have two segments, one bounded at negative infinity and the other at positive infinity. Because the NNT is most useful as a communication tool and is directly derived from the risk difference, which has a CI that provides a more interpretable measure of precision, we do not report the CI for the NNT. If the CI of the risk difference does not cross the null, the NNT CI can be calculated straightforwardly by taking the inverse of each confidence bound of the risk difference. 
+
+The gComp function is designed similarly to a normal regression model in R and takes as input either a formula or a specification of Y (outcome), X (exposure) and Z (covariates) (type `help(gComp)` for additional details). If you specify X, Y, and Z separately, each variable name needs to be entered in quotes. In this example, logistic regression is used as the underlying parametric model for g-computation.
 
 ```{r binary_outcome}
 
@@ -175,6 +177,7 @@ binary.res$n
 binary.res$contrast
 ```
 
+To check to make sure the package is estimating effects as expected, we suggest comparing the riskCommunicator results to a normal logistic regression model (for example, with the glm function in R) using the same model structure. The odds ratio from riskCommunicator should be very similar to the odds ratio obtained from glm (note: minor differences may occur due to estimating marginal vs. covariate conditional effects). Because any errors that you receive while running a normal logistic regression model will also be an issue when using the riskCommunicator package, it may be helpful to optimize the logistic regression first.
 
 We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
 
@@ -283,6 +286,9 @@ plot(binary.res)
 
 We expect to see the histograms to look approximately normally distributed and the estimates to fall close to the dotted red line on the Q-Q plots.
 
+# Guidance on number of bootstraps
+To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>30min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 200, which should compute on datasets of 5000-10000 observations in <60s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.
+
 # What's going on under the hood
 
 The `gComp` function essentially executes four steps:
@@ -302,6 +308,7 @@ The gComp function uses a default of 200 bootstrap resampling events (R = 200) t
 On a laptop, it takes ~3.2 min to run R = 1000 (e.g. `binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)`).
 
 This means that R = 10000 will take ~30 min. One option to decrease the compute time is to use parallel computing. 
+
 
 
 ```{r, future.fork.enable = F}

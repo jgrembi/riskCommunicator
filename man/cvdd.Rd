@@ -3,7 +3,7 @@
 \docType{data}
 \name{cvdd}
 \alias{cvdd}
-\title{A subset of the \code{framingham} data}
+\title{A subset of the \code{framingham} teaching data}
 \format{
 A data frame with 4240 rows and 31 variables:
 \describe{
@@ -40,11 +40,14 @@ A data frame with 4240 rows and 31 variables:
 \item{nhosp}{Simulated number of hospitalizations over 24 months, associated with age, sex, BMI, and diabetes (not collected in the Framingham study).}
 }
 }
+\source{
+\url{https://biolincc.nhlbi.nih.gov/teaching/}
+}
 \usage{
 data(cvdd)
 }
 \description{
-A subset of the \code{framingham} dataset containing the following changes:
+A subset of the \code{framingham} teaching dataset containing the following changes:
 \itemize{
 \item{removal of all observations where PERIOD == 2 or PERIOD == 3 (i.e. keep only PERIOD == 1)}
 \item{removal of all observations where PREVCHD == 1 (i.e. all patients with coronary heart disease at baseline)}
@@ -53,4 +56,29 @@ A subset of the \code{framingham} dataset containing the following changes:
 \item{created a new variable, \code{logpdays}, which is the log of \code{timeout}}
 \item{created a new variable, \code{nhosp}, which is a simulated number of hospitalizations}
 }
+}
+\details{
+The National Heart, Lung, and Blood Institute of the National Institutes of 
+Health developed a longitudinal, epidemiology-focused dataset using the Framingham 
+Heart Study. The Framingham Heart Study is a long term prospective study of the 
+etiology of cardiovascular disease among a population of free living subjects in 
+the community of Framingham, Massachusetts. The Framingham Heart Study was a 
+landmark study in epidemiology in that it was the first prospective study of 
+cardiovascular disease and identified the concept of risk factors and their joint 
+effects. The study began in 1948 and 5,209 subjects were initially enrolled in the 
+study. Participants have been examined biennially since the inception of the study 
+and all subjects are continuously followed through regular surveillance for 
+cardiovascular outcomes. Clinic examination data has included cardiovascular disease 
+risk factors and markers of disease such as blood pressure, blood chemistry, lung 
+function, smoking history, health behaviors, ECG tracings, Echocardiography, and 
+medication use. Through regular surveillance of area hospitals, participant contact, 
+and death certificates, the Framingham Heart Study reviews and adjudicates events for 
+the occurrence of Angina Pectoris, Myocardial Infarction, Heart Failure, and 
+Cerebrovascular disease. This dataset contains three clinic examinations and 20 year 
+follow-up data on a large subset of the original Framingham cohort participants.
+
+NOTE: This is a "teaching" dataset. Specific methods were employed to ensure an 
+anonymous dataset that protects patient confidentiality; therefore, this dataset is 
+inappropriate for publication purposes." The use of these data for the purposes of 
+this package were approved on 11Mar2019 (request #7161) by NIH/NHLBI.
 }
