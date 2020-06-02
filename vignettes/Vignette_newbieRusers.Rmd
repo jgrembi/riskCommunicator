@@ -277,6 +277,19 @@ count.res
 This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI: -0.01, 0.10) more hospital admissions over the 24 years of follow-up compared to individuals without diabetes at baseline. In relative terms, individuals with diabetes have 53.7% (95% CI: -7.7, 116.4) more admissions than those without diabetes.
 
 
+
+## Continuous exposure example
+Question: 
+
+```{r continuousExposure_binaryOutcome, paged.print = FALSE}
+set.seed(3728)
+contExposure.formula <- cvd_dth ~ AGE + DIABETES + SEX + BMI + CURSMOKE + PREVHYP
+
+(contExp.res <- pointEstimate(data = cvdd, formula = contExposure.formula, outcome.type = "binary", exposure.scaler = 10)$parameter.estimates)
+
+```
+
+
 # Checking model fit
 
 To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estiamtes by calling:
@@ -299,32 +312,8 @@ The `gComp` function essentially executes four steps:
 4. *Estimates confidence interval with bootstrap resampling.*  We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 10000.
 
 
-We suggest (X,Y,Z references) for a more detailed explaination of g-computation.
+Please see the refrences listed under the `gComp` or `pointEstimate` function for a more detailed explaination of g-computation.
 
-# Parallel computing for large R values
-
-The gComp function uses a default of 200 bootstrap resampling events (R = 200) to obtain the 95\% confidence interval.  You can lower this number while getting your code working to reduce runtime.  However, you will want to increase that value to obtain a more precise estimate of the confidence interval once you have the code working.  We recommend using R = 10000 for final analyses. 
-
-On a laptop, it takes ~3.2 min to run R = 1000 (e.g. `binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)`).
-
-This means that R = 10000 will take ~30 min. One option to decrease the compute time is to use parallel computing. 
-
-
-
-```{r, future.fork.enable = F}
-
-# future::supportsMulticore()
-# future::plan("multisession", workers = 7L)
-# # future::plan("sequential")
-# future::availableCores(constraints = "sequential")
-# 
-# tictoc::tic()
-# binary_result_R1000 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 1000)
-# tictoc::toc()
-# 
-# # Stop clusters
-# future:::ClusterRegistry("stop")
-```
 
 
 ```{r}
