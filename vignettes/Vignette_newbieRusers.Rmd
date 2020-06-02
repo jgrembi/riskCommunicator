@@ -143,7 +143,7 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 20, offset = NULL)
+binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 20)
 
 ```
 
@@ -155,14 +155,12 @@ set.seed(1298)
 binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 ```
 
-Note that we did not need to specify function options that did not apply for our analysis. For example, if we wanted to estimate unadjusted effects, with no Z covariates, we could simply leave out the Z argument in the function above. Options that are not included in the function statement are automatically populated with the default values. See below how we could get the same results as above by including all options at their default values.
+Note that we did not need to specify function options that did not apply for our analysis. For example, if we wanted to estimate unadjusted effects, with no Z covariates, we could simply leave out the Z argument in the function above. Options that are not included in the function statement are automatically populated with the default values. See below another example of the same analysis, which includes all options at their default values.  Although this is functionally equivalent to both of the eamples above (i.e. will produce the same results), it is syntactically equivalent only to the first example for **binary.res** (i.e. the underlying code being evaluated is exactly the same).
 
-```{r binary_outcome_noFormula_defaults}
+```{r binary_outcome_defaults}
 set.seed(1298)
 
-### JESS CAN YOU ADD THE DEFAULTS HERE?
-
-binary.res.alt2 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+binary.res.alt2 <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, Y = NULL, X = NULL, Z = NULL, subgroup = NULL, offset = NULL, rate.multiplier = 1, clusterID = NULL)
 ```
 
 
@@ -305,19 +303,6 @@ count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count",
 count.res
 ```
 This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI: -0.01, 0.10) more hospital admissions over the 24 years of follow-up compared to individuals without diabetes at baseline. In relative terms, individuals with diabetes have 53.7% (95% CI: -7.7, 116.4) more admissions than those without diabetes.
-
-
-
-## Continuous exposure example
-Question: 
-
-```{r continuousExposure_binaryOutcome, paged.print = FALSE}
-set.seed(3728)
-contExposure.formula <- cvd_dth ~ AGE + DIABETES + SEX + BMI + CURSMOKE + PREVHYP
-
-(contExp.res <- pointEstimate(data = cvdd, formula = contExposure.formula, outcome.type = "binary", exposure.scaler = 10)$parameter.estimates)
-
-```
 
 
 # Checking model fit
