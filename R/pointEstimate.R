@@ -54,6 +54,8 @@
 #'   For example, if the person-time variable (offset) is in days, a multiplier
 #'   of 365*100 would result in estimates of rate differences per 100
 #'   person-years.
+#' @param exposure.scaler (Optional, only applicable for continuous exposure)
+#' Default 1. 
 #'
 #' @return A list containing the following: \itemize{
 #'   \item{parameter.estimates} {Point estimates for the risk difference, risk
@@ -143,7 +145,8 @@ pointEstimate <- function(data,
                           Z = NULL, 
                           subgroup = NULL,  
                           offset = NULL, 
-                          rate.multiplier = 1) {
+                          rate.multiplier = 1,
+                          exposure.scaler = 1) {
   # data = helen_df
   # Y = "cvd_dth"
   #  X = "DIABETES"
@@ -225,12 +228,25 @@ pointEstimate <- function(data,
   if (!all(allVars %in% names(data))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
   
   # Ensure X is categorical (factor) or numeric, throw error if character
-  if (!is.null(X)) {
-    X_type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
-    if (X_type == "numeric") {
-      message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
-    } 
+  if (is.numeric(data[[X]])) {
+    message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
+  } else if (is.factor(data[[X]]) & exposure.scaler != 1) {
+    stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
+  } else {
+    stop("X must be a factor or numeric variable")
   }
+  
+    
+    
+    #   X_type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
+    # if (X_type == "numeric") {
+    #   message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
+    # } else {
+    #   if(X_type == "categorical" & exposure.scaler != 1) {
+    #     stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
+    #   }
+    # }
+  # }
   
   # Ensure Z covariates are NOT character variables in the dataset
   if (!is.null(Z)) {
@@ -245,6 +261,12 @@ pointEstimate <- function(data,
   if (!is.null(subgroup)) {
     data <- data %>% 
       dplyr::mutate(!!subgroup := factor(!!subgroup))
+  }
+  
+  # Center continuous variable and divide by exposure.scaler
+  if(is.numeric(data[[X]])) {
+    data <- data %>%
+      dplyr::mutate(!!X := as.vector(scale(!!X, center = T, scale = exposure.scaler)))
   }
   
   # Run GLM
