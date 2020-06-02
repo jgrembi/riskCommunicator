@@ -224,8 +224,7 @@ gComp <- function(data,
       return(df)
     })
     rownames(summary) <- c(rownames(res_ci_df %>% na.omit()), "Number needed to treat/harm")
-    summary <- summary %>%
-      stats::na.omit()
+    
   } else { # For no subgroups and only 2 treatment/exposure levels
     res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
       tibble::rownames_to_column("outcome") %>%
@@ -245,10 +244,9 @@ gComp <- function(data,
                   dplyr::select(.data$Out)) %>%
         dplyr::rename(`Estimate (95% CI)` = .data$Out)
     rownames(summary) <- c(rownames(res_ci_df %>% na.omit()), "Number needed to treat/harm")
-    summary <- summary %>%
-      stats::na.omit()
   }
-
+  summary <- summary %>%
+    stats::na.omit()
   # Output results list
   res <- list(
     summary = summary,
