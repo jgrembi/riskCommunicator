@@ -72,7 +72,7 @@ The examples provided in this vigette will use the dataset **cvdd** and that dat
 data(cvdd)
 ```
 
-Next, ensure your variables are specified appropriately. For example, the exposure variable (x) must be coded as a factor, as a binary variable with 0/1 coding, or as a continuous variable. Similarly, covariates Z cannot be coded as a character variable, otherwise you will get an error message. Variable type can be changed to a factor variable using the following code:
+Next, ensure your variables are specified appropriately. For example, the exposure variable (x) must be coded as a factor (if your exposure is binary or categorical) or as a continuous variable. Similarly, covariates Z cannot be coded as a character variable, otherwise you will get an error message. Variable type can be changed to a factor variable using the following code:
 
 ```{r variable_check}
 cvdd$educ <- as.factor(cvdd$educ)
@@ -155,6 +155,17 @@ set.seed(1298)
 binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 ```
 
+Note that we did not need to specify function options that did not apply for our analysis. For example, if we wanted to estimate unadjusted effects, with no Z covariates, we could simply leave out the Z argument in the function above. Options that are not included in the function statement are automatically populated with the default values. See below how we could get the same results as above by including all options at their default values.
+
+```{r binary_outcome_noFormula_defaults}
+set.seed(1298)
+
+### JESS CAN YOU ADD THE DEFAULTS HERE?
+
+binary.res.alt2 <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+```
+
+
 Let's look at the results. Typing either of the below will provide the point estimate and the 95% confidence limits
 ```{r binary_results_check, paged.print = FALSE}
 binary.res
@@ -208,6 +219,25 @@ catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX"
 catExp.res
 ```
 From these results, we see that obese persons have the highest increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, moreso than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
+
+
+## Continuous exposure example
+Question: what is the effect of a 10-year difference in age on the 24-year risk of cardiovascular disease or death due to any cause?
+
+Estimates can also be produced for continous exposures. The default effects are produced for a one unit difference in the exposure at the mean value of the exposure variable. Under the hood, your continuous exposure is first centered at the mean, and then effects are estimated for a one unit difference. You can specify the exposure.scalar option to estimate effects for a more interpretable contrast, as desired. For example, if the continuous exposure is age in years, specifying the exposure.scalar option as 10 would result in effects for a 10 year difference in age, rather than a 1 year difference. We will try this below.
+
+As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
+
+```{r categorical_exposure, paged.print = FALSE}
+
+
+contExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 1000)
+
+contExp.res
+```
+MAKE SURE THE ABOVE WORKS AND ADD INTERPRETATION OF RESULTS. From these results, we see that obese persons have the highest increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, moreso than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
+
+NOTE: in this example, because the underlying parametric model for a binary outcome is logistic regression, the risks for a continuous exposure will be estimated to be linear on the log-odds (logit) scale, such that the odds ratio for any one unit increase in the continuous variable is constant. However, the risks will not be linear on the linear (risk difference) or log (risk ratio) scales, such that these parameters will not be constant across the range of the continuous exposure. Users should be aware that the risk difference, risk ratio, NNT (for a binary outcome) and the incidence rate difference (for a rate/count outcome) reported with a continous exposure apply specifically at the mean of the continuous exposure. The effects do not necessarily apply across the entire range of the variable. However, variations in the effect are likely small, especially near the mean.
 
 
 ## Rate outcome example
