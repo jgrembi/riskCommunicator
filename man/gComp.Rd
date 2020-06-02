@@ -49,7 +49,7 @@ outcome variable. Can optionally provide a formula instead of \code{Y} and
 \item{X}{(Optional) Default NULL. Character argument which specifies the
 exposure variable (or treatment group assignment), which can be binary,
 categorical, or continuous. This variable can be supplied as a factor
-variable, a numeric variable coded 0 or 1, or a continuous variable.
+variable (for binary or categorical exposures) or a continuous variable.
 Preferably, \code{X} is supplied as a factor with the lowest level set to
 the desired referent. Numeric variables are accepted, and coerced to
 factor with lowest level (referent) being the smallest number. Character variables are

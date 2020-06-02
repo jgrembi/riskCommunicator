@@ -13,7 +13,8 @@ pointEstimate(
   Z = NULL,
   subgroup = NULL,
   offset = NULL,
-  rate.multiplier = 1
+  rate.multiplier = 1,
+  exposure.scaler = 1
 )
 }
 \arguments{
@@ -47,7 +48,7 @@ outcome variable. Can optionally provide a formula instead of \code{Y} and
 \item{X}{(Optional) Default NULL. Character argument which specifies the
 exposure variable (or treatment group assignment), which can be binary,
 categorical, or continuous. This variable can be supplied as a factor
-variable, a numeric variable coded 0 or 1, or a continuous variable.
+variable (for binary or categorical exposures) or a continuous variable.
 Preferably, \code{X} is supplied as a factor with the lowest level set to
 the desired referent. Numeric variables are accepted, and coerced to
 factor with lowest level (referent) being the smallest number. Character variables are
@@ -76,6 +77,14 @@ facilitates reporting effects with interpretable person-time denominators.
 For example, if the person-time variable (offset) is in days, a multiplier
 of 365*100 would result in estimates of rate differences per 100
 person-years.}
+
+\item{exposure.scaler}{(Optional, only applicable for continuous exposure)
+Default 1. Numeric value to scale effects with a continuous exposure. This 
+option facilitates reporting effects for an interpretable contrast (i.e. 
+magnitude of difference) within the continuous exposure. For example, if 
+the continuous exposure is age in years, a multiplier of 10 would result 
+in estimates per 10 year increase in age rather than per a 1 year increase 
+in age.}
 }
 \value{
 A list containing the following: \itemize{
