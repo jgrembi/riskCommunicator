@@ -136,7 +136,7 @@ gComp <- function(data,
   if(length(unique(boot_res$test)) > 1) { # For subgroups and/or >2 treatment/exposure levels
     ci <- boot_res %>%
       dplyr::group_by(.data$test) %>%
-      dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat/harm`),
+      dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean Difference`),
                           ~stats::quantile(., probs = 0.025, na.rm = T)) %>%
       dplyr::mutate(test = paste0(.data$test,"_2.5% CL")) %>%
       dplyr::ungroup() %>%
@@ -144,7 +144,7 @@ gComp <- function(data,
       tidyr::spread(.data$test, value) %>%
       dplyr::left_join(boot_res %>%
                          dplyr::group_by(.data$test) %>%
-                         dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Number needed to treat/harm`),
+                         dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean Difference`),
                                              ~stats::quantile(., probs = 0.975, na.rm = T)) %>%
                          dplyr::mutate(test = paste0(.data$test, "_97.5% CL")) %>%
                          dplyr::ungroup() %>%
@@ -161,24 +161,29 @@ gComp <- function(data,
       dplyr::select(tidyselect::vars_select(names(.), 
                                             tidyselect::starts_with(unlist(test_list))))
     summary <- purrr::map_dfc(test_list, function(t) {
-      # t = test_list[1]
+       # t = test_list[1]
       df <- res_ci_df %>%
         stats::na.omit() %>%
         dplyr::select(tidyselect::contains(t)) %>%
         dplyr::rename_all(.funs = funs(sub(t, "Estimate", .))) %>%
         dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
-        dplyr::select(.data$Out)
+        dplyr::select(.data$Out) %>%
+        bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
+                dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
+                dplyr::select(tidyselect::contains(t)) %>%
+                dplyr::rename_all(.funs = funs(sub(t, "Out", .))) %>%
+                  dplyr::mutate(Out = formatC(round(.data$Out, 1), format = "f", digits = 1)))
       names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
     })
-    rownames(summary) <- rownames(res_ci_df %>% na.omit())
+    rownames(summary) <- c(rownames(res_ci_df %>% na.omit()), "Number needed to treat/harm")
     
   } else { # For no subgroups and only 2 treatment/exposure levels
     res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
       tibble::rownames_to_column("outcome") %>%
-      dplyr::left_join(data.frame(outcome = rownames(pt_estimate$parameter.estimates),
-                                  ci.ll = sapply(2:8, function(i) stats::quantile(boot_res[,i], probs = 0.025, na.rm = T)),
-                                  ci.ul = sapply(2:8, function(i) stats::quantile(boot_res[,i], probs = 0.975, na.rm = T))) %>%
+      dplyr::left_join(data.frame(outcome = rownames(pt_estimate$parameter.estimates)[1:6],
+                                  ci.ll = sapply(2:7, function(i) stats::quantile(boot_res[,i], probs = 0.025, na.rm = T)),
+                                  ci.ul = sapply(2:7, function(i) stats::quantile(boot_res[,i], probs = 0.975, na.rm = T))) %>%
                          dplyr::mutate(outcome = as.character(.data$outcome)), by = "outcome") %>%
       tibble::column_to_rownames("outcome") %>%
       dplyr::rename(`2.5% CL` = .data$ci.ll, `97.5% CL` = .data$ci.ul)
@@ -186,8 +191,12 @@ gComp <- function(data,
       stats::na.omit() %>%
       dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
       dplyr::select(-(.data$Estimate:.data$`97.5% CL`)) %>%
-      dplyr::rename(`Estimate (95% CI)` = .data$Out)
-    rownames(summary) <- rownames(res_ci_df %>% na.omit())
+      bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
+                  dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
+                  dplyr::mutate(Out = formatC(round(.data$Estimate, 1), format = "f", digits = 1)) %>%
+                  dplyr::select(.data$Out)) %>%
+        dplyr::rename(`Estimate (95% CI)` = .data$Out)
+    rownames(summary) <- c(rownames(res_ci_df %>% na.omit()), "Number needed to treat/harm")
   }
 
   # Output results list
