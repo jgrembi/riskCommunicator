@@ -44,9 +44,56 @@
 #'   As bootstrap resamples are generated with random sampling, users should
 #'   set a seed (\code{\link[base]{set.seed}} for reproducible
 #'   confidence intervals.
+#'  
+#' @note
+#'  Note that for a protective exposure (risk difference less than 0), the 
+#'   'Number needed to treat/harm' is interpreted as the number needed to treat, 
+#'   and for a harmful exposure (risk difference greater than 0), it is 
+#'   interpreted as the number needed to harm. Note also that confidence intervals 
+#'   are not reported for the 'Number needed to treat/harm.' If the confidence 
+#'   interval (CI) for the risk difference crosses the null, the construction of 
+#'   the CI for the 'Number needed to treat/harm' is not well defined. Challenges 
+#'   and options for reporting the Number needed to treat/harm' CI are reviewed 
+#'   extensively in Altman 1998, Hutton 2000, and Stang 2010, with a consensus 
+#'   that an appropriate interval would have two segments, one bounded at negative 
+#'   infinity and the other at positive infinity. Because the Number needed to 
+#'   treat/harm' is most useful as a communication tool and is directly derived 
+#'   from the risk difference, which has a CI that provides a more interpretable measure of precision, we do not report the 
+#'   CI for the NNT. If the CI of the risk difference does not cross the null, 
+#'   the NNT CI can be calculated straightforwardly by taking the inverse of each 
+#'   confidence bound of the risk difference.
 #'
 #' @export
+#' 
+#' @references 
+#'  Ahern J, Hubbard A, Galea S. Estimating the effects of potential public health 
+#'   interventions on population disease burden: a step-by-step illustration of 
+#'   causal inference methods. Am. J. Epidemiol. 2009;169(9):1140–1147.
+#'  
+#'  Altman DG, Deeks JJ, Sackett DL. Odds ratios should be avoided when events 
+#'   are common. BMJ. 1998;317(7168):1318.
+#' 
+#'  Hernán MA, Robins JM (2020). Causal Inference: What If. Boca Raton: 
+#'   Chapman & Hall/CRC. /href{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}{A link to the book can be found here}
+#' 
+#'  Hutton JL. Number needed to treat: properties and problems. Journal of the 
+#'   Royal Statistical Society: Series A (Statistics in Society). 2000;163(3):381–402.
 #'
+#'  Robins J. A new approach to causal inference in mortality studies with a 
+#'   sustained exposure period—application to control of the healthy worker 
+#'   survivor effect. Mathematical Modelling. 1986;7(9):1393–1512.
+#'   
+#'  Snowden JM, Rose S, Mortimer KM. Implementation of G-computation on a 
+#'   simulated data set: demonstration of a causal inference technique. 
+#'   Am. J. Epidemiol. 2011;173(7):731–738.
+#'   
+#'  Stang A, Poole C, Bender R. Common problems related to the use of number 
+#'   needed to treat. Journal of Clinical Epidemiology. 2010;63(8):820–825. 
+#'   
+#'  Westreich D, Cole SR, Young JG, et al. The parametric g-formula to 
+#'   estimate the effect of highly active antiretroviral therapy on incident 
+#'    AIDS or death. Stat Med. 2012;31(18):2000–2009.
+#'   
 #' @examples
 #' ## Obtain the risk difference and risk ratio for cardiovascular disease or death between
 #' ## patients with and without diabetes.
@@ -57,7 +104,7 @@
 #' @importFrom rsample bootstraps analysis
 #' @importFrom stats quantile as.formula
 #' @importFrom dplyr rename n_distinct left_join mutate group_by ungroup select
-#'   summarise_at vars
+#'   summarise_at vars bind_rows
 #' @importFrom tibble rownames_to_column column_to_rownames
 #' @importFrom tidyr nest unnest gather spread unnest_legacy
 #' @importFrom purrr map_dfc
@@ -168,11 +215,11 @@ gComp <- function(data,
         dplyr::rename_all(.funs = funs(sub(t, "Estimate", .))) %>%
         dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
         dplyr::select(.data$Out) %>%
-        bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
+        dplyr::bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
                 dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
                 dplyr::select(tidyselect::contains(t)) %>%
                 dplyr::rename_all(.funs = funs(sub(t, "Out", .))) %>%
-                  dplyr::mutate(Out = formatC(round(.data$Out, 1), format = "f", digits = 1)))
+                  dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
       names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
     })
@@ -193,12 +240,13 @@ gComp <- function(data,
       dplyr::select(-(.data$Estimate:.data$`97.5% CL`)) %>%
       bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
                   dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
-                  dplyr::mutate(Out = formatC(round(.data$Estimate, 1), format = "f", digits = 1)) %>%
+                  dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Estimate, 3), format = "f", digits = 3))) %>%
                   dplyr::select(.data$Out)) %>%
         dplyr::rename(`Estimate (95% CI)` = .data$Out)
     rownames(summary) <- c(rownames(res_ci_df %>% na.omit()), "Number needed to treat/harm")
   }
-
+  summary <- summary %>%
+    stats::na.omit()
   # Output results list
   res <- list(
     summary = summary,
