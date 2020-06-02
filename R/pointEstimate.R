@@ -29,7 +29,7 @@
 #' @param X (Optional) Default NULL. Character argument which specifies the
 #'   exposure variable (or treatment group assignment), which can be binary,
 #'   categorical, or continuous. This variable can be supplied as a factor
-#'   variable, a numeric variable coded 0 or 1, or a continuous variable.
+#'   variable (for binary or categorical exposures) or a continuous variable.
 #'   Preferably, \code{X} is supplied as a factor with the lowest level set to
 #'   the desired referent. Numeric variables are accepted, and coerced to
 #'   factor with lowest level (referent) being the smallest number. Character variables are
@@ -55,7 +55,12 @@
 #'   of 365*100 would result in estimates of rate differences per 100
 #'   person-years.
 #' @param exposure.scaler (Optional, only applicable for continuous exposure)
-#' Default 1. 
+#'   Default 1. Numeric value to scale effects with a continuous exposure. This 
+#'   option facilitates reporting effects for an interpretable contrast (i.e. 
+#'   magnitude of difference) within the continuous exposure. For example, if 
+#'   the continuous exposure is age in years, a multiplier of 10 would result 
+#'   in estimates per 10 year increase in age rather than per a 1 year increase 
+#'   in age.
 #'
 #' @return A list containing the following: \itemize{
 #'   \item{parameter.estimates} {Point estimates for the risk difference, risk
