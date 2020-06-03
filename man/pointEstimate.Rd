@@ -14,7 +14,8 @@ pointEstimate(
   subgroup = NULL,
   offset = NULL,
   rate.multiplier = 1,
-  exposure.scalar = 1
+  exposure.scalar = 1,
+  exposure.center = TRUE
 )
 }
 \arguments{
@@ -85,6 +86,14 @@ magnitude of difference) within the continuous exposure. For example, if
 the continuous exposure is age in years, a multiplier of 10 would result 
 in estimates per 10 year increase in age rather than per a 1 year increase 
 in age.}
+
+\item{exposure.center}{(Optional, only applicable for continuous exposure)
+Default TRUE. Logical or numeric value to center a continuous exposure. This
+option facilitates reporting effects at the mean value of the exposure 
+variable, and allows for a mean value to be provided directly to the function
+in cases where bootstrap resampling is being conducted and a standardized 
+centering value should be used across all bootstraps. See note below on 
+continuous exposure variables for additional details.}
 }
 \value{
 A list containing the following: \itemize{

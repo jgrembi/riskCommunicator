@@ -61,6 +61,13 @@
 #'   the continuous exposure is age in years, a multiplier of 10 would result 
 #'   in estimates per 10 year increase in age rather than per a 1 year increase 
 #'   in age.
+#' @param exposure.center (Optional, only applicable for continuous exposure)
+#'   Default TRUE. Logical or numeric value to center a continuous exposure. This
+#'   option facilitates reporting effects at the mean value of the exposure 
+#'   variable, and allows for a mean value to be provided directly to the function
+#'   in cases where bootstrap resampling is being conducted and a standardized 
+#'   centering value should be used across all bootstraps. See note below on 
+#'   continuous exposure variables for additional details.
 #'
 #' @return A list containing the following: \itemize{
 #'   \item{parameter.estimates} {Point estimates for the risk difference, risk
@@ -174,7 +181,8 @@ pointEstimate <- function(data,
                           subgroup = NULL,  
                           offset = NULL, 
                           rate.multiplier = 1,
-                          exposure.scalar = 1) {
+                          exposure.scalar = 1,
+                          exposure.center = TRUE) {
   # data = helen_df
   # Y = "cvd_dth"
   #  X = "DIABETES"
@@ -258,23 +266,11 @@ pointEstimate <- function(data,
   # Ensure X is categorical (factor) or numeric, throw error if character
   if (is.numeric(data[[X]])) {
     message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
-  } else if (is.factor(data[[X]]) & exposure.scalar != 1) {
-    stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
+  } else if (is.factor(data[[X]])) {
+    if(exposure.scalar != 1) stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
   } else {
     stop("X must be a factor or numeric variable")
   }
-  
-    
-    
-    #   X_type <- ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
-    # if (X_type == "numeric") {
-    #   message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
-    # } else {
-    #   if(X_type == "categorical" & exposure.scalar != 1) {
-    #     stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
-    #   }
-    # }
-  # }
   
   # Ensure Z covariates are NOT character variables in the dataset
   if (!is.null(Z)) {
@@ -294,7 +290,7 @@ pointEstimate <- function(data,
   # Center continuous variable and divide by exposure.scalar
   if(is.numeric(data[[X]])) {
     data <- data %>%
-      dplyr::mutate(!!X := as.vector(scale(!!X, center = T, scale = exposure.scalar)))
+      dplyr::mutate(!!X := as.vector(scale(!!X, center = exposure.center, scale = exposure.scalar)))
   }
   
   # Run GLM

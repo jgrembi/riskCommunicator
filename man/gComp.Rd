@@ -15,7 +15,8 @@ gComp(
   offset = NULL,
   rate.multiplier = 1,
   R = 200,
-  clusterID = NULL
+  clusterID = NULL,
+  exposure.scalar = 1
 )
 }
 \arguments{
@@ -87,6 +88,14 @@ the variable name for the unique identifier for clusters. This option
 specifies that clustering should be accounted for in the calculation of
 confidence intervals. The \code{clusterID} will be used as the level for
 resampling in the bootstrap procedure.}
+
+\item{exposure.scalar}{(Optional, only applicable for continuous exposure)
+Default 1. Numeric value to scale effects with a continuous exposure. This 
+option facilitates reporting effects for an interpretable contrast (i.e. 
+magnitude of difference) within the continuous exposure. For example, if 
+the continuous exposure is age in years, a multiplier of 10 would result 
+in estimates per 10 year increase in age rather than per a 1 year increase 
+in age.}
 }
 \value{
 An object of class \code{gComp} which is a list with components:

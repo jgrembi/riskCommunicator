@@ -144,25 +144,25 @@ gComp <- function(data,
                   offset = NULL, 
                   rate.multiplier = 1, 
                   R = 200,
-                  clusterID = NULL) {
+                  clusterID = NULL,
+                  exposure.scalar = 1
+                  ) {
   
-  # Ensure X is categorical (factor) or numeric, throw error if character
+  # Ensure X is categorical (factor) or numeric, throw error if character.  Also if X is numeric, calculate the mean value. 
+  #  This will be used for centering the continnuous exposure to ensure estimates are within the range of the observed values.
+  #  This is done here so that the same mean value can be used across all bootstraps for consistent interpretation.
   if (!is.null(X)) {
-    X_type = ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
+    X_mean = ifelse(is.factor(data[[X]]), TRUE, ifelse(is.numeric(data[[X]]), mean(data[[X]]), stop("X must be a factor or numeric variable")))
   } else {
     formula = stats::as.formula(formula)
     X <- rlang::sym(all.vars(formula[[3]])[1])
-    X_type = ifelse(is.factor(data[[X]]), "categorical", ifelse(is.numeric(data[[X]]), "numeric", stop("X must be a factor or numeric variable")))
+    X_mean = ifelse(is.factor(data[[X]]), TRUE, ifelse(is.numeric(data[[X]]), mean(data[[X]]), stop("X must be a factor or numeric variable")))
   }
   
   if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
   
-  # if (X_type == "numeric") {
-  #   stop("Numeric explanitory variables not allowed at this time, we are still working on that feature!")
-  # }
-  
   # Get point estimate for diff and ratio
-  pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier)
+  pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean)
   
   # Nest df by bootstrap resampling unit
   if (is.null(clusterID)) { # By observation
@@ -188,7 +188,7 @@ gComp <- function(data,
       tidyr::unnest_legacy(., cols = c(data)) %>%
       dplyr::ungroup() %>%
       dplyr::select(-tidyselect::matches("dummy_id"))
-    estimate <- suppressMessages(pointEstimate(df, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier))
+    estimate <- suppressMessages(pointEstimate(df, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
     result <- estimate$parameter.estimates %>%
       t() %>%
       as.data.frame() %>% 
@@ -238,7 +238,7 @@ gComp <- function(data,
                 dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
                 dplyr::select(tidyselect::contains(t)) %>%
                 dplyr::rename_all(.funs = funs(sub(t, "Out", .))) %>%
-                  dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
+                  dplyr::mutate(Out = ifelse(is.na(.data$Out), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
       names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
     })
@@ -257,7 +257,7 @@ gComp <- function(data,
       stats::na.omit() %>%
       dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
       dplyr::select(-(.data$Estimate:.data$`97.5% CL`)) %>%
-      bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
+      dplyr::bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
                   dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
                   dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Estimate, 3), format = "f", digits = 3))) %>%
                   dplyr::select(.data$Out)) %>%
