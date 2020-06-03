@@ -132,18 +132,35 @@ Note that for a protective exposure (risk difference less than 0), the
   'Number needed to treat/harm' is interpreted as the number needed to treat, 
   and for a harmful exposure (risk difference greater than 0), it is 
   interpreted as the number needed to harm. Note also that confidence intervals 
-  are not reported for the 'Number needed to treat/harm.' If the confidence 
+  are not reported for the number needed to treat/harm. If the confidence 
   interval (CI) for the risk difference crosses the null, the construction of 
-  the CI for the 'Number needed to treat/harm' is not well defined. Challenges 
-  and options for reporting the Number needed to treat/harm' CI are reviewed 
+  the CI for the number needed to treat/harm is not well defined. Challenges 
+  and options for reporting the Number needed to treat/harm CI are reviewed 
   extensively in Altman 1998, Hutton 2000, and Stang 2010, with a consensus 
   that an appropriate interval would have two segments, one bounded at negative 
-  infinity and the other at positive infinity. Because the Number needed to 
-  treat/harm' is most useful as a communication tool and is directly derived 
-  from the risk difference, which has a CI that provides a more interpretable measure of precision, we do not report the 
-  CI for the NNT. If the CI of the risk difference does not cross the null, 
-  the NNT CI can be calculated straightforwardly by taking the inverse of each 
-  confidence bound of the risk difference.
+  infinity and the other at positive infinity. Because the number needed to 
+  treat/harm is most useful as a communication tool and is directly derived 
+  from the risk difference, which has a CI that provides a more interpretable 
+  measure of precision, we do not report the CI for the number needed to 
+  treat/harm. If the CI of the risk difference does not cross the null, the 
+  number needed to treat/harm CI can be calculated straightforwardly by 
+  taking the inverse of each confidence bound of the risk difference.
+
+For continuous exposure variables, the default effects are provided 
+  for a one unit difference in the exposure at the mean value of the exposure 
+  variable. Because the underlying parametric model for a binary outcome is 
+  logistic regression, the risks for a continuous exposure will be estimated 
+  to be linear on the log-odds (logit) scale, such that the odds ratio for 
+  any one unit increase in the continuous variable is constant. However, 
+  the risks will not be linear on the linear (risk difference) or log (risk 
+  ratio) scales, such that these parameters will not be constant across the 
+  range of the continuous exposure. Users should be aware that the risk 
+  difference, risk ratio, number needed to treat/harm (for a binary outcome) 
+  and the incidence rate difference (for a rate/count outcome) reported with 
+  a continous exposure apply specifically at the mean of the continuous 
+  exposure. The effects do not necessarily apply across the entire range of 
+  the variable. However, variations in the effect are likely small, 
+  especially near the mean.
 }
 \examples{
 ## Obtain the risk difference and risk ratio for cardiovascular disease or death between

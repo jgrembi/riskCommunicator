@@ -54,7 +54,7 @@
 #'   For example, if the person-time variable (offset) is in days, a multiplier
 #'   of 365*100 would result in estimates of rate differences per 100
 #'   person-years.
-#' @param exposure.scaler (Optional, only applicable for continuous exposure)
+#' @param exposure.scalar (Optional, only applicable for continuous exposure)
 #'   Default 1. Numeric value to scale effects with a continuous exposure. This 
 #'   option facilitates reporting effects for an interpretable contrast (i.e. 
 #'   magnitude of difference) within the continuous exposure. For example, if 
@@ -91,6 +91,29 @@
 #'   distribution, users should set a seed (\code{\link[base]{set.seed}} for
 #'   reproducible confidence intervals.
 #'
+#' @note
+#'  Note that for a protective exposure (risk difference less than 0), the 
+#'   'Number needed to treat/harm' is interpreted as the number needed to treat, 
+#'   and for a harmful exposure (risk difference greater than 0), it is 
+#'   interpreted as the number needed to harm. 
+#'   
+#' @note 
+#'  For continuous exposure variables, the default effects are provided 
+#'   for a one unit difference in the exposure at the mean value of the exposure 
+#'   variable. Because the underlying parametric model for a binary outcome is 
+#'   logistic regression, the risks for a continuous exposure will be estimated 
+#'   to be linear on the log-odds (logit) scale, such that the odds ratio for 
+#'   any one unit increase in the continuous variable is constant. However, 
+#'   the risks will not be linear on the linear (risk difference) or log (risk 
+#'   ratio) scales, such that these parameters will not be constant across the 
+#'   range of the continuous exposure. Users should be aware that the risk 
+#'   difference, risk ratio, number needed to treat/harm (for a binary outcome) 
+#'   and the incidence rate difference (for a rate/count outcome) reported with 
+#'   a continous exposure apply specifically at the mean of the continuous 
+#'   exposure. The effects do not necessarily apply across the entire range of 
+#'   the variable. However, variations in the effect are likely small, 
+#'   especially near the mean.
+#'     
 #' @references 
 #'  Ahern J, Hubbard A, Galea S. Estimating the effects of potential public health 
 #'   interventions on population disease burden: a step-by-step illustration of 
@@ -151,7 +174,7 @@ pointEstimate <- function(data,
                           subgroup = NULL,  
                           offset = NULL, 
                           rate.multiplier = 1,
-                          exposure.scaler = 1) {
+                          exposure.scalar = 1) {
   # data = helen_df
   # Y = "cvd_dth"
   #  X = "DIABETES"
@@ -235,7 +258,7 @@ pointEstimate <- function(data,
   # Ensure X is categorical (factor) or numeric, throw error if character
   if (is.numeric(data[[X]])) {
     message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
-  } else if (is.factor(data[[X]]) & exposure.scaler != 1) {
+  } else if (is.factor(data[[X]]) & exposure.scalar != 1) {
     stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
   } else {
     stop("X must be a factor or numeric variable")
@@ -247,7 +270,7 @@ pointEstimate <- function(data,
     # if (X_type == "numeric") {
     #   message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
     # } else {
-    #   if(X_type == "categorical" & exposure.scaler != 1) {
+    #   if(X_type == "categorical" & exposure.scalar != 1) {
     #     stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
     #   }
     # }
@@ -268,10 +291,10 @@ pointEstimate <- function(data,
       dplyr::mutate(!!subgroup := factor(!!subgroup))
   }
   
-  # Center continuous variable and divide by exposure.scaler
+  # Center continuous variable and divide by exposure.scalar
   if(is.numeric(data[[X]])) {
     data <- data %>%
-      dplyr::mutate(!!X := as.vector(scale(!!X, center = T, scale = exposure.scaler)))
+      dplyr::mutate(!!X := as.vector(scale(!!X, center = T, scale = exposure.scalar)))
   }
   
   # Run GLM
