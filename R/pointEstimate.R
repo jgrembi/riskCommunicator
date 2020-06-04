@@ -69,7 +69,8 @@
 #'   centering value should be used across all bootstraps. See note below on 
 #'   continuous exposure variables for additional details.
 #'
-#' @return A list containing the following: \itemize{
+#' @return A list containing the following: 
+#' \itemize{
 #'   \item{parameter.estimates} {Point estimates for the risk difference, risk
 #'   ratio, odds ratio, incidence rate difference, incidence rate ratio, mean
 #'   difference and/or number needed to treat/harm, depending on the outcome.type}
@@ -79,7 +80,10 @@
 #'   \code{glm}} \item{Y} {The response variable} \item{covariates}
 #'   {Covariates used in the model} \item{predicted.data} {A tibble with the
 #'   predicted values for the exposed and unexposed counterfactual predictions 
-#'   for each observation in the original dataset} }
+#'   for each observation in the original dataset} \item{glm.result} {The 
+#'   \code{glm} class object returned from the fitted regression of the outcome 
+#'   on the exposure and relevant covariates.} 
+#'   }
 #'
 #' @details The \code{pointEstimate} function executes the following steps on
 #'   the data: 
@@ -376,6 +380,7 @@ pointEstimate <- function(data,
               formula = formula, 
               Y = Y, 
               covariates = ifelse(length(attr(glm_result$terms , "term.labels")) > 1, do.call(paste,as.list(attr(glm_result$terms , "term.labels")[-1])), NA),
-              predicted.data = results_tbl_all)
+              predicted.data = results_tbl_all, 
+              glm.result = glm_result)
   return(res)
 }

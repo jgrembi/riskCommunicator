@@ -14,6 +14,7 @@
 #'   resampling in the bootstrap procedure.
 #'
 #' @return An object of class \code{gComp} which is a list with components:
+#' \itemize{
 #'   \item{summary}{Summary providing parameter estimates and 95\% confidence
 #'   limits of the outcome difference and ratio} \item{results.df}{Data.frame
 #'   with parameter estimates, 2.5\% confidence limit, and 97.5\% confidence
@@ -26,6 +27,10 @@
 #'   \item{predicted.data}{A tibble with the predicted values for both exposed
 #'   and unexposed counterfactual predictions for each observation in the
 #'   original dataset}
+#'   \item{glm.result} {The 
+#'   \code{glm} class object returned from the fitted regression of the outcome 
+#'   on the exposure and relevant covariates.}
+#'   }
 #'
 #' @details The \code{gComp} function executes the following steps: 
 #' \enumerate{
@@ -121,11 +126,11 @@
 #' outcome.type = "binary", R = 100)
 #'
 #' @importFrom rsample bootstraps analysis
-#' @importFrom stats quantile as.formula
+#' @importFrom stats quantile as.formula na.omit
 #' @importFrom dplyr rename n_distinct left_join mutate group_by ungroup select
 #'   summarise_at vars bind_rows
 #' @importFrom tibble rownames_to_column column_to_rownames
-#' @importFrom tidyr nest unnest gather spread unnest_legacy
+#' @importFrom tidyr nest unnest gather spread unnest_legacy drop_na
 #' @importFrom purrr map_dfc
 #' @importFrom furrr future_map_dfr
 #' @importFrom tidyselect vars_select starts_with contains matches
@@ -183,7 +188,6 @@ gComp <- function(data,
   
   # Run R bootstrap iterations to get R point estimates 
   boot_res <- furrr::future_map_dfr(bs$splits, function(x) {
-     #x <- bs$splits[[1]]
      df <- rsample::analysis(x) %>%
       tidyr::unnest_legacy(., cols = c(data)) %>%
       dplyr::ungroup() %>%
@@ -225,9 +229,11 @@ gComp <- function(data,
       dplyr::left_join(ci, by = "outcome") %>%
       tibble::column_to_rownames("outcome") %>%
       dplyr::select(tidyselect::vars_select(names(.), 
-                                            tidyselect::starts_with(unlist(test_list))))
+                                            tidyselect::starts_with(unlist(test_list)))) 
+    ##Remove outcomes that are NA
+    res_ci_df <- res_ci_df[rowSums(is.na(res_ci_df)) != ncol(res_ci_df), ]
+    
     summary <- purrr::map_dfc(test_list, function(t) {
-       # t = test_list[1]
       df <- res_ci_df %>%
         stats::na.omit() %>%
         dplyr::select(tidyselect::contains(t)) %>%
@@ -235,14 +241,14 @@ gComp <- function(data,
         dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
         dplyr::select(.data$Out) %>%
         dplyr::bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
-                dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
-                dplyr::select(tidyselect::contains(t)) %>%
-                dplyr::rename_all(.funs = funs(sub(t, "Out", .))) %>%
-                  dplyr::mutate(Out = ifelse(is.na(.data$Out), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
+                           dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
+                           dplyr::select(tidyselect::contains(t)) %>%
+                           dplyr::rename_all(.funs = funs(sub(t, "Out", .))) %>%
+                           dplyr::mutate(Out = ifelse(is.na(.data$Out), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
       names(df) <- paste0(t, " Estimate (95% CI)")
       return(df)
     })
-    rownames(summary) <- c(rownames(res_ci_df %>% na.omit()), "Number needed to treat/harm")
+    rownames(summary) <- rownames(res_ci_df)
     
   } else { # For no subgroups and only 2 treatment/exposure levels
     res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
@@ -253,30 +259,35 @@ gComp <- function(data,
                          dplyr::mutate(outcome = as.character(.data$outcome)), by = "outcome") %>%
       tibble::column_to_rownames("outcome") %>%
       dplyr::rename(`2.5% CL` = .data$ci.ll, `97.5% CL` = .data$ci.ul)
+    
+    ##Remove outcomes that are NA
+    res_ci_df <- res_ci_df[rowSums(is.na(res_ci_df)) != ncol(res_ci_df), ]
+    
     summary <- res_ci_df %>% 
       stats::na.omit() %>%
       dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
       dplyr::select(-(.data$Estimate:.data$`97.5% CL`)) %>%
       dplyr::bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
-                  dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
-                  dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Estimate, 3), format = "f", digits = 3))) %>%
-                  dplyr::select(.data$Out)) %>%
-        dplyr::rename(`Estimate (95% CI)` = .data$Out)
-    rownames(summary) <- c(rownames(res_ci_df %>% na.omit()), "Number needed to treat/harm")
+                         dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
+                         dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Estimate, 3), format = "f", digits = 3))) %>%
+                         dplyr::select(.data$Out)) %>%
+      dplyr::rename(`Estimate (95% CI)` = .data$Out)
+    rownames(summary) <- rownames(res_ci_df)
   }
   summary <- summary %>%
     stats::na.omit()
-  # Output results list
+# Output results list
   res <- list(
     summary = summary,
-    results.df = res_ci_df %>% na.omit(), 
+    results.df = res_ci_df, 
     n = dplyr::n_distinct(data), 
     R = R, 
     boot.result = boot_res,
     contrast = pt_estimate$contrast,
     family = pt_estimate$family, 
     formula = pt_estimate$formula,
-    predicted.data = pt_estimate$predicted.data)
+    predicted.data = pt_estimate$predicted.data, 
+    glm.result = pt_estimate$glm.result)
   
   class(res) <- c("gComp", class(res))
   return(res)

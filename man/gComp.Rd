@@ -99,6 +99,7 @@ in age.}
 }
 \value{
 An object of class \code{gComp} which is a list with components:
+\itemize{
   \item{summary}{Summary providing parameter estimates and 95\% confidence
   limits of the outcome difference and ratio} \item{results.df}{Data.frame
   with parameter estimates, 2.5\% confidence limit, and 97.5\% confidence
@@ -111,6 +112,10 @@ An object of class \code{gComp} which is a list with components:
   \item{predicted.data}{A tibble with the predicted values for both exposed
   and unexposed counterfactual predictions for each observation in the
   original dataset}
+  \item{glm.result} {The 
+  \code{glm} class object returned from the fitted regression of the outcome 
+  on the exposure and relevant covariates.}
+  }
 }
 \description{
 Obtain a point estimate and 95\% confidence interval for
