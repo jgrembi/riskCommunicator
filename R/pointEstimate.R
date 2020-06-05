@@ -6,7 +6,7 @@
 #' @param data (Required) A data.frame or tibble containing variables for
 #'   \code{Y}, \code{X}, and \code{Z} or with variables matching the model
 #'   variables specified in a user-supplied formula. Data set should also
-#'   contain variables for the optinal \code{subgroup} and \code{offset}, if
+#'   contain variables for the optional \code{subgroup} and \code{offset}, if
 #'   they are specified.
 #' @param outcome.type (Required) Character argument to describe the outcome
 #'   type. Acceptable responses, and the corresponding error distribution and
@@ -59,7 +59,7 @@
 #'   option facilitates reporting effects for an interpretable contrast (i.e. 
 #'   magnitude of difference) within the continuous exposure. For example, if 
 #'   the continuous exposure is age in years, a multiplier of 10 would result 
-#'   in estimates per 10 year increase in age rather than per a 1 year increase 
+#'   in estimates per 10-year increase in age rather than per a 1-year increase 
 #'   in age.
 #' @param exposure.center (Optional, only applicable for continuous exposure)
 #'   Default TRUE. Logical or numeric value to center a continuous exposure. This
