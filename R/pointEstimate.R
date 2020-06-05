@@ -30,9 +30,9 @@
 #'   exposure variable (or treatment group assignment), which can be binary,
 #'   categorical, or continuous. This variable can be supplied as a factor
 #'   variable (for binary or categorical exposures) or a continuous variable.
-#'   For binary/categorical exposures, \code{X} is supplied as a factor with 
+#'   For binary/categorical exposures, \code{X} should be supplied as a factor with 
 #'   the lowest level set to the desired referent. Numeric variables are 
-#'   accepted, but will be centered (see Notes). Character variables are not 
+#'   accepted, but will be centered (see Note). Character variables are not 
 #'   accepted and will throw an error. Can optionally provide a formula
 #'   instead of \code{Y} and \code{X} variables.
 #' @param Z (Optional) Default NULL. List or single character vector which
