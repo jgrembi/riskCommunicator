@@ -14,9 +14,9 @@ gComp(
   subgroup = NULL,
   offset = NULL,
   rate.multiplier = 1,
+  exposure.scalar = 1,
   R = 200,
-  clusterID = NULL,
-  exposure.scalar = 1
+  clusterID = NULL
 )
 }
 \arguments{
@@ -51,10 +51,10 @@ outcome variable. Can optionally provide a formula instead of \code{Y} and
 exposure variable (or treatment group assignment), which can be binary,
 categorical, or continuous. This variable can be supplied as a factor
 variable (for binary or categorical exposures) or a continuous variable.
-Preferably, \code{X} is supplied as a factor with the lowest level set to
-the desired referent. Numeric variables are accepted, and coerced to
-factor with lowest level (referent) being the smallest number. Character variables are
-not accepted and will throw an error. Can optionally provide a formula
+For binary/categorical exposures, \code{X} is supplied as a factor with 
+the lowest level set to the desired referent. Numeric variables are 
+accepted, but will be centered (see Notes). Character variables are not 
+accepted and will throw an error. Can optionally provide a formula
 instead of \code{Y} and \code{X} variables.}
 
 \item{Z}{(Optional) Default NULL. List or single character vector which
@@ -80,6 +80,14 @@ For example, if the person-time variable (offset) is in days, a multiplier
 of 365*100 would result in estimates of rate differences per 100
 person-years.}
 
+\item{exposure.scalar}{(Optional, only applicable for continuous exposure)
+Default 1. Numeric value to scale effects with a continuous exposure. This 
+option facilitates reporting effects for an interpretable contrast (i.e. 
+magnitude of difference) within the continuous exposure. For example, if 
+the continuous exposure is age in years, a multiplier of 10 would result 
+in estimates per 10 year increase in age rather than per a 1 year increase 
+in age.}
+
 \item{R}{(Optional) Default 200. The number of data resamples to be conducted
 to produce the bootstrap confidence interval of the estimate.}
 
@@ -88,14 +96,6 @@ the variable name for the unique identifier for clusters. This option
 specifies that clustering should be accounted for in the calculation of
 confidence intervals. The \code{clusterID} will be used as the level for
 resampling in the bootstrap procedure.}
-
-\item{exposure.scalar}{(Optional, only applicable for continuous exposure)
-Default 1. Numeric value to scale effects with a continuous exposure. This 
-option facilitates reporting effects for an interpretable contrast (i.e. 
-magnitude of difference) within the continuous exposure. For example, if 
-the continuous exposure is age in years, a multiplier of 10 would result 
-in estimates per 10 year increase in age rather than per a 1 year increase 
-in age.}
 }
 \value{
 An object of class \code{gComp} which is a list with components:
@@ -149,7 +149,7 @@ Note that for a protective exposure (risk difference less than 0), the
   are not reported for the number needed to treat/harm. If the confidence 
   interval (CI) for the risk difference crosses the null, the construction of 
   the CI for the number needed to treat/harm is not well defined. Challenges 
-  and options for reporting the Number needed to treat/harm CI are reviewed 
+  and options for reporting the number needed to treat/harm CI are reviewed 
   extensively in Altman 1998, Hutton 2000, and Stang 2010, with a consensus 
   that an appropriate interval would have two segments, one bounded at negative 
   infinity and the other at positive infinity. Because the number needed to 

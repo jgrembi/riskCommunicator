@@ -58,7 +58,7 @@
 #'   are not reported for the number needed to treat/harm. If the confidence 
 #'   interval (CI) for the risk difference crosses the null, the construction of 
 #'   the CI for the number needed to treat/harm is not well defined. Challenges 
-#'   and options for reporting the Number needed to treat/harm CI are reviewed 
+#'   and options for reporting the number needed to treat/harm CI are reviewed 
 #'   extensively in Altman 1998, Hutton 2000, and Stang 2010, with a consensus 
 #'   that an appropriate interval would have two segments, one bounded at negative 
 #'   infinity and the other at positive infinity. Because the number needed to 
@@ -148,9 +148,9 @@ gComp <- function(data,
                   subgroup = NULL,
                   offset = NULL, 
                   rate.multiplier = 1, 
+                  exposure.scalar = 1,
                   R = 200,
-                  clusterID = NULL,
-                  exposure.scalar = 1
+                  clusterID = NULL
                   ) {
   
   # Ensure X is categorical (factor) or numeric, throw error if character.  Also if X is numeric, calculate the mean value. 
