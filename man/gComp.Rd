@@ -181,7 +181,7 @@ For continuous exposure variables, the default effects are provided
 ## patients with and without diabetes.
 data(cvdd)
 diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
-outcome.type = "binary", R = 100)
+outcome.type = "binary", R = 50)
 
 }
 \references{

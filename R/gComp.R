@@ -123,7 +123,7 @@
 #' ## patients with and without diabetes.
 #' data(cvdd)
 #' diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
-#' outcome.type = "binary", R = 100)
+#' outcome.type = "binary", R = 50)
 #'
 #' @importFrom rsample bootstraps analysis
 #' @importFrom stats quantile as.formula na.omit
@@ -245,9 +245,10 @@ gComp <- function(data,
                            dplyr::select(tidyselect::contains(t)) %>%
                            dplyr::rename_all(.funs = funs(sub(t, "Out", .))) %>%
                            dplyr::mutate(Out = ifelse(is.na(.data$Out), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
-      names(df) <- paste0(t, " Estimate (95% CI)")
+      names(df) <- paste0(t, " Estimate (95% CI)") 
       return(df)
-    })
+    }) %>%
+      stats::na.omit()
     rownames(summary) <- rownames(res_ci_df)
     
   } else { # For no subgroups and only 2 treatment/exposure levels
@@ -271,11 +272,11 @@ gComp <- function(data,
                          dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
                          dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Estimate, 3), format = "f", digits = 3))) %>%
                          dplyr::select(.data$Out)) %>%
-      dplyr::rename(`Estimate (95% CI)` = .data$Out)
+      dplyr::rename(`Estimate (95% CI)` = .data$Out) %>%
+      stats::na.omit()
     rownames(summary) <- rownames(res_ci_df)
   }
-  summary <- summary %>%
-    stats::na.omit()
+  
 # Output results list
   res <- list(
     summary = summary,

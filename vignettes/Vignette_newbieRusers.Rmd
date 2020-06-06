@@ -134,7 +134,7 @@ Note that for a protective exposure (risk difference less than 0), the **Number 
 
 The gComp function is designed similarly to a normal regression model in R and takes as input either a formula or a specification of Y (outcome), X (exposure) and Z (covariates) (type `help(gComp)` for additional details). If you specify X, Y, and Z separately, each variable name needs to be entered in quotes. In this example, logistic regression is used as the underlying parametric model for g-computation.
 
-```{r binary_outcome}
+```{r binary_outcome, paged.print = FALSE}
 
 ## Specify the regression formula
 cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
@@ -144,7 +144,6 @@ set.seed(1298)
 
 ## Call the gComp function
 binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200)
-
 ```
 
 
@@ -155,7 +154,7 @@ set.seed(1298)
 binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 ```
 
-Note that we did not need to specify function arguments that did not apply for our analysis. For example, if we wanted to estimate unadjusted effects, with no Z covariates, we could simply leave out the Z argument in the function above. Arguments that are not included in the function statement are automatically populated with the default values. See below another example of the same analysis, which includes all arguments at their default values. This example is syntactically equivalent only to the first example for **binary.res** (i.e. the underlying code being evaluated is exactly the same), but is functionally equivalent to both of the examples above (i.e. will produce the same results).
+Note that we did not need to specify function arguments that did not apply for our analysis. For example, if we wanted to estimate unadjusted effects, with no Z covariates, we could simply leave out the Z argument in the function above. Arguments that are not included in the function statement are automatically populated with the default values. See below another example of the same analysis, which includes all arguments at their default values. This example is syntactically equivalent to the first example for **binary.res** (i.e. the code being evaluated is exactly the same), but is functionally equivalent to both of the examples above (i.e. will produce the same results).
 
 ```{r binary_outcome_defaults}
 set.seed(1298)
@@ -231,8 +230,6 @@ As above, we will estimate the risk difference, risk ratio, odds ratio, and numb
 contExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 200)
 
 contExp.res
-
-mean(cvdd$AGE)
 ```
 These results demonstrate that the 24-year risk of cardiovascular disease or death increases by an absolute 24.3% (95% CI: 22.5%, 26.2%) for a 10 year increase in age. The risk difference, risk ratio, and NNT estimates specifically apply at the mean observed age, or 50 years. The odds ratio is constant regardless of which 10-year difference in age is considered along the observed range.
 
@@ -315,6 +312,14 @@ plot(binary.res)
 
 We expect to see the histograms to look approximately normally distributed and the estimates to fall close to the dotted red line on the Q-Q plots.
 
+Additionally, if you are interested in examining the coefficient estimates and other components of the underlying `glm` that is also provided as an output.  The final item in the **gComp** class object is 'glm.result' which is a **glm** class object and can be manipulated like the results from a regular `glm` or `lm` object in R. For example, you can obtain the coefficient estimates of the fitted `glm` by using the `summary` function.
+```{r binary_outcome_glm.result, paged.print = FALSE}
+
+summary(binary.res$glm.result)
+
+```
+
+
 # Guidance on number of bootstraps
 To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>30min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 200, which should compute on datasets of 5000-10000 observations in <60s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.
 
@@ -325,7 +330,7 @@ The `gComp` function essentially executes four steps:
 1. *Fits regression model.*   Fit a regression of the outcome on the exposure and relevant covariates, using the provided data set.}    
 2. *Predicts counterfactuals.*  Using the model fit in step 1, calculate predicted outcomes for each observation in the data set under each level of the treatment/exposure.    
 3. *Estimates the marginal difference/ratio of treatment effect.*  This is done by taking the difference or ratio of the average of all observations under the treatment/no treatment regimes.    
-4. *Estimates confidence interval with bootstrap resampling.*  We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 10000.
+4. *Estimates confidence interval with bootstrap resampling.*  We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 1000 or larger.
 
 
 Please see the refrences listed under the `gComp` or `pointEstimate` function for a more detailed explaination of g-computation.
