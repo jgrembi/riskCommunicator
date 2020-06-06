@@ -225,7 +225,7 @@ pointEstimate <- function(data,
       stop("No formula, or Y and X variables provided") 
     }
     if (is.null(Z)) {
-      formula <- Y ~ X
+      formula <- stats::as.formula(paste(Y,X, sep = " ~ "))
     } else {
       formula <- stats::as.formula(paste(paste(Y,X, sep = " ~ "), paste(Z, collapse = " + "), sep = " + "))   
     }
