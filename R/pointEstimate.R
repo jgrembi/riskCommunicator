@@ -187,18 +187,6 @@ pointEstimate <- function(data,
                           rate.multiplier = 1,
                           exposure.scalar = 1,
                           exposure.center = TRUE) {
-  # data = helen_df
-  # Y = "cvd_dth"
-  #  X = "DIABETES"
-  #  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP")
-  # # X = "bmicat"
-  # # Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP")
-  # outcome.type = "binary"
-  # offset = NULL
-  # rate.multiplier = 1
-  # subgroup = "SEX"
-  # formula = cvdd.formula
-  # X <- Y <- Z <- NULL
 
   # Bind variable locally to function for offset2
   offset2 <- NULL
