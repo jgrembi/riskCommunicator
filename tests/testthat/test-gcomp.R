@@ -14,10 +14,35 @@ testthat::test_that("Y and X vars are both provided if no formula is given", {
 
 
 testthat::test_that("outcome is expected value", {
+  ## binary outcome
   testthat::expect_equal(round(gComp(data = cvdd, formula = cvd_dth ~ DIABETES + BMI, outcome.type = "binary", R = 4)$results.df[[1,1]], 2),  0.4)
+  ## binary outcome
   testthat::expect_equal(gComp(data = cvdd, Y = "DEATH", X = "DIABETES", Z = c("SEX", "AGE"), outcome.type  = "binary", R = 4)$R, 4)
-
-})
+  ## rate outcome
+  testthat::expect_equal(gComp(data = cvdd %>%
+                                 dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)),
+                                               timeout = as.numeric(timeout)), 
+                               Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                               outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)$results.df[1,1], 2.1892)
+  ## rate outcome with subgroup
+  testthat::expect_equal(round(gComp(data = cvdd %>%
+                                 dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)),
+                                               timeout = as.numeric(timeout)), 
+                               Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX",
+                               outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 20)$results.df[2,4], 2), 2.04)
+  ## continuous outcome
+  testthat::expect_equal(gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", R = 10)$results.df[1,1], 61.6257)
+  ## count outcome
+  testthat::expect_equal(round(gComp(data = cvdd, formula = "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", outcome.type = "count", R = 10)$results.df[1,1], 2), 0.05)
+  ## binary outcome, categorical exposure
+  testthat::expect_equal(round(gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", outcome.type = "binary", R = 5)$results.df[2,7], 2), 1.58)
+  ## binary outcome, continuous exposure
+  testthat::expect_equal(round(gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 5)$results.df[4,1], 2), 4.12)
+  ## binary outcome, continuous exposure, subgroups
+  testthat::expect_equal(round(gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES"), subgroup = "SEX", outcome.type = "binary", exposure.scalar = 10, R = 5)$results.df[1,4], 2), 0.24)
+  
+  
+  })
 
 testthat::test_that("class is correct", {
   testthat::expect_is(gComp(data = cvdd, formula = cvd_dth ~ DIABETES + AGE, outcome.type = "binary", R = 4), "gComp")
