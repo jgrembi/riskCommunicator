@@ -310,43 +310,43 @@ pointEstimate <- function(data,
       
     if (length(exposure_list) > 2) { # For when subgroups and exposure with more than 2 levels are both specified
       contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
-      subgroup_contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
+      subgroup_contrasts_res <- suppressMessages(purrr::map_dfc(exposure_list[-1], function(e) {
         
         predict_df_e <- fn_output %>%
           dplyr::select(tidyselect::contains(match = c(exposure_list[1], e)))#, tidyselect::contains(e))
-        subgroup_res <- purrr::map_dfc(subgroups_list, function(s) {
+        subgroup_res <- suppressMessages(purrr::map_dfc(subgroups_list, function(s) {
           predict_df_s = fn_output %>% 
             dplyr::select(tidyselect::contains(s))
           fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
           return(fn_results_tibble)
-        })
+        }))
         subgp_results <- subgroup_res %>%
           as.data.frame()
         colnames(subgp_results) <- paste0(e, "_v._", exposure_list[1],"_", subgroups_list)
         return(subgp_results)
-      })
+      }))
       results <- subgroup_contrasts_res
     } else { # For when only subgroups are specified
-      subgroup_res <- purrr::map_dfc(subgroups_list, function(s) {
+      subgroup_res <- suppressMessages(purrr::map_dfc(subgroups_list, function(s) {
         # s <- subgroups_list[1]
         predict_df_s = fn_output %>% 
           dplyr::select(tidyselect::contains(s))
         fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
         return(fn_results_tibble)
-      })
+      }))
       results <- subgroup_res %>%
         as.data.frame()
       colnames(results) <- subgroups_list
     }
   } else if (length(exposure_list) > 2) { # For when exposure with more than 2 levels is specified (but no subgroups)
     contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
-    contrasts_res <- purrr::map_dfc(exposure_list[-1], function(e) {
+    contrasts_res <- suppressMessages(purrr::map_dfc(exposure_list[-1], function(e) {
       # e <- exposure_list[2]
       predict_df_e <- fn_output %>%
         dplyr::select(tidyselect::contains(match = c(exposure_list[1], e))) #contains(exposure_list[1]), tidyselect::contains(e))
       fn_results_tibble <- get_results_tibble(predict.df = predict_df_e, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
       return(fn_results_tibble)
-    })
+    }))
     results <- contrasts_res %>%
       as.data.frame()
     colnames(results) <- contrasts_list

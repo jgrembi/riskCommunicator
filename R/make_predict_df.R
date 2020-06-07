@@ -39,22 +39,22 @@ make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL) {
     predict.levels <- levels(df[[X]])
   }
    # For each observation in the dataframe, predict (using the supplied glm result) data for each level of the treatment/exposure.
-  result.output.final <- purrr::map_dfc(predict.levels, function(x) {  # For each level of X (treatment/exposure), do the following...
+  result.output.final <- suppressMessages(purrr::map_dfc(predict.levels, function(x) {  # For each level of X (treatment/exposure), do the following...
     if (is.numeric(df[[X]])) {
       newdata <- df %>% dplyr::mutate(!!X := x)
     } else {
       newdata <- df %>% dplyr::mutate(!!X := factor(x, levels = predict.levels))
     }
     if(!is.null(subgroup)) { # If subgroups are present, do for each subgroup separately.
-      res.df <- purrr::map_dfc(levels(df[[subgroup]]), function(s) {
+      res.df <- suppressMessages(purrr::map_dfc(levels(df[[subgroup]]), function(s) {
         out <- stats::predict(glm.res, newdata = newdata %>% dplyr::mutate(!!subgroup := factor(s, levels = levels(df[[subgroup]]))))
         return(out)
-      })
+      }))
     } else {
       res.df <- stats::predict(glm.res, newdata = newdata)
     }
     return(res.df)
-  })
+  }))
   
   # Change column names to levels of X or level of X "_" level of subgroup, if present. 
   if (!is.null(subgroup)) {
