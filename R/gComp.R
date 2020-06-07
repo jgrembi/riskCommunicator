@@ -122,6 +122,7 @@
 #' ## Obtain the risk difference and risk ratio for cardiovascular disease or death between
 #' ## patients with and without diabetes.
 #' data(cvdd)
+#' set.seed(538)
 #' diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
 #' outcome.type = "binary", R = 50)
 #'
