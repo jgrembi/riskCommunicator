@@ -5,7 +5,7 @@ Authors@R:
     person(given = "Jessica",
            family = "Grembi",
            role = c("aut", "cre"),
-           email = "jgrembi@stanford.edu",
+           email = "jess.grembi@gmail.com",
            comment = c(ORCID = "0000-0001-6142-4913"))
 Depends: R (>= 3.5)
 Imports:
