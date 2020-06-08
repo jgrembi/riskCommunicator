@@ -58,6 +58,10 @@ We'll demonstrate how to use the package with data from the Framingham Heart Stu
 
 "The Framingham Heart Study is a long term prospective study of the etiology of cardiovascular disease among a population of free living subjects in the community of Framingham, Massachusetts. The Framingham Heart Study was a landmark study in epidemiology in that it was the first prospective study of cardiovascular disease and identified the concept of risk factors and their joint effects. The study began in 1948 and 5,209 subjects were initially enrolled in the study. Participants have been examined biennially since the inception of the study and all subjects are continuously followed through regular surveillance for cardiovascular outcomes. Clinic examination data has included cardiovascular disease risk factors and markers of disease such as blood pressure, blood chemistry, lung function, smoking history, health behaviors, ECG tracings, Echocardiography, and medication use. Through regular surveillance of area hospitals, participant contact, and death certificates, the Framingham Heart Study reviews and adjudicates events for the occurrence of Angina Pectoris, Myocardial Infarction, Heart Failure, and Cerebrovascular disease.
 
+```{r}
+data(cvdd)
+```
+
 **cvdd** is a subset of the data collected as part of the Framingham study from 4,240 participants who conducted a baseline exam and were free of prevalent coronary heart disease when they entered the study.
 Participant clinic data was collected during three examination periods, approximately 6 years apart, from roughly 1956 to 1968. Each participant was followed for a total of 24 years for the outcome of the following events: Angina Pectoris, Myocardial Infarction, Atherothrombotic Infarction or Cerebral Hemorrhage (Stroke) or death. 
 
@@ -71,7 +75,6 @@ Research question: what is the effect of having diabetes at the beginning of the
 Here, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat, adjusting for patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline). Logistic regression is used as the underlying parametric model for g-computation.
 
 ```{r binary_outcome, paged.print = FALSE}
-
 ## Specify the regression formula
 cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 
@@ -80,6 +83,7 @@ set.seed(1298)
 
 ## Call the gComp function
 binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200)
+
 binary.res
 ```
 
@@ -139,7 +143,7 @@ rate.res.subgroup
 
 # Checking model fit
 
-To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estiamtes by calling:
+To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estimates by calling:
 ```{r binary_outcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
 plot(binary.res)
 ```
