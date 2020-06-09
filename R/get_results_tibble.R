@@ -24,7 +24,7 @@
 #'   (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio,
 #'   Incidence Risk Difference, Incidence Risk Ratio, Mean Difference, Number
 #'   Needed to Treat
-#' @importFrom dplyr select pull
+#' @importFrom dplyr select pull if_else
 #' @importFrom tibble tibble
 #' @importFrom stringr str_subset str_split
 #' @importFrom tidyselect starts_with
@@ -71,13 +71,13 @@ get_results_tibble <- function(predict.df, outcome.type, rate.multiplier) {
   diff <- results_tbl$Tx - results_tbl$noTx
   ratio <- results_tbl$Tx/results_tbl$noTx
   ratio_odds <- results_tbl$Tx_odds/results_tbl$noTx_odds
-  res <- c(`Risk Difference` = ifelse(outcome.type == "binary", diff, NA),
-           `Risk Ratio` = ifelse(outcome.type == "binary", ratio, NA),
-           `Odds Ratio` = ifelse(outcome.type == "binary", ratio_odds, NA),
-           `Incidence Rate Difference` = ifelse(outcome.type == "rate", (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
-           `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count"), ratio, NA),
-           `Mean Difference` = ifelse(outcome.type == "continuous", diff, NA),
-           `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA))
+  res <- c(`Risk Difference` = dplyr::if_else(outcome.type == "binary", diff, NA),
+           `Risk Ratio` = dplyr::if_else(outcome.type == "binary", ratio, NA),
+           `Odds Ratio` = dplyr::if_else(outcome.type == "binary", ratio_odds, NA),
+           `Incidence Rate Difference` = dplyr::if_else(outcome.type == "rate", (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
+           `Incidence Rate Ratio` = dplyr::if_else(outcome.type %in% c("rate", "count"), ratio, NA),
+           `Mean Difference` = dplyr::if_else(outcome.type == "continuous", diff, NA),
+           `Number needed to treat` = dplyr::if_else(outcome.type == "binary", 1/diff, NA))
   
   return(res)
 }
