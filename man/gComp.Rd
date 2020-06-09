@@ -182,7 +182,7 @@ For continuous exposure variables, the default effects are provided
 data(cvdd)
 set.seed(538)
 diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
-outcome.type = "binary", R = 50)
+outcome.type = "binary", R = 20)
 
 }
 \references{

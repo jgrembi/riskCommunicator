@@ -165,7 +165,7 @@
 #' @importFrom tidyselect one_of contains all_of
 #' @importFrom stats as.formula glm model.matrix contrasts binomial na.omit
 #'   predict
-#' @importFrom dplyr expr select mutate select_if select_at rowwise funs vars
+#' @importFrom dplyr expr select mutate select_if select_at rowwise vars
 #' @importFrom tibble as_tibble tibble
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%

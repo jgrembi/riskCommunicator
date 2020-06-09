@@ -124,7 +124,7 @@
 #' data(cvdd)
 #' set.seed(538)
 #' diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
-#' outcome.type = "binary", R = 50)
+#' outcome.type = "binary", R = 20)
 #'
 #' @importFrom rsample bootstraps analysis
 #' @importFrom stats quantile as.formula na.omit
@@ -190,7 +190,7 @@ gComp <- function(data,
   # Run R bootstrap iterations to get R point estimates 
   boot_res <- furrr::future_map_dfr(bs$splits, function(x) {
      df <- rsample::analysis(x) %>%
-      tidyr::unnest_legacy(., cols = c(data)) %>%
+      tidyr::unnest(., cols = c(data)) %>%
       dplyr::ungroup() %>%
       dplyr::select(-tidyselect::matches("dummy_id"))
     estimate <- suppressMessages(pointEstimate(df, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
@@ -238,13 +238,13 @@ gComp <- function(data,
       df <- res_ci_df %>%
         stats::na.omit() %>%
         dplyr::select(tidyselect::contains(t)) %>%
-        dplyr::rename_all(.funs = funs(sub(t, "Estimate", .))) %>%
+        dplyr::rename_all(list(~sub(t, "Estimate", .))) %>%
         dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
         dplyr::select(.data$Out) %>%
         dplyr::bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
                            dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
                            dplyr::select(tidyselect::contains(t)) %>%
-                           dplyr::rename_all(.funs = funs(sub(t, "Out", .))) %>%
+                           dplyr::rename_all(list(~sub(t, "Out", .))) %>%
                            dplyr::mutate(Out = ifelse(is.na(.data$Out), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
       names(df) <- paste0(t, " Estimate (95% CI)") 
       return(df)
