@@ -25,8 +25,9 @@ Print results from bootstrap computations of the g-computation
 ## age, sex, BMI, whether the individual is currently a smoker, and 
 ## if they have a history of hypertension.
 data(cvdd)
-diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES",
-Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 100)
+set.seed(4832)
+diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat",
+Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 print(diabetes.result)
 
 

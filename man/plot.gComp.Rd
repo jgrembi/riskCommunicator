@@ -31,8 +31,9 @@ Plot histograms and Q-Q plots for each the difference and ratio
 ## whether the individual is currently a smoker, and
 ## if they have a history of hypertension.
 data(cvdd)
+set.seed(538)
 diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES",
-Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 10)
+Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 plot(diabetes.result)
 
 }
