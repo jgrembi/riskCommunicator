@@ -192,12 +192,12 @@ gComp <- function(data,
                             clusters = clusters) {
     
     if (is.null(clusters)) {
-      estimate <- suppressMessages(pointEstimate(x[idx,], outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
+      estimate <- suppressMessages(pointEstimate(x[idx,], outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = exposure.center))
     } else {
       cls <- sample(clusters, size = length(clusters), replace = TRUE)
       df.bs <- lapply(cls, function(b) subset(x, x[[clusterID]] == b))
       df.bs <- do.call(rbind, df.bs)
-      estimate <- suppressMessages(pointEstimate(df.bs, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
+      estimate <- suppressMessages(pointEstimate(df.bs, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = exposure.center))
     }
     if (length(names(estimate$parameter.estimates)) > 1) {
       output <- sapply(names(estimate$parameter.estimates), function (n) c(estimate$parameter.estimates[[n]]))
