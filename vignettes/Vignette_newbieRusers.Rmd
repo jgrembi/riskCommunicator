@@ -87,7 +87,7 @@ An example of the error message you will receive if one of your covariates is a 
 cvdd.break <- cvdd %>% 
   mutate(PREVHYP = as.character(PREVHYP))
   
-binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 ```
 
 You also want to make sure that the referent category for factor variables is the category of your choice. To change the referent category for a factor variable, you can use the following code. The referent category should be listed first.
@@ -211,9 +211,11 @@ As above, we will estimate the risk difference, risk ratio, odds ratio, and numb
 table(cvdd$bmicat)
 prop.table(table(cvdd$bmicat))*100
 
+set.seed(345)
 catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 
 catExp.res
+
 ```
 From these results, we see that obese persons have the highest increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, moreso than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
 
@@ -226,7 +228,7 @@ Estimates can also be produced for continous exposures. The default effects are 
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
 ```{r continuous_exposure, paged.print = FALSE}
-
+set.seed(4528)
 contExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 200)
 
 contExp.res
@@ -321,7 +323,7 @@ summary(binary.res$glm.result)
 
 
 # Guidance on number of bootstraps
-To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>30min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 200, which should compute on datasets of 5000-10000 observations in <60s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.
+To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>30min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 20, which should compute on datasets of 5000-10000 observations in <60s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.
 
 # What's going on under the hood
 
@@ -330,7 +332,7 @@ The `gComp` function essentially executes four steps:
 1. *Fits regression model.*   Fit a regression of the outcome on the exposure and relevant covariates, using the provided data set.}    
 2. *Predicts counterfactuals.*  Using the model fit in step 1, calculate predicted outcomes for each observation in the data set under each level of the treatment/exposure.    
 3. *Estimates the marginal difference/ratio of treatment effect.*  This is done by taking the difference or ratio of the average of all observations under the treatment/no treatment regimes.    
-4. *Estimates confidence interval with bootstrap resampling.*  We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 200) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 1000 or larger.
+4. *Estimates confidence interval with bootstrap resampling.*  We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 20) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 1000 or larger.
 
 
 Please see the refrences listed under the `gComp` or `pointEstimate` function for a more detailed explaination of g-computation.
