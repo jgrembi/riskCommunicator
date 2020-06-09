@@ -12,6 +12,14 @@
 #'   specifies that clustering should be accounted for in the calculation of
 #'   confidence intervals. The \code{clusterID} will be used as the level for
 #'   resampling in the bootstrap procedure.
+#' @param parallel (Optional) Default "no." The type of parallel operation to be used. Available 
+#'   options include "multicore" (not available for Windows) or "snow." This argument is 
+#'   passed directly to the /href{\code{boot} function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.
+#' @param ncpus (Optional, only used if parallel is set to "multicore" or "snow") Default 1. 
+#'   Integer argument for the number of CPUs available for parallel processing/ number of 
+#'   parallel operations to be used.  This argument is passed directly to the /href{\code{boot} 
+#'   function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.
+#'  
 #'
 #' @return An object of class \code{gComp} which is a list with components:
 #' \itemize{
@@ -128,17 +136,16 @@
 #'
 #' @importFrom rsample bootstraps analysis
 #' @importFrom stats quantile as.formula na.omit
-#' @importFrom dplyr rename n_distinct left_join mutate group_by ungroup select
-#'   summarise_at vars bind_rows
+#' @importFrom dplyr rename n_distinct left_join mutate group_by ungroup select summarise_at vars bind_rows
 #' @importFrom tibble rownames_to_column column_to_rownames
-#' @importFrom tidyr nest unnest gather spread unnest_legacy drop_na
+#' @importFrom tidyr gather spread
 #' @importFrom purrr map_dfc
 #' @importFrom furrr future_map_dfr
-#' @importFrom tidyselect vars_select starts_with contains matches
+#' @importFrom tidyselect vars_select starts_with contains 
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
 #'
-#' @seealso \code{\link{pointEstimate}}
+#' @seealso \code{\link{pointEstimate}} \href{boot package documentation}{https://cran.r-project.org/web/packages/boot/boot.pdf}
 #'   
 gComp <- function(data, 
                   outcome.type =  c("binary", "count","rate", "continuous"), 
@@ -151,8 +158,9 @@ gComp <- function(data,
                   rate.multiplier = 1, 
                   exposure.scalar = 1,
                   R = 200,
-                  clusterID = NULL
-                  ) {
+                  clusterID = NULL,
+                  parallel = "no",
+                  ncpus = getOption("boot.ncpus", 1L)) {
   
   # Ensure X is categorical (factor) or numeric, throw error if character.  Also if X is numeric, calculate the mean value. 
   #  This will be used for centering the continnuous exposure to ensure estimates are within the range of the observed values.
@@ -165,43 +173,101 @@ gComp <- function(data,
     X_mean = ifelse(is.factor(data[[X]]), TRUE, ifelse(is.numeric(data[[X]]), mean(data[[X]]), stop("X must be a factor or numeric variable")))
   }
   
-  if (!is.null(clusterID)) clusterID <- rlang::sym(clusterID)
+  if (!is.null(clusterID)) {
+    clusterID <- rlang::sym(clusterID)
+    # Get list of clusters for bootstrapping
+    clusters <- unique(data[[clusterID]]) 
+  } else {
+    clusters <-  NULL
+  }
   
   # Get point estimate for diff and ratio
   pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean)
   
-  # Nest df by bootstrap resampling unit
-  if (is.null(clusterID)) { # By observation
-    df <- data %>%
-      tibble::rownames_to_column("dummy_id") %>%
-      dplyr::group_by(.data$dummy_id) %>%
-      tidyr::nest()
-    } else { # By specified cluster
-      df <- data %>%
-        dplyr::group_by(!!!clusterID) %>%
-        tidyr::nest()
-      
+  ####### Run bootstrap resampling, calculate point estimate for each resample, and get 95% CI for estimates
+  # Define bootsrap statistic
+  fun.statistic <- function(x, idx, outcome.type = outcome.type, offset = offset, formula = formula, 
+                            Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                            exposure.scalar = exposure.scalar, exposure.center = exposure.center, 
+                            clusters = clusters) {
+    
+    if (is.null(clusters)) {
+      estimate <- suppressMessages(pointEstimate(x[idx,], outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
+    } else {
+      cls <- sample(clusters, size = length(clusters), replace = TRUE)
+      df.bs <- lapply(cls, function(b) subset(x, x[[clusterID]] == b))
+      df.bs <- do.call(rbind, df.bs)
+      estimate <- suppressMessages(pointEstimate(df.bs, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
     }
+    if (length(names(estimate$parameter.estimates)) > 1) {
+      output <- sapply(names(estimate$parameter.estimates), function (n) c(estimate$parameter.estimates[[n]]))
+      # output <- do.call(cbind, output)
+      # colnames(output)[8] <- "test"
+    } else {
+      output <- c(estimate$parameter.estimates$Estimate)
+    }
+    return(output)
+  }
   
-  # Generate R bootstrap resampling units
-  bs <- rsample::bootstraps(df, times = R)
-  names(bs$splits) <- paste0("boot.", seq(1:R)) 
+  # Run bootstrap iterations
+  boot_out <- boot::boot(data = data, statistic = fun.statistic, R = R, parallel = parallel, ncpus = ncpus, 
+                         outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z,
+                         subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, 
+                         exposure.scalar = exposure.scalar, exposure.center = X_mean, clusters = clusters)
   
-  # Run R bootstrap iterations to get R point estimates 
-  boot_res <- furrr::future_map_dfr(bs$splits, function(x) {
-     df <- rsample::analysis(x) %>%
-      tidyr::unnest(., cols = c(data)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-tidyselect::matches("dummy_id"))
-    estimate <- suppressMessages(pointEstimate(df, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
-    result <- estimate$parameter.estimates %>%
-      t() %>%
-      as.data.frame() %>% 
-      tibble::rownames_to_column("test") %>%
-      dplyr::mutate(boot = as.character(x$id))
-    names(result) <- c("test","Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm", "boot")
-    return(result)
-  })
+  # Format output from boot function
+  if (dim(boot_out$t)[2] > 7) {
+    # Reformat if more than 1 estimate provided (e.g. if subgroups are used or if categorical exposure 
+    # with more than 2 categories). This is necessary because the boot package only outputs a single line 
+    # of results for each bootstrap iteration, including all possible exposure/subgroup comparisons.
+    boot_res <- map_dfr(seq(1:(dim(boot_out$t)[2]/7)), function (x) {
+       # x = 2
+      out <- boot_out$t[, (1+(x-1)*7):(7*x)] %>%
+        data.frame() %>%
+        dplyr::mutate(test = names(pt_estimate$parameter.estimates)[x],
+               boot = paste0("Bootstrap",seq(1:R)))
+    })
+    names(boot_res) <- c(rownames(pt_estimate$parameter.estimates), "test", "boot")
+  } else {
+    boot_res <- boot_out$t %>%
+      data.frame() %>%
+      dplyr::mutate(test = "Estimate", 
+             boot = paste0("Bootstrap", seq(1:R)))
+    names(boot_res) <- c(rownames(pt_estimate$parameter.estimates), "test", "boot")
+  }    
+  
+  # # Nest df by bootstrap resampling unit
+  # if (is.null(clusterID)) { # By observation
+  #   df <- data %>%
+  #     tibble::rownames_to_column("dummy_id") %>%
+  #     dplyr::group_by(.data$dummy_id) %>%
+  #     tidyr::nest()
+  #   } else { # By specified cluster
+  #     df <- data %>%
+  #       dplyr::group_by(!!!clusterID) %>%
+  #       tidyr::nest()
+  #     
+  #   }
+  # 
+  # # Generate R bootstrap resampling units
+  # bs <- rsample::bootstraps(df, times = R)
+  # names(bs$splits) <- paste0("boot.", seq(1:R)) 
+  # 
+  # # Run R bootstrap iterations to get R point estimates 
+  # boot_res <- furrr::future_map_dfr(bs$splits, function(x) {
+  #    df <- rsample::analysis(x) %>%
+  #     tidyr::unnest(., cols = c(data)) %>%
+  #     dplyr::ungroup() %>%
+  #     dplyr::select(-tidyselect::matches("dummy_id"))
+  #   estimate <- suppressMessages(pointEstimate(df, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
+  #   result <- estimate$parameter.estimates %>%
+  #     t() %>%
+  #     as.data.frame() %>% 
+  #     tibble::rownames_to_column("test") %>%
+  #     dplyr::mutate(boot = as.character(x$id))
+  #   names(result) <- c("test","Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm", "boot")
+  #   return(result)
+  # })
   
   # Use bootstrap results (boot_res) to calculate 95% CI for effect estimates
   if(length(unique(boot_res$test)) > 1) { # For subgroups and/or >2 treatment/exposure levels
@@ -256,8 +322,8 @@ gComp <- function(data,
     res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
       tibble::rownames_to_column("outcome") %>%
       dplyr::left_join(data.frame(outcome = rownames(pt_estimate$parameter.estimates)[1:6],
-                                  ci.ll = sapply(2:7, function(i) stats::quantile(boot_res[,i], probs = 0.025, na.rm = T)),
-                                  ci.ul = sapply(2:7, function(i) stats::quantile(boot_res[,i], probs = 0.975, na.rm = T))) %>%
+                                  ci.ll = sapply(1:6, function(i) stats::quantile(boot_res[,i], probs = 0.025, na.rm = T)),
+                                  ci.ul = sapply(1:6, function(i) stats::quantile(boot_res[,i], probs = 0.975, na.rm = T))) %>%
                          dplyr::mutate(outcome = as.character(.data$outcome)), by = "outcome") %>%
       tibble::column_to_rownames("outcome") %>%
       dplyr::rename(`2.5% CL` = .data$ci.ll, `97.5% CL` = .data$ci.ul)

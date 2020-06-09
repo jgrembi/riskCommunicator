@@ -16,7 +16,9 @@ gComp(
   rate.multiplier = 1,
   exposure.scalar = 1,
   R = 200,
-  clusterID = NULL
+  clusterID = NULL,
+  parallel = "no",
+  ncpus = getOption("boot.ncpus", 1L)
 )
 }
 \arguments{
@@ -96,6 +98,15 @@ the variable name for the unique identifier for clusters. This option
 specifies that clustering should be accounted for in the calculation of
 confidence intervals. The \code{clusterID} will be used as the level for
 resampling in the bootstrap procedure.}
+
+\item{parallel}{(Optional) Default "no." The type of parallel operation to be used. Available 
+options include "multicore" (not available for Windows) or "snow." This argument is 
+passed directly to the /href{\code{boot} function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.}
+
+\item{ncpus}{(Optional, only used if parallel is set to "multicore" or "snow") Default 1. 
+Integer argument for the number of CPUs available for parallel processing/ number of 
+parallel operations to be used.  This argument is passed directly to the /href{\code{boot} 
+function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.}
 }
 \value{
 An object of class \code{gComp} which is a list with components:
@@ -215,5 +226,5 @@ Ahern J, Hubbard A, Galea S. Estimating the effects of potential public health
    AIDS or death. Stat Med. 2012;31(18):2000–2009.
 }
 \seealso{
-\code{\link{pointEstimate}}
+\code{\link{pointEstimate}} \href{boot package documentation}{https://cran.r-project.org/web/packages/boot/boot.pdf}
 }
