@@ -8,8 +8,8 @@ testthat::test_that("outcome.type is matched correcly (is not a family like regu
 
 
 testthat::test_that("Y and X vars are both provided if no formula is given", {
-  testthat::expect_error(gComp(data = cvdd, Y = "cvd_dth", Z = c("BMI", "SEX"), outcome.type = "binary", R = 25))
-  testthat::expect_error(pointEstimate(data = cvdd, X = "DIABETES", Z = c("AGE", "SEX"), outcome.type = "binary"))
+  testthat::expect_error(gComp(data = cvdd, Y = "cvd_dth", Z = c("BMI", "SEX"), outcome.type = "binary", R = 5))
+  testthat::expect_error(gComp(data = cvdd, X = "DIABETES", Z = c("AGE", "SEX"), outcome.type = "binary", R = 4))
 })
 
 
@@ -31,7 +31,7 @@ testthat::test_that("outcome is expected value", {
                                Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX",
                                outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 4)$results.df[2,4], 2)), 2.04)
   ## continuous outcome
-  testthat::expect_equal(gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", R = 10)$results.df[1,1], 61.6257)
+  testthat::expect_equal(gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", R = 4)$results.df[1,1], 61.6257)
   ## count outcome
   testthat::expect_equal(round(gComp(data = cvdd, formula = "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", outcome.type = "count", R = 4)$results.df[1,1], 2), 0.05)
   ## binary outcome, categorical exposure
