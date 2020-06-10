@@ -159,7 +159,7 @@ Note that we did not need to specify function arguments that did not apply for o
 ```{r binary_outcome_defaults}
 set.seed(1298)
 
-binary.res.alt2 <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, Y = NULL, X = NULL, Z = NULL, subgroup = NULL, offset = NULL, rate.multiplier = 1, clusterID = NULL)
+binary.res.alt2 <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, Y = NULL, X = NULL, Z = NULL, subgroup = NULL, offset = NULL, rate.multiplier = 1, clusterID = NULL, parallel = "no", ncpus = 1)
 ```
 
 
@@ -172,7 +172,7 @@ Not surprisingly, there is a large effect of diabetes on cardiovascular disease.
 
 We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 3 (95% CI: 3, 5) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
 
-The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results (what is seen when you print), plus 8 additional items: `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, and `predicted.data` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  You can access the different items using the `$` operator as shown below.  
+The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results (what is seen when you print), plus 8 additional items: `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, `predicted.data`, and `glm.result` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  You can access the different items using the `$` operator as shown below.  
 ```{r gComp_class_explaination}
 class(binary.res)
 # The names of the different items in the list 
