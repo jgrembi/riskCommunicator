@@ -13,8 +13,9 @@
 #'   confidence intervals. The \code{clusterID} will be used as the level for
 #'   resampling in the bootstrap procedure.
 #' @param parallel (Optional) Default "no." The type of parallel operation to be used. Available 
-#'   options include "multicore" (not available for Windows) or "snow." This argument is 
-#'   passed directly to the /href{\code{boot} function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.
+#'   options (besides the default of no parallel processing) include multicore" (not available 
+#'   for Windows) or "snow." This argument is passed directly to the /href{\code{boot} 
+#'   function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.
 #' @param ncpus (Optional, only used if parallel is set to "multicore" or "snow") Default 1. 
 #'   Integer argument for the number of CPUs available for parallel processing/ number of 
 #'   parallel operations to be used.  This argument is passed directly to the /href{\code{boot} 
