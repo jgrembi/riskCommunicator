@@ -146,6 +146,7 @@
 #' @importFrom tidyselect vars_select starts_with contains 
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
+#' @importFrom boot boot
 #'
 #' @seealso \code{\link{pointEstimate}} \code{\link[boot]{boot}}
 #'   
