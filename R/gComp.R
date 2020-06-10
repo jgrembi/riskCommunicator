@@ -23,16 +23,16 @@
 #'
 #' @return An object of class \code{gComp} which is a list with components:
 #' \itemize{
-#'   \item{summary}{Summary providing parameter estimates and 95\% confidence
-#'   limits of the outcome difference and ratio} \item{results.df}{Data.frame
+#'   \item{summary} {Summary providing parameter estimates and 95\% confidence
+#'   limits of the outcome difference and ratio} \item{results.df} {Data.frame
 #'   with parameter estimates, 2.5\% confidence limit, and 97.5\% confidence
-#'   limit each as a column} \item{n}{Number of observations in the original
-#'   dataset} \item{R}{Number of bootstrap iterations}
-#'   \item{boot.result}{Data.frame containing the results of the \code{R}
-#'   bootstrap iterations of the g-computation} \item{contrast}{Contrast levels
-#'   compared} \item{family}{Error distribution used in the model}
-#'   \item{formula}{Model formula used to fit the \code{glm}}
-#'   \item{predicted.data}{A tibble with the predicted values for both exposed
+#'   limit each as a column} \item{n} {Number of observations in the original
+#'   dataset} \item{R} {Number of bootstrap iterations}
+#'   \item{boot.result} {Data.frame containing the results of the \code{R}
+#'   bootstrap iterations of the g-computation} \item{contrast} {Contrast levels
+#'   compared} \item{family} {Error distribution used in the model}
+#'   \item{formula} {Model formula used to fit the \code{glm}}
+#'   \item{predicted.data} {A tibble with the predicted values for both exposed
 #'   and unexposed counterfactual predictions for each observation in the
 #'   original dataset}
 #'   \item{glm.result} {The 
@@ -43,7 +43,7 @@
 #' @details The \code{gComp} function executes the following steps: 
 #' \enumerate{
 #'   \item Calls the \code{\link{pointEstimate}} function on the data to obtain
-#'   an estimate of the difference and ratio effects. 
+#'   the appropriate effect estimates (difference, ratio, etc.). 
 #'   \item Generates \code{R} bootstrap resamples of the data, with replacement. If
 #'   the resampling is to be done at the cluster level (set using the
 #'   \code{clusterID} argument), the number of clusters will remain constant but
