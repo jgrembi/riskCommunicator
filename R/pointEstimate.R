@@ -70,23 +70,22 @@
 #'   continuous exposure variables for additional details.
 #'
 #' @return A named list containing the following: 
-#' \itemize{
-#'   \item{\strong{$parameter.estimates}:} {Point estimates for the risk difference, risk
+#' 
+#'   \item{$parameter.estimates}{Point estimates for the risk difference, risk
 #'   ratio, odds ratio, incidence rate difference, incidence rate ratio, mean
 #'   difference and/or number needed to treat/harm, depending on the outcome.type}
-#'   \item{\strong{$n}:} {Number of observations provided to the model} 
-#'   \item{\strong{$contrast}:} {Contrast levels compared} 
-#'   \item{\strong{$family}:} {Error distribution used in the model} 
-#'   \item{\strong{$formula}:} {Model formula used to fit the
-#'   \code{glm}} 
-#'   \item{\strong{$Y}:} {The response variable} 
-#'   \item{\strong{$covariates}:} {Covariates used in the model} 
-#'   \item{\strong{$predicted.data}:} {A tibble with the
+#'   \item{$formula}{Model formula used to fit the \code{glm}}    
+#'   \item{$contrast}{Contrast levels compared} 
+#'   \item{$Y}{The response variable} 
+#'   \item{$covariates}{Covariates used in the model} 
+#'   \item{$n}{Number of observations provided to the model} 
+#'   \item{$family}{Error distribution used in the model} 
+#'   \item{$predicted.data}{A tibble with the
 #'   predicted values for the exposed and unexposed counterfactual predictions 
 #'   for each observation in the original dataset} 
-#'   \item{\strong{$glm.result}:} {The \code{glm} class object returned from the 
+#'   \item{$glm.result}{The \code{glm} class object returned from the 
 #'   fitted regression of the outcome on the exposure and relevant covariates.} 
-#'   }
+#'   formula = formula, 
 #'
 #' @details The \code{pointEstimate} function executes the following steps on
 #'   the data: 
@@ -97,9 +96,10 @@
 #'   modelfit in step 1, predict counterfactuals (e.g. calculate predicted
 #'   outcomes for each observation in the data set under each level of the
 #'   treatment/exposure). 
-#'   \item Estimate the marginal difference/ratio of
-#'   treatment effect by taking the difference or ratio of the average of all
-#'   observations under the treatment/no treatment regimes. }
+#'   \item Estimate the marginal difference/ratio of treatment effect by 
+#'   taking the difference or ratio of the average of all observations under 
+#'   the treatment/no treatment regimes. 
+#'   }
 #'
 #'   As counterfactual predictions are generated with random sampling of the
 #'   distribution, users should set a seed (\code{\link[base]{set.seed}} for
@@ -166,14 +166,13 @@
 #' ptEstimate <- pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES",
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
 #'
-#' @importFrom tidyselect one_of contains all_of
-#' @importFrom stats as.formula glm model.matrix contrasts binomial na.omit
-#'   predict
-#' @importFrom dplyr expr select mutate select_if select_at rowwise vars
-#' @importFrom tibble as_tibble tibble
-#' @importFrom rlang sym .data
+#' @importFrom tidyselect contains all_of
+#' @importFrom stats as.formula glm model.matrix binomial poisson gaussian 
+#'   predict na.omit
+#' @importFrom dplyr select mutate rename summarise
+#' @importFrom rlang sym
 #' @importFrom magrittr %>%
-#' @importFrom purrr negate
+#' @importFrom purrr map_dfc
 #'
 #' @seealso \code{\link{gComp}}
 
@@ -197,6 +196,10 @@ pointEstimate <- function(data,
   
   # Ensure outcome.type is one of the allowed responses
   outcome.type <- match.arg(outcome.type)
+  
+  # set new df to modify
+  working.df <- data
+  X_mean = ifelse(exposure.center == T, round(mean(data[[X]]), 2), round(exposure.center, 2))
   
   # Specify model family and link for the given outcome.type
   if (outcome.type %in% c("binary")) {
@@ -257,12 +260,12 @@ pointEstimate <- function(data,
   }
   
   # Ensure all variables are provided in the dataset
-  if (!all(allVars %in% names(data))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
+  if (!all(allVars %in% names(working.df))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
   
   # Ensure X is categorical (factor) or numeric, throw error if character
-  if (is.numeric(data[[X]])) {
+  if (is.numeric(working.df[[X]])) {
     message("Proceeding with X as a continuous variable, if it should be binary/categorical, please reformat so that X is a factor variable")
-  } else if (is.factor(data[[X]])) {
+  } else if (is.factor(working.df[[X]])) {
     if(exposure.scalar != 1) stop("An exposure scaler can not be used with a binary/categorical exposure.  If you intended your exposure to be continuous, ensure it is provided as a numeric variable.")
   } else {
     stop("X must be a factor or numeric variable")
@@ -270,7 +273,7 @@ pointEstimate <- function(data,
   
   # Ensure Z covariates are NOT character variables in the dataset
   if (!is.null(Z)) {
-    test_for_char_df <- sapply(data %>% 
+    test_for_char_df <- sapply(working.df %>% 
       dplyr::select(tidyselect::all_of(Z)), is.character)
     if (any(test_for_char_df)) {
       stop("One of the covariates (Z) is a character variable in the dataset provided.  Please change to a factor or numeric.")
@@ -279,38 +282,44 @@ pointEstimate <- function(data,
   
   # Force subgroup to be a factor variable
   if (!is.null(subgroup)) {
-    data <- data %>% 
+    working.df <- working.df %>% 
       dplyr::mutate(!!subgroup := factor(!!subgroup))
   }
   
   # Center continuous variable and divide by exposure.scalar
   if(is.numeric(data[[X]])) {
-    data <- data %>%
+    working.df <- working.df %>%
       dplyr::mutate(!!X := as.vector(scale(!!X, center = exposure.center, scale = exposure.scalar)))
   }
   
   # Run GLM
   if (!is.null(offset)) {
-    data <- data %>%
+    working.df <- working.df %>%
       dplyr::mutate(offset2 = !!offset + 0.00001)
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit, offset = log(offset2))
+    glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit, offset = log(offset2))
   } else {
-    glm_result <- stats::glm(formula = formula, data = data, family = family, na.action = stats::na.omit)
+    glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit)
   }
   
   # Predict outcomes for each observation/individual at each level of treatment/exposure
-  fn_output <- make_predict_df(glm.res = glm_result, df = data, X = X, subgroup = subgroup, offset = offset)
+  fn_output <- make_predict_df(glm.res = glm_result, df = working.df, X = X, subgroup = subgroup, offset = offset)
   
   # Rename vars in predicted dataset so it's clear
   results_tbl_all <- fn_output
   names(results_tbl_all) <- c(sapply(names(fn_output), function(x) paste0("predicted value with ",x)))
   
   # Get list of possible treatments/exposures (all levels of X)
-  exposure_list <- sapply(levels(data[[X]]), function(x) paste0(X,x), USE.NAMES = F)
+  if (is.numeric(data[[X]])) {
+    exposure_list <- sapply(c(X_mean, (X_mean + exposure.scalar)), function(x) paste0(X,x))
+  } else {
+    exposure_list <- sapply(levels(working.df[[X]]), function(x) paste0(X,x), USE.NAMES = F)
+  }
+                           
+                          
  
   # Calculate estimates for risk/rate/mean differences & ratios
   if (!is.null(subgroup)) { 
-    subgroups_list <- sapply(levels(data[[subgroup]]), function(x) paste0(subgroup,x), USE.NAMES = F)
+    subgroups_list <- sapply(levels(working.df[[subgroup]]), function(x) paste0(subgroup,x), USE.NAMES = F)
       
     if (length(exposure_list) > 2) { # For when subgroups and exposure with more than 2 levels are both specified
       contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
@@ -364,14 +373,21 @@ pointEstimate <- function(data,
   }
   rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm")
   
+  # if (is.numeric(data[[X]])) {
+  #   contrast <- paste(rev(exposure_list), collapse = " v. ")
+  # } else {
+  #   contrast <- sapply(exposure_list[-1], function(x) paste(x, exposure_list[1], sep = " v. "))
+  # }
+                    
+                    
   # List of items to return to this function call
   res <- list(parameter.estimates = results,
-              n = as.numeric(dplyr::summarise(data, n = dplyr::n())), 
-              contrast = paste(paste0(names(glm_result$xlevels[1]), rev(unlist(glm_result$xlevels[1]))), collapse = " v. "), 
-              family = family,
               formula = formula, 
-              Y = Y, 
+              contrast = unname(sapply(exposure_list[-1], function(x) paste(x, exposure_list[1], sep = " v. "))),
+              Y = Y,
               covariates = ifelse(length(attr(glm_result$terms , "term.labels")) > 1, do.call(paste,as.list(attr(glm_result$terms , "term.labels")[-1])), NA),
+              n = as.numeric(dplyr::summarise(working.df, n = dplyr::n())), 
+              family = family,
               predicted.data = results_tbl_all, 
               glm.result = glm_result)
   return(res)

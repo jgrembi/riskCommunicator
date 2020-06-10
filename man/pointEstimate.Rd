@@ -97,23 +97,22 @@ continuous exposure variables for additional details.}
 }
 \value{
 A named list containing the following: 
-\itemize{
-  \item{\strong{$parameter.estimates}:} {Point estimates for the risk difference, risk
+
+  \item{$parameter.estimates}{Point estimates for the risk difference, risk
   ratio, odds ratio, incidence rate difference, incidence rate ratio, mean
   difference and/or number needed to treat/harm, depending on the outcome.type}
-  \item{\strong{$n}:} {Number of observations provided to the model} 
-  \item{\strong{$contrast}:} {Contrast levels compared} 
-  \item{\strong{$family}:} {Error distribution used in the model} 
-  \item{\strong{$formula}:} {Model formula used to fit the
-  \code{glm}} 
-  \item{\strong{$Y}:} {The response variable} 
-  \item{\strong{$covariates}:} {Covariates used in the model} 
-  \item{\strong{$predicted.data}:} {A tibble with the
+  \item{$formula}{Model formula used to fit the \code{glm}}    
+  \item{$contrast}{Contrast levels compared} 
+  \item{$Y}{The response variable} 
+  \item{$covariates}{Covariates used in the model} 
+  \item{$n}{Number of observations provided to the model} 
+  \item{$family}{Error distribution used in the model} 
+  \item{$predicted.data}{A tibble with the
   predicted values for the exposed and unexposed counterfactual predictions 
   for each observation in the original dataset} 
-  \item{\strong{$glm.result}:} {The \code{glm} class object returned from the 
+  \item{$glm.result}{The \code{glm} class object returned from the 
   fitted regression of the outcome on the exposure and relevant covariates.} 
-  }
+  formula = formula,
 }
 \description{
 Generate a point estimate of the outcome difference and ratio
@@ -129,9 +128,10 @@ The \code{pointEstimate} function executes the following steps on
   modelfit in step 1, predict counterfactuals (e.g. calculate predicted
   outcomes for each observation in the data set under each level of the
   treatment/exposure). 
-  \item Estimate the marginal difference/ratio of
-  treatment effect by taking the difference or ratio of the average of all
-  observations under the treatment/no treatment regimes. }
+  \item Estimate the marginal difference/ratio of treatment effect by 
+  taking the difference or ratio of the average of all observations under 
+  the treatment/no treatment regimes. 
+  }
 
   As counterfactual predictions are generated with random sampling of the
   distribution, users should set a seed (\code{\link[base]{set.seed}} for
