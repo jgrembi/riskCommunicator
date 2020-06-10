@@ -40,7 +40,12 @@ testthat::test_that("outcome is expected value", {
   testthat::expect_equal(round(gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 5)$results.df[4,1], 2), 4.12)
   ## binary outcome, continuous exposure, subgroups
   testthat::expect_equal(unname(round(gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES"), subgroup = "SEX", outcome.type = "binary", exposure.scalar = 10, R = 5)$results.df[1,4], 2)), 0.24)
-  })
+  ## using clusterID
+  testthat::expect_equal(round(gComp(data = cvdd %>% dplyr::mutate(id = substr(RANDID, 1,2),
+                                                                   id.cat = factor(id)), 
+                                     formula = "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", clusterID = "id.cat", 
+                                     outcome.type = "count", R = 4)$results.df[1,1], 2), 0.05)
+})
 
 testthat::test_that("class is correct", {
   testthat::expect_is(gComp(data = cvdd, formula = cvd_dth ~ DIABETES + AGE, outcome.type = "binary", R = 4), "gComp")
