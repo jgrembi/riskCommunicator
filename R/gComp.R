@@ -140,8 +140,7 @@
 #' @importFrom dplyr rename n_distinct left_join mutate group_by ungroup select summarise_at vars bind_rows
 #' @importFrom tibble rownames_to_column column_to_rownames
 #' @importFrom tidyr gather spread
-#' @importFrom purrr map_dfc
-#' @importFrom furrr future_map_dfr
+#' @importFrom purrr map_dfc map_dfr
 #' @importFrom tidyselect vars_select starts_with contains 
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
@@ -221,7 +220,7 @@ gComp <- function(data,
     # Reformat if more than 1 estimate provided (e.g. if subgroups are used or if categorical exposure 
     # with more than 2 categories). This is necessary because the boot package only outputs a single line 
     # of results for each bootstrap iteration, including all possible exposure/subgroup comparisons.
-    boot_res <- map_dfr(seq(1:(dim(boot_out$t)[2]/7)), function (x) {
+    boot_res <- purrr::map_dfr(seq(1:(dim(boot_out$t)[2]/7)), function (x) {
        # x = 2
       out <- boot_out$t[, (1+(x-1)*7):(7*x)] %>%
         data.frame() %>%
