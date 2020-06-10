@@ -137,7 +137,6 @@
 #' diabetes <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
 #' outcome.type = "binary", R = 20)
 #'
-#' @importFrom rsample bootstraps analysis
 #' @importFrom stats quantile as.formula na.omit
 #' @importFrom dplyr rename n_distinct left_join mutate group_by ungroup select summarise_at vars bind_rows
 #' @importFrom tibble rownames_to_column column_to_rownames
