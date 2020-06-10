@@ -14,12 +14,11 @@
 #'   resampling in the bootstrap procedure.
 #' @param parallel (Optional) Default "no." The type of parallel operation to be used. Available 
 #'   options (besides the default of no parallel processing) include multicore" (not available 
-#'   for Windows) or "snow." This argument is passed directly to the /href{\code{boot} 
-#'   function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.
+#'   for Windows) or "snow." This argument is passed directly to \code{\link[boot]{boot}}.
+#'   See note below about setting seeds and parallel computing.
 #' @param ncpus (Optional, only used if parallel is set to "multicore" or "snow") Default 1. 
 #'   Integer argument for the number of CPUs available for parallel processing/ number of 
-#'   parallel operations to be used.  This argument is passed directly to the /href{\code{boot} 
-#'   function}{https://cran.r-project.org/web/packages/boot/boot.pdf}.
+#'   parallel operations to be used.  This argument is passed directly to \code{\link[boot]{boot}} 
 #'  
 #'
 #' @return An object of class \code{gComp} which is a list with components:
@@ -95,7 +94,10 @@
 #'   the variable. However, variations in the effect are likely small, 
 #'   especially near the mean.
 #'     
-#'
+#' @note 
+#'  The documentation for \code{\link[boot]{boot}} includes details about 
+#'  reproducible seeds when using parallel computing.   
+#'  
 #' @export
 #' 
 #' @references 
@@ -145,7 +147,7 @@
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
 #'
-#' @seealso \code{\link{pointEstimate}} \href{boot package documentation}{https://cran.r-project.org/web/packages/boot/boot.pdf}
+#' @seealso \code{\link{pointEstimate}} \code{\link[boot]{boot}}
 #'   
 gComp <- function(data, 
                   outcome.type =  c("binary", "count","rate", "continuous"), 
