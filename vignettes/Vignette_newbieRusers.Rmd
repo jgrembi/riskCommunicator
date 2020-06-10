@@ -87,7 +87,7 @@ An example of the error message you will receive if one of your covariates is a 
 cvdd.break <- cvdd %>% 
   mutate(PREVHYP = as.character(PREVHYP))
   
-binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
 ```
 
 You also want to make sure that the referent category for factor variables is the category of your choice. To change the referent category for a factor variable, you can use the following code. The referent category should be listed first.
@@ -323,7 +323,7 @@ summary(binary.res$glm.result)
 
 
 # Guidance on number of bootstraps
-To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>30min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 20, which should compute on datasets of 5000-10000 observations in <60s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.
+To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>20min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 200, which should compute on datasets of 5000-10000 observations in <60s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.
 
 # What's going on under the hood
 
