@@ -96,20 +96,23 @@ centering value should be used across all bootstraps. See note below on
 continuous exposure variables for additional details.}
 }
 \value{
-A list containing the following: 
+A named list containing the following: 
 \itemize{
-  \item{parameter.estimates} {Point estimates for the risk difference, risk
+  \item{\strong{$parameter.estimates}:} {Point estimates for the risk difference, risk
   ratio, odds ratio, incidence rate difference, incidence rate ratio, mean
   difference and/or number needed to treat/harm, depending on the outcome.type}
-  \item{n} {Number of observations provided to the model} \item{contrast}
-  {Contrast levels compared} \item{family} {Error distribution used
-  in the model} \item{formula} {Model formula used to fit the
-  \code{glm}} \item{Y} {The response variable} \item{covariates}
-  {Covariates used in the model} \item{predicted.data} {A tibble with the
+  \item{\strong{$n}:} {Number of observations provided to the model} 
+  \item{\strong{$contrast}:} {Contrast levels compared} 
+  \item{\strong{$family}:} {Error distribution used in the model} 
+  \item{\strong{$formula}:} {Model formula used to fit the
+  \code{glm}} 
+  \item{\strong{$Y}:} {The response variable} 
+  \item{\strong{$covariates}:} {Covariates used in the model} 
+  \item{\strong{$predicted.data}:} {A tibble with the
   predicted values for the exposed and unexposed counterfactual predictions 
-  for each observation in the original dataset} \item{glm.result} {The 
-  \code{glm} class object returned from the fitted regression of the outcome 
-  on the exposure and relevant covariates.} 
+  for each observation in the original dataset} 
+  \item{\strong{$glm.result}:} {The \code{glm} class object returned from the 
+  fitted regression of the outcome on the exposure and relevant covariates.} 
   }
 }
 \description{
@@ -173,24 +176,25 @@ Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
 Ahern J, Hubbard A, Galea S. Estimating the effects of potential public health 
   interventions on population disease burden: a step-by-step illustration of 
   causal inference methods. Am. J. Epidemiol. 2009;169(9):1140–1147.
+  \href{https://doi.org/10.1093/aje/kwp015}{Manuscript link}
  
  Altman DG, Deeks JJ, Sackett DL. Odds ratios should be avoided when events 
-  are common. BMJ. 1998;317(7168):1318.
+  are common. BMJ. 1998;317(7168):1318. \href{https://doi.org/10.1136/bmj.317.7168.1318 }{Manuscript link}
 
  Hernán MA, Robins JM (2020). Causal Inference: What If. Boca Raton: 
   Chapman & Hall/CRC. /href{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}{Book link}
 
  Robins J. A new approach to causal inference in mortality studies with a 
   sustained exposure period—application to control of the healthy worker 
-  survivor effect. Mathematical Modelling. 1986;7(9):1393–1512.
+  survivor effect. Mathematical Modelling. 1986;7(9):1393–1512. \href{https://doi.org/10.1016/0270-0255(86)90088-6}{Manuscript link}
   
  Snowden JM, Rose S, Mortimer KM. Implementation of G-computation on a 
   simulated data set: demonstration of a causal inference technique. 
-  Am. J. Epidemiol. 2011;173(7):731–738.
+  Am. J. Epidemiol. 2011;173(7):731–738. \href{https://doi.org/10.1093/aje/kwq472}{Manuscript link}
   
  Westreich D, Cole SR, Young JG, et al. The parametric g-formula to 
   estimate the effect of highly active antiretroviral therapy on incident 
-   AIDS or death. Stat Med. 2012;31(18):2000–2009.
+   AIDS or death. Stat Med. 2012;31(18):2000–2009. \href{https://doi.org/10.1002/sim.5316}{Manuscript link}
 }
 \seealso{
 \code{\link{gComp}}
