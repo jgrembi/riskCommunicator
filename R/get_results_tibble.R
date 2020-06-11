@@ -23,10 +23,11 @@
 #' @return A list containing the calculated results for the applicable measures
 #'   (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio,
 #'   Incidence Risk Difference, Incidence Risk Ratio, Mean Difference, Number
-#'   Needed to Treat
+#'   Needed to Treat, Average Tx (average predicted outcome of all observations with 
+#'   treatment/exposure), and Average noTx (average predicted outcome of all 
+#'   observations without treatment/exposure)
+#'   
 #' @importFrom dplyr select pull
-#' @importFrom tibble tibble
-#' @importFrom stringr str_subset str_split
 #' @importFrom tidyselect starts_with
 
 get_results_tibble <- function(predict.df, outcome.type, rate.multiplier) {
@@ -50,17 +51,17 @@ get_results_tibble <- function(predict.df, outcome.type, rate.multiplier) {
     mean(na.rm = T)
   
   if (outcome.type == "binary") {
-    results_tbl <- tibble::tibble(noTx =  noTx_odds/(1 + noTx_odds),
+    results_tbl <- data.frame(noTx =  noTx_odds/(1 + noTx_odds),
                                   Tx = Tx_odds/(1 + Tx_odds),
                                   noTx_odds = noTx_odds,
                                   Tx_odds = Tx_odds) 
   } else if (outcome.type %in% c("rate", "count")) {
-    results_tbl <- tibble::tibble(noTx =  noTx_odds,
+    results_tbl <- data.frame(noTx =  noTx_odds,
                                   Tx = Tx_odds,
                                   noTx_odds = NA,
                                   Tx_odds = NA)
   } else if (outcome.type == "continuous") {
-    results_tbl <- tibble::tibble(noTx =  mean(noTx.predict, na.rm = T),
+    results_tbl <- data.frame(noTx =  mean(noTx.predict, na.rm = T),
                                   Tx = mean(Tx.predict, na.rm = T),
                                   noTx_odds = NA,
                                   Tx_odds = NA)
@@ -77,7 +78,9 @@ get_results_tibble <- function(predict.df, outcome.type, rate.multiplier) {
            `Incidence Rate Difference` = ifelse(outcome.type == "rate", (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
            `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count"), ratio, NA),
            `Mean Difference` = ifelse(outcome.type == "continuous", diff, NA),
-           `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA))
+           `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA),
+           `Average Tx` = ifelse(outcome.type == "rate", rate.multiplier*results_tbl$Tx, results_tbl$Tx),
+           `Average noTx` = ifelse(outcome.type == "rate", rate.multiplier*results_tbl$noTx, results_tbl$noTx))
   
   return(res)
 }

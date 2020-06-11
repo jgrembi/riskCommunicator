@@ -33,7 +33,9 @@ person-years.}
 A list containing the calculated results for the applicable measures
   (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio,
   Incidence Risk Difference, Incidence Risk Ratio, Mean Difference, Number
-  Needed to Treat
+  Needed to Treat, Average Tx (average predicted outcome of all observations with 
+  treatment/exposure), and Average noTx (average predicted outcome of all 
+  observations without treatment/exposure)
 }
 \description{
 Take predicted dataframe and calculate the outcome (risk difference/ratio,
