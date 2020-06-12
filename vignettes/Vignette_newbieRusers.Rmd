@@ -172,7 +172,7 @@ Not surprisingly, there is a large effect of diabetes on cardiovascular disease.
 
 We also estimated the number needed to treat as 1/Risk difference. In this example, with a harmful exposure, we can interpret the number needed to treat as the number needed to harm: we would expect 3 (95% CI: 3, 5) persons would need to have diabetes at baseline to observe an increase in the number of cases of cardiovascular disease or death by 1 over 24 years of follow-up.
 
-The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results (what is seen when you print), plus 8 additional items: `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, `predicted.data`, and `glm.result` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  You can access the different items using the `$` operator as shown below.  
+The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results (what is seen when you print), plus 8 additional items: `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, `predicted.outcome`, and `glm.result` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  You can access the different items using the `$` operator as shown below.  
 ```{r gComp_class_explaination}
 class(binary.res)
 # The names of the different items in the list 
@@ -232,6 +232,7 @@ set.seed(4528)
 contExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 200)
 
 contExp.res
+
 ```
 These results demonstrate that the 24-year risk of cardiovascular disease or death increases by an absolute 24.3% (95% CI: 22.5%, 26.2%) for a 10 year increase in age. The risk difference, risk ratio, and NNT estimates specifically apply at the mean observed age, or 50 years. The odds ratio is constant regardless of which 10-year difference in age is considered along the observed range.
 
@@ -282,7 +283,7 @@ This example estimates the marginal mean difference in the continuous outcome as
 ```{r continuous_outcome, paged.print = FALSE}
 set.seed(9385)
 
-cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", subgroup = NULL, offset = NULL, R = 200)
+cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", R = 200)
 
 cont.res
 ```
@@ -321,9 +322,15 @@ summary(binary.res$glm.result)
 
 ```
 
+You can also obtain the sample estimated mean predicted values for each treatment/exposure group and subgroup, if applicable.
+```{r, paged.print = FALSE}
+binary.res$predicted.outcome
+```
+
+
 
 # Guidance on number of bootstraps
-To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>20min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 200, which should compute on datasets of 5000-10000 observations in <60s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.
+To generate appropriate confidence intervals with bootstrapping, we recommend setting R = 1000  or 10000 for the final analysis. However, this can result in potentially long runtimes, depending on the computing power of your computer (>20min). Thus, exploratory analyses can be conducted with a lower number of bootstraps. The default is R = 200, which should compute on datasets of 5000-10000 observations in ~30s. An even lower R value (e.g. R = 20) can be used for very preliminary analyses.  Additionally, reducing the number of variables in your dataset to as few as possible can improve computation times, especially if there are >100 variables (the dataset is copied for each bootstrap resample, and copying excessive numbers of unneeded variables will slow down the bootstrap step). 
 
 # What's going on under the hood
 
@@ -335,7 +342,7 @@ The `gComp` function essentially executes four steps:
 4. *Estimates confidence interval with bootstrap resampling.*  We implement bootstrap resampling of the original dataset to estimate accurate standard errors as those generated in the original model are not correct when using g-computation. NOTE: the default number of bootstrap resamples (R = 20) was set for computational speed as users try out the function.  In order to obtain accurate confidence intervals, we recommend using R = 1000 or larger.
 
 
-Please see the refrences listed under the `gComp` or `pointEstimate` function for a more detailed explaination of g-computation.
+Please see the references listed under the `gComp` or `pointEstimate` function for a more detailed explanation of g-computation.
 
 
 

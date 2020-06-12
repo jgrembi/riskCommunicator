@@ -44,47 +44,68 @@
 
 
 plot.gComp <- function(x, ...) {
+  
+  df <- x$boot.result %>%
+    dplyr::select(-tidyselect::contains("exposure/treatment")) %>%
+    dplyr::group_by(.data$Comparison, .data$Subgroup) %>%
+    tidyr::pivot_longer(cols = .data$`Risk Difference`:.data$`Number needed to treat/harm`, names_to = "key", values_drop_na = TRUE) %>%
+    dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm")),
+                  value = as.numeric(value), 
+                  test = ifelse(is.na(.data$Subgroup), .data$Comparison, paste0(.data$Comparison, "_", .data$Subgroup)))
 
-  if(x$boot.result$test[1] != "Estimate") {
-    df <- x$boot.result %>%
-      tibble::as_tibble() %>%
-      dplyr::group_by(.data$test) %>%
-      tidyr::pivot_longer(cols = .data$`Risk Difference`:.data$`Number needed to treat`, names_to = "key", values_drop_na = TRUE) %>%
-      dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
-                    value = as.numeric(value)) %>%
-      na.omit() 
+  # if(x$boot.result$test[1] != "Estimate") {
+  #   df <- x$boot.result %>%
+  #     tibble::as_tibble() %>%
+  #     dplyr::group_by(.data$test) %>%
+  #     tidyr::pivot_longer(cols = .data$`Risk Difference`:.data$`Number needed to treat`, names_to = "key", values_drop_na = TRUE) %>%
+  #     dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
+  #                   value = as.numeric(value)) %>%
+  #     na.omit() 
+    if (length(unique(df$test)) == 1) {
+      hist <- ggplot2::ggplot(df) + 
+        ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) +
+        ggplot2::facet_wrap(~key, scales = "free", nrow = 2) +
+        ggplot2::theme_bw() +
+        ggplot2::labs(title = "Histograms")
+      qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) +
+        ggplot2::geom_qq(shape = 1, size = 2) +
+        ggplot2::facet_wrap(~key, scales = "free", nrow = 2) +
+        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
+        ggplot2::theme_bw() +
+        ggplot2::labs(title = "Q-Q plots")
+    } else {
+      hist <- ggplot2::ggplot(df) + 
+        ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
+        ggplot2::facet_grid(key~test, scales = "free") + 
+        ggplot2::theme_bw() + 
+        ggplot2::labs(title = "Histograms")
+      qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) + 
+        ggplot2::geom_qq(shape = 1, size = 2) + 
+        ggplot2::facet_grid(key~test, scales = "free") + 
+        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
+        ggplot2::theme_bw() + 
+        ggplot2::labs(title = "Q-Q plots")
+    }
     
-    hist <- ggplot2::ggplot(df) + 
-      ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
-      ggplot2::facet_grid(key~test, scales = "free") + 
-      ggplot2::theme_bw() + 
-      ggplot2::labs(title = "Histograms")
-    qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) + 
-      ggplot2::geom_qq(shape = 1, size = 2) + 
-      ggplot2::facet_grid(key~test, scales = "free") + 
-      ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
-      ggplot2::theme_bw() + 
-      ggplot2::labs(title = "Q-Q plots")
-    
-  } else {
-    df <- x$boot.result %>%
-      tibble::as_tibble() %>%
-      tidyr::gather() %>%
-      dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
-                    value = as.numeric(value)) %>%
-      na.omit() 
-    hist <- ggplot2::ggplot(df) + 
-      ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
-      ggplot2::facet_wrap(~key, scales = "free", nrow = 2) + 
-      ggplot2::theme_bw() + 
-      ggplot2::labs(title = "Histograms")
-    qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) + 
-      ggplot2::geom_qq(shape = 1, size = 2) + 
-      ggplot2::facet_wrap(~key, scales = "free", nrow = 2) + 
-      ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
-      ggplot2::theme_bw() + 
-      ggplot2::labs(title = "Q-Q plots")
-  }
+  # } else {
+  #   df <- x$boot.result %>%
+  #     tibble::as_tibble() %>%
+  #     tidyr::gather() %>%
+  #     dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat")),
+  #                   value = as.numeric(value)) %>%
+  #     na.omit() 
+  #   hist <- ggplot2::ggplot(df) + 
+  #     ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
+  #     ggplot2::facet_wrap(~key, scales = "free", nrow = 2) + 
+  #     ggplot2::theme_bw() + 
+  #     ggplot2::labs(title = "Histograms")
+  #   qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) + 
+  #     ggplot2::geom_qq(shape = 1, size = 2) + 
+  #     ggplot2::facet_wrap(~key, scales = "free", nrow = 2) + 
+  #     ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
+  #     ggplot2::theme_bw() + 
+  #     ggplot2::labs(title = "Q-Q plots")
+  # }
   gridExtra::grid.arrange(hist, qqplot, ncol = 2)
   
 }

@@ -22,23 +22,23 @@
 #'  
 #'
 #' @return An object of class \code{gComp} which is a named list with components:
-#' \itemize{
-#'   \item{\strong{$summary}:} {Summary providing parameter estimates and 95\% confidence
+#'
+#'   \item{$summary}{Summary providing parameter estimates and 95\% confidence
 #'   limits of the outcome difference and ratio} 
-#'   \item{\strong{$results.df}:} {Data.frame with parameter estimates, 2.5\% confidence 
+#'   \item{$results.df}{Data.frame with parameter estimates, 2.5\% confidence 
 #'   limit, and 97.5\% confidence limit each as a column} 
-#'   \item{\strong{$n}:} {Number of observations in the original dataset} 
-#'   \item{\strong{$R}:} {Number of bootstrap iterations}
-#'   \item{\strong{$boot.result}:} {Data.frame containing the results of the \code{R}
+#'   \item{$n}{Number of observations in the original dataset} 
+#'   \item{$R}{Number of bootstrap iterations}
+#'   \item{$boot.result}{Data.frame containing the results of the \code{R}
 #'   bootstrap iterations of the g-computation} 
-#'   \item{\strong{$contrast}:} {Contrast levels compared} 
-#'   \item{\strong{$family}:} {Error distribution used in the model}
-#'   \item{\strong{$formula}:} {Model formula used to fit the \code{glm}}
-#'   \item{\strong{$predicted.data}:} {A tibble with the predicted values for both exposed
-#'   and unexposed counterfactual predictions for each observation in the original dataset}
-#'   \item{\strong{$glm.result}:} {The \code{glm} class object returned from the 
+#'   \item{$contrast}{Contrast levels compared} 
+#'   \item{$family}{Error distribution used in the model}
+#'   \item{$formula}{Model formula used to fit the \code{glm}}
+#'   \item{$predicted.outcome}{A data.frame with the mean and 95% confidence limits for 
+#'     predicted values for both exposed and unexposed counterfactual predictions}
+#'   \item{$glm.result}{The \code{glm} class object returned from the 
 #'   fitted regression of the outcome on the exposure and relevant covariates.}
-#'   }
+#'
 #'
 #' @details The \code{gComp} function executes the following steps: 
 #' \enumerate{
@@ -141,11 +141,10 @@
 #' outcome.type = "binary", R = 20)
 #'
 #' @importFrom stats quantile as.formula na.omit
-#' @importFrom dplyr rename n_distinct left_join mutate group_by ungroup select summarise_at vars bind_rows
-#' @importFrom tibble rownames_to_column column_to_rownames
-#' @importFrom tidyr gather spread
+#' @importFrom dplyr n_distinct left_join mutate group_by select summarise_at vars mutate_at arrange filter across
+#' @importFrom tidyr pivot_wider pivot_longer
 #' @importFrom purrr map_dfc map_dfr
-#' @importFrom tidyselect vars_select starts_with contains 
+#' @importFrom tidyselect contains any_of everything
 #' @importFrom rlang sym .data
 #' @importFrom magrittr %>%
 #' @importFrom boot boot
@@ -205,11 +204,11 @@ gComp <- function(data,
       estimate <- suppressMessages(pointEstimate(df.bs, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = exposure.center))
     }
     if (length(names(estimate$parameter.estimates)) > 1) {
-      output <- sapply(names(estimate$parameter.estimates), function (n) c(estimate$parameter.estimates[[n]]))
+      output <- sapply(names(estimate$parameter.estimates), function (n) c(estimate$parameter.estimates[[n]], estimate$predicted.outcome[[n]]))
       # output <- do.call(cbind, output)
       # colnames(output)[8] <- "test"
     } else {
-      output <- c(estimate$parameter.estimates$Estimate)
+      output <- c(estimate$parameter.estimates$Estimate, estimate$predicted.outcome$Estimate)
     }
     return(output)
   }
@@ -221,137 +220,90 @@ gComp <- function(data,
                          exposure.scalar = exposure.scalar, exposure.center = X_mean, clusters = clusters)
   
   # Format output from boot function
-  if (dim(boot_out$t)[2] > 7) {
+  if (dim(boot_out$t)[2] > 11) {
     # Reformat if more than 1 estimate provided (e.g. if subgroups are used or if categorical exposure 
     # with more than 2 categories). This is necessary because the boot package only outputs a single line 
     # of results for each bootstrap iteration, including all possible exposure/subgroup comparisons.
-    boot_res <- purrr::map_dfr(seq(1:(dim(boot_out$t)[2]/7)), function (x) {
+    boot_res <- purrr::map_dfr(seq(1:(dim(boot_out$t)[2]/11)), function (x) {
        # x = 2
-      out <- boot_out$t[, (1+(x-1)*7):(7*x)] %>%
+      out <- boot_out$t[, (1+(x-1)*11):(11*x)] %>%
         data.frame() %>%
-        dplyr::mutate(test = names(pt_estimate$parameter.estimates)[x],
-               boot = paste0("Bootstrap",seq(1:R)))
+        dplyr::mutate(boot = paste0("Bootstrap",seq(1:R)))
     })
-    names(boot_res) <- c(rownames(pt_estimate$parameter.estimates), "test", "boot")
+    names(boot_res) <- c(rownames(pt_estimate$parameter.estimates), rownames(pt_estimate$predicted.outcome), "boot")
   } else {
     boot_res <- boot_out$t %>%
       data.frame() %>%
-      dplyr::mutate(test = "Estimate", 
-             boot = paste0("Bootstrap", seq(1:R)))
-    names(boot_res) <- c(rownames(pt_estimate$parameter.estimates), "test", "boot")
+      dplyr::mutate(boot = paste0("Bootstrap", seq(1:R)))
+    names(boot_res) <- c(rownames(pt_estimate$parameter.estimates), rownames(pt_estimate$predicted.outcome), "boot")
   }    
   
-  # # Nest df by bootstrap resampling unit
-  # if (is.null(clusterID)) { # By observation
-  #   df <- data %>%
-  #     tibble::rownames_to_column("dummy_id") %>%
-  #     dplyr::group_by(.data$dummy_id) %>%
-  #     tidyr::nest()
-  #   } else { # By specified cluster
-  #     df <- data %>%
-  #       dplyr::group_by(!!!clusterID) %>%
-  #       tidyr::nest()
-  #     
-  #   }
-  # 
-  # # Generate R bootstrap resampling units
-  # bs <- rsample::bootstraps(df, times = R)
-  # names(bs$splits) <- paste0("boot.", seq(1:R)) 
-  # 
-  # # Run R bootstrap iterations to get R point estimates 
-  # boot_res <- furrr::future_map_dfr(bs$splits, function(x) {
-  #    df <- rsample::analysis(x) %>%
-  #     tidyr::unnest(., cols = c(data)) %>%
-  #     dplyr::ungroup() %>%
-  #     dplyr::select(-tidyselect::matches("dummy_id"))
-  #   estimate <- suppressMessages(pointEstimate(df, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean))
-  #   result <- estimate$parameter.estimates %>%
-  #     t() %>%
-  #     as.data.frame() %>% 
-  #     tibble::rownames_to_column("test") %>%
-  #     dplyr::mutate(boot = as.character(x$id))
-  #   names(result) <- c("test","Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm", "boot")
-  #   return(result)
-  # })
-  
   # Use bootstrap results (boot_res) to calculate 95% CI for effect estimates
-  if(length(unique(boot_res$test)) > 1) { # For subgroups and/or >2 treatment/exposure levels
     ci <- boot_res %>%
-      dplyr::group_by(.data$test) %>%
-      dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean Difference`),
-                          ~stats::quantile(., probs = 0.025, na.rm = T)) %>%
-      dplyr::mutate(test = paste0(.data$test,"_2.5% CL")) %>%
-      dplyr::ungroup() %>%
-      tidyr::gather(var, value, -.data$test) %>%
-      tidyr::spread(.data$test, value) %>%
-      dplyr::left_join(boot_res %>%
-                         dplyr::group_by(.data$test) %>%
-                         dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean Difference`),
-                                             ~stats::quantile(., probs = 0.975, na.rm = T)) %>%
-                         dplyr::mutate(test = paste0(.data$test, "_97.5% CL")) %>%
-                         dplyr::ungroup() %>%
-                         tidyr::gather(var, value, -.data$test) %>%
-                         tidyr::spread(.data$test, value), by = "var") %>%
-      dplyr::rename(outcome = var) %>%
-      dplyr::mutate(outcome = as.character(.data$outcome))
-    test_list <- unlist(names(pt_estimate$parameter.estimates)) 
-
-    res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
-      tibble::rownames_to_column("outcome") %>%
-      dplyr::left_join(ci, by = "outcome") %>%
-      tibble::column_to_rownames("outcome") %>%
-      dplyr::select(tidyselect::vars_select(names(.), 
-                                            tidyselect::starts_with(unlist(test_list)))) 
-    ##Remove outcomes that are NA
-    res_ci_df <- res_ci_df[rowSums(is.na(res_ci_df)) != ncol(res_ci_df), ]
+      dplyr::mutate_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean outcome without exposure/treatment`), as.numeric) %>%
+      dplyr::group_by(.data$Comparison, .data$Subgroup) %>%
+      dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean Difference`, .data$`Mean outcome with exposure/treatment`:.data$`Mean outcome without exposure/treatment`),
+                   list(l.cl = ~ stats::quantile(., probs = 0.025, na.rm = T), 
+                        u.cl = ~ stats::quantile(., probs = 0.975, na.rm = T))) 
+    ci.long <- ci %>% 
+      dplyr::select(.data$Subgroup, .data$Comparison, tidyselect::contains("l.cl")) %>%
+      tidyr::pivot_longer(tidyselect::contains("l.cl"), names_to = "Parameter", values_to = "2.5% CL", values_drop_na = T) %>%
+      dplyr::mutate(Parameter = gsub("_l.cl", "", .data$Parameter)) %>%
+      dplyr::left_join(ci %>% 
+                         dplyr::select(.data$Subgroup, .data$Comparison, tidyselect::contains("u.cl")) %>%
+                         tidyr::pivot_longer(tidyselect::contains("u.cl"), names_to = "Parameter", values_to = "97.5% CL", values_drop_na = T) %>%
+                         dplyr::mutate(Parameter = gsub("_u.cl", "", .data$Parameter)), by =c("Comparison","Subgroup", "Parameter"))
     
-    summary <- purrr::map_dfc(test_list, function(t) {
-      df <- res_ci_df %>%
-        stats::na.omit() %>%
-        dplyr::select(tidyselect::contains(t)) %>%
-        dplyr::rename_all(list(~sub(t, "Estimate", .))) %>%
-        dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`Estimate_2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`Estimate_97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
-        dplyr::select(.data$Out) %>%
-        dplyr::bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
-                           dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
-                           dplyr::select(tidyselect::contains(t)) %>%
-                           dplyr::rename_all(list(~sub(t, "Out", .))) %>%
-                           dplyr::mutate(Out = ifelse(is.na(.data$Out), NA, formatC(round(.data$Out, 3), format = "f", digits = 3))))
-      names(df) <- paste0(t, " Estimate (95% CI)") 
-      return(df)
-    }) %>%
-      stats::na.omit()
-    rownames(summary) <- rownames(res_ci_df)
     
-  } else { # For no subgroups and only 2 treatment/exposure levels
-    res_ci_df <- data.frame(pt_estimate$parameter.estimates) %>%
-      tibble::rownames_to_column("outcome") %>%
-      dplyr::left_join(data.frame(outcome = rownames(pt_estimate$parameter.estimates)[1:6],
-                                  ci.ll = sapply(1:6, function(i) stats::quantile(boot_res[,i], probs = 0.025, na.rm = T)),
-                                  ci.ul = sapply(1:6, function(i) stats::quantile(boot_res[,i], probs = 0.975, na.rm = T))) %>%
-                         dplyr::mutate(outcome = as.character(.data$outcome)), by = "outcome") %>%
-      tibble::column_to_rownames("outcome") %>%
-      dplyr::rename(`2.5% CL` = .data$ci.ll, `97.5% CL` = .data$ci.ul)
+    ## Because predicted.outcomes is a character output (contains comparison and subgroup names), we need to
+    # make the parameter estimates into character to start too
+    as.char.param.estimates <- pt_estimate$parameter.estimates %>% 
+      dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
+    rownames(as.char.param.estimates) <- rownames(pt_estimate$parameter.estimates)
     
-    ##Remove outcomes that are NA
-    res_ci_df <- res_ci_df[rowSums(is.na(res_ci_df)) != ncol(res_ci_df), ]
+    res_ci_df <- data.frame(t(as.char.param.estimates)) %>%
+      cbind(., data.frame(t(pt_estimate$predicted.outcome))) %>%
+      tidyr::pivot_longer(!tidyselect::contains("Subgroup") & !tidyselect::contains("Comparison"), names_to = "Parameter", values_to = "Estimate", values_drop_na = T) %>%
+      dplyr::mutate(Parameter = gsub("\\.", " ", .data$Parameter)) %>%
+      dplyr::mutate(Parameter = ifelse(.data$Parameter == "Mean outcome with exposure treatment", "Mean outcome with exposure/treatment", 
+                    ifelse(.data$Parameter == "Mean outcome without exposure treatment", "Mean outcome without exposure/treatment", 
+                           ifelse(.data$Parameter == "Number needed to treat harm", "Number needed to treat/harm", .data$Parameter)))) %>%
+        dplyr::left_join(ci.long, by = c("Parameter", "Comparison", "Subgroup")) %>%
+      dplyr::mutate(Outcome = pt_estimate$Y) %>%
+      dplyr::select(.data$Outcome, .data$Comparison, .data$Subgroup, .data$Parameter, .data$Estimate:.data$`97.5% CL`) %>%
+      dplyr::mutate_at(dplyr::vars(tidyselect::contains("Estimate") | tidyselect::contains("CL")), as.numeric)
     
-    summary <- res_ci_df %>% 
-      stats::na.omit() %>%
-      dplyr::mutate(Out = paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), " (", formatC(round(.data$`2.5% CL`, 3), format = "f", digits = 3), ", ", formatC(round(.data$`97.5% CL`, 3), format = "f", digits = 3), ")")) %>%
-      dplyr::select(-(.data$Estimate:.data$`97.5% CL`)) %>%
-      dplyr::bind_rows(., data.frame(pt_estimate$parameter.estimates) %>% 
-                         dplyr::filter(rownames(.) == "Number needed to treat/harm") %>% 
-                         dplyr::mutate(Out = ifelse(is.na(.data$Estimate), NA, formatC(round(.data$Estimate, 3), format = "f", digits = 3))) %>%
-                         dplyr::select(.data$Out)) %>%
-      dplyr::rename(`Estimate (95% CI)` = .data$Out) %>%
-      stats::na.omit()
-    rownames(summary) <- rownames(res_ci_df)
-  }
+    summary <- res_ci_df %>%
+      dplyr::mutate(`Estimate (95% CI)` = ifelse(.data$Parameter == "Number needed to treat/harm", 
+                                                 formatC(round(.data$Estimate, 3), format = "f", digits = 3), 
+                                                 paste0(formatC(round(.data$Estimate, 3), format = "f", digits = 3), 
+                                                        " (", 
+                                                        formatC(round(.data$`2.5% CL`, 3), format = "f", digits = 3), 
+                                                        ", ", 
+                                                        formatC(round(.data$`97.5% CL`, 3), format = "f", digits = 3), 
+                                                        ")")),
+                    name = ifelse(is.na(.data$Subgroup), paste0(.data$Comparison, " Estimate (95% CI)"), paste0(.data$Comparison, "_", .data$Subgroup, " Estimate (95% CI)"))) %>%
+      dplyr::select(.data$Parameter, .data$name, .data$`Estimate (95% CI)`) %>%
+      tidyr::pivot_wider(names_from = .data$name, values_from = .data$`Estimate (95% CI)`) %>%
+      as.data.frame() %>%
+      dplyr::filter(!grepl("exposure/treatment", .data$Parameter))
+    rownames(summary) <- summary$Parameter
+    
+    
+    ##Remove subgroups if not present (all NA)
+    res_ci_df <- res_ci_df[colSums(!is.na(res_ci_df)) > 0]
   
+  ##Make predicted.outcome CI
+    pred.outcome <- res_ci_df %>%
+      dplyr::filter(grepl("exposure/treatment", .data$Parameter)) %>%
+      dplyr::mutate(Group = ifelse(.data$Parameter == "Mean outcome with exposure/treatment", gsub("_v._.*", "", .data$Comparison), gsub(".*_v._", "", .data$Comparison))) %>%
+      dplyr::select(tidyselect::any_of(c("Parameter", "Group", "Subgroup", "Estimate", "2.5% CL","97.5% CL"))) %>%
+      unique() %>%
+      dplyr::arrange(dplyr::across(tidyselect::any_of(c("Group", "Subgroup", "Parameter")))) 
+    
 # Output results list
   res <- list(
-    summary = summary,
+    summary = summary[,-1, drop = FALSE],
     results.df = res_ci_df, 
     n = dplyr::n_distinct(data), 
     R = R, 
@@ -359,8 +311,10 @@ gComp <- function(data,
     contrast = pt_estimate$contrast,
     family = pt_estimate$family, 
     formula = pt_estimate$formula,
-    predicted.data = pt_estimate$predicted.data, 
-    glm.result = pt_estimate$glm.result)
+    # predicted.data = pt_estimate$predicted.data, 
+    predicted.outcome = pred.outcome,
+    glm.result = pt_estimate$glm.result
+    )
   
   class(res) <- c("gComp", class(res))
   return(res)

@@ -80,9 +80,12 @@
 #'   \item{$covariates}{Covariates used in the model} 
 #'   \item{$n}{Number of observations provided to the model} 
 #'   \item{$family}{Error distribution used in the model} 
-#'   \item{$predicted.data}{A tibble with the
-#'   predicted values for the exposed and unexposed counterfactual predictions 
-#'   for each observation in the original dataset} 
+#'   \item{$predicted.data}{A data.frame with the predicted values for the exposed 
+#'   and unexposed counterfactual predictions for each observation in the original 
+#'   dataset (on the log scale)} 
+#'    \item{$predicted.outcome}{A data.frame with the calculated population mean
+#'   predicted outcome for the exposed/treated and unexposed/untreated 
+#'   counterfactual predictions} 
 #'   \item{$glm.result}{The \code{glm} class object returned from the 
 #'   fitted regression of the outcome on the exposure and relevant covariates.} 
 #'   formula = formula, 
@@ -166,10 +169,9 @@
 #' ptEstimate <- pointEstimate(data = cvdd, Y = "cvd_dth", X = "DIABETES",
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary")
 #'
-#' @importFrom tidyselect contains all_of
-#' @importFrom stats as.formula glm model.matrix binomial poisson gaussian 
-#'   predict na.omit
-#' @importFrom dplyr select mutate rename summarise
+#' @importFrom tidyselect contains all_of everything
+#' @importFrom stats as.formula glm model.matrix binomial poisson gaussian predict na.omit
+#' @importFrom dplyr select mutate rename summarise across
 #' @importFrom rlang sym
 #' @importFrom magrittr %>%
 #' @importFrom purrr map_dfc
@@ -199,7 +201,6 @@ pointEstimate <- function(data,
   
   # set new df to modify
   working.df <- data
-  X_mean = ifelse(exposure.center == T, round(mean(data[[X]]), 2), round(exposure.center, 2))
   
   # Specify model family and link for the given outcome.type
   if (outcome.type %in% c("binary")) {
@@ -233,6 +234,9 @@ pointEstimate <- function(data,
     X <- rlang::sym(all.vars(formula[[3]])[1])
     Z <- all.vars(formula[[3]])[-1]
   }
+  
+  # Determine X_mean
+  if (is.numeric(data[[X]])) X_mean = ifelse(exposure.center == T, round(mean(data[[X]]), 2), round(exposure.center, 2))
   
   # Specify interaction term in formula if subgroup provided
   if (!is.null(subgroup)) {
@@ -316,13 +320,12 @@ pointEstimate <- function(data,
   }
                            
                           
- 
+  contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
   # Calculate estimates for risk/rate/mean differences & ratios
   if (!is.null(subgroup)) { 
     subgroups_list <- sapply(levels(working.df[[subgroup]]), function(x) paste0(subgroup,x), USE.NAMES = F)
       
     if (length(exposure_list) > 2) { # For when subgroups and exposure with more than 2 levels are both specified
-      contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
       subgroup_contrasts_res <- suppressMessages(purrr::map_dfc(exposure_list[-1], function(e) {
         
         predict_df_e <- fn_output %>%
@@ -331,11 +334,11 @@ pointEstimate <- function(data,
           predict_df_s = fn_output %>% 
             dplyr::select(tidyselect::contains(s))
           fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
-          return(fn_results_tibble)
+          return(c(fn_results_tibble, subgroup = s, Comparison = paste0(e, "_v._", exposure_list[1])))
         }))
         subgp_results <- subgroup_res %>%
-          as.data.frame()
-        colnames(subgp_results) <- paste0(e, "_v._", exposure_list[1],"_", subgroups_list)
+          as.data.frame() 
+         colnames(subgp_results) <- paste0(e, "_v._", exposure_list[1],"_", subgroups_list)
         return(subgp_results)
       }))
       results <- subgroup_contrasts_res
@@ -345,20 +348,19 @@ pointEstimate <- function(data,
         predict_df_s = fn_output %>% 
           dplyr::select(tidyselect::contains(s))
         fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
-        return(fn_results_tibble)
+        return(c(fn_results_tibble, subgroup = s, Comparison = contrasts_list))
       }))
       results <- subgroup_res %>%
         as.data.frame()
       colnames(results) <- subgroups_list
     }
   } else if (length(exposure_list) > 2) { # For when exposure with more than 2 levels is specified (but no subgroups)
-    contrasts_list <- sapply(exposure_list[-1], function(x) paste0(x, "_v._", exposure_list[1]), USE.NAMES = F)
     contrasts_res <- suppressMessages(purrr::map_dfc(exposure_list[-1], function(e) {
       # e <- exposure_list[2]
       predict_df_e <- fn_output %>%
         dplyr::select(tidyselect::contains(match = c(exposure_list[1], e))) #contains(exposure_list[1]), tidyselect::contains(e))
       fn_results_tibble <- get_results_tibble(predict.df = predict_df_e, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
-      return(fn_results_tibble)
+      return(c(fn_results_tibble, subgroup = NA, Comparison = paste0(e, "_v._", exposure_list[1])))
     }))
     results <- contrasts_res %>%
       as.data.frame()
@@ -369,26 +371,27 @@ pointEstimate <- function(data,
     results <- fn_results_tibble %>%
       as.data.frame() %>%
       dplyr::rename(Estimate = ".") %>%
-      dplyr::mutate_if(is.numeric, round, digits = 4)
+      dplyr::mutate_if(is.numeric, round, digits = 4) %>%
+      rbind(., NA) %>%
+      rbind(., contrasts_list)
   }
-  rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm")
-  
-  # if (is.numeric(data[[X]])) {
-  #   contrast <- paste(rev(exposure_list), collapse = " v. ")
-  # } else {
-  #   contrast <- sapply(exposure_list[-1], function(x) paste(x, exposure_list[1], sep = " v. "))
-  # }
-                    
+  rownames(results) <- c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference", "Number needed to treat/harm", "Mean outcome with exposure/treatment", "Mean outcome without exposure/treatment", "Subgroup", "Comparison")
+
+  param.est <- results[1:7, , drop = F] %>% 
+    dplyr::mutate(dplyr::across(tidyselect::everything(), as.numeric))
+  rownames(param.est) <- rownames(results)[1:7]
                     
   # List of items to return to this function call
-  res <- list(parameter.estimates = results,
+  res <- list(parameter.estimates = param.est,
               formula = formula, 
               contrast = unname(sapply(exposure_list[-1], function(x) paste(x, exposure_list[1], sep = " v. "))),
               Y = Y,
               covariates = ifelse(length(attr(glm_result$terms , "term.labels")) > 1, do.call(paste,as.list(attr(glm_result$terms , "term.labels")[-1])), NA),
               n = as.numeric(dplyr::summarise(working.df, n = dplyr::n())), 
               family = family,
-              predicted.data = results_tbl_all, 
+              predicted.data = results_tbl_all,
+              predicted.outcome = results[8:11, , drop = FALSE],
               glm.result = glm_result)
   return(res)
 }
+

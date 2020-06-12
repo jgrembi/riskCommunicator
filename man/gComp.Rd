@@ -110,23 +110,22 @@ parallel operations to be used.  This argument is passed directly to \code{\link
 }
 \value{
 An object of class \code{gComp} which is a named list with components:
-\itemize{
-  \item{\strong{$summary}:} {Summary providing parameter estimates and 95\% confidence
+
+  \item{$summary}{Summary providing parameter estimates and 95\% confidence
   limits of the outcome difference and ratio} 
-  \item{\strong{$results.df}:} {Data.frame with parameter estimates, 2.5\% confidence 
+  \item{$results.df}{Data.frame with parameter estimates, 2.5\% confidence 
   limit, and 97.5\% confidence limit each as a column} 
-  \item{\strong{$n}:} {Number of observations in the original dataset} 
-  \item{\strong{$R}:} {Number of bootstrap iterations}
-  \item{\strong{$boot.result}:} {Data.frame containing the results of the \code{R}
+  \item{$n}{Number of observations in the original dataset} 
+  \item{$R}{Number of bootstrap iterations}
+  \item{$boot.result}{Data.frame containing the results of the \code{R}
   bootstrap iterations of the g-computation} 
-  \item{\strong{$contrast}:} {Contrast levels compared} 
-  \item{\strong{$family}:} {Error distribution used in the model}
-  \item{\strong{$formula}:} {Model formula used to fit the \code{glm}}
-  \item{\strong{$predicted.data}:} {A tibble with the predicted values for both exposed
-  and unexposed counterfactual predictions for each observation in the original dataset}
-  \item{\strong{$glm.result}:} {The \code{glm} class object returned from the 
+  \item{$contrast}{Contrast levels compared} 
+  \item{$family}{Error distribution used in the model}
+  \item{$formula}{Model formula used to fit the \code{glm}}
+  \item{$predicted.outcome}{A data.frame with the mean and 95% confidence limits for 
+    predicted values for both exposed and unexposed counterfactual predictions}
+  \item{$glm.result}{The \code{glm} class object returned from the 
   fitted regression of the outcome on the exposure and relevant covariates.}
-  }
 }
 \description{
 Obtain a point estimate and 95\% confidence interval for

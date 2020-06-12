@@ -107,9 +107,12 @@ A named list containing the following:
   \item{$covariates}{Covariates used in the model} 
   \item{$n}{Number of observations provided to the model} 
   \item{$family}{Error distribution used in the model} 
-  \item{$predicted.data}{A tibble with the
-  predicted values for the exposed and unexposed counterfactual predictions 
-  for each observation in the original dataset} 
+  \item{$predicted.data}{A data.frame with the predicted values for the exposed 
+  and unexposed counterfactual predictions for each observation in the original 
+  dataset (on the log scale)} 
+   \item{$predicted.outcome}{A data.frame with the calculated population mean
+  predicted outcome for the exposed/treated and unexposed/untreated 
+  counterfactual predictions} 
   \item{$glm.result}{The \code{glm} class object returned from the 
   fitted regression of the outcome on the exposure and relevant covariates.} 
   formula = formula,
