@@ -240,7 +240,8 @@ gComp <- function(data,
   }    
   
   # Use bootstrap results (boot_res) to calculate 95% CI for effect estimates
-    ci <- boot_res %>%
+    ci <- boot_res %>% 
+      dplyr::mutate_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean outcome without exposure/treatment`), as.character) %>% 
       dplyr::mutate_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean outcome without exposure/treatment`), as.numeric) %>%
       dplyr::group_by(.data$Comparison, .data$Subgroup) %>%
       dplyr::summarise_at(dplyr::vars(.data$`Risk Difference`:.data$`Mean Difference`, .data$`Mean outcome with exposure/treatment`:.data$`Mean outcome without exposure/treatment`),
@@ -264,7 +265,7 @@ gComp <- function(data,
     
     res_ci_df <- data.frame(t(as.char.param.estimates)) %>%
       cbind(., data.frame(t(pt_estimate$predicted.outcome))) %>%
-      tidyr::pivot_longer(!tidyselect::contains("Subgroup") & !tidyselect::contains("Comparison"), names_to = "Parameter", values_to = "Estimate", values_drop_na = T) %>%
+      tidyr::pivot_longer(!tidyselect::contains("Subgroup") & !tidyselect::contains("Comparison"), names_to = "Parameter", values_to = "Estimate", values_drop_na = T)  %>%
       dplyr::mutate(Parameter = gsub("\\.", " ", .data$Parameter)) %>%
       dplyr::mutate(Parameter = ifelse(.data$Parameter == "Mean outcome with exposure treatment", "Mean outcome with exposure/treatment", 
                     ifelse(.data$Parameter == "Mean outcome without exposure treatment", "Mean outcome without exposure/treatment", 
@@ -272,6 +273,7 @@ gComp <- function(data,
         dplyr::left_join(ci.long, by = c("Parameter", "Comparison", "Subgroup")) %>%
       dplyr::mutate(Outcome = pt_estimate$Y) %>%
       dplyr::select(.data$Outcome, .data$Comparison, .data$Subgroup, .data$Parameter, .data$Estimate:.data$`97.5% CL`) %>%
+      dplyr::mutate_at(dplyr::vars(tidyselect::contains("Estimate") | tidyselect::contains("CL")), as.character) %>% 
       dplyr::mutate_at(dplyr::vars(tidyselect::contains("Estimate") | tidyselect::contains("CL")), as.numeric)
     
     summary <- res_ci_df %>%
