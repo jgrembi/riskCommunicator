@@ -322,7 +322,7 @@ summary(binary.res$glm.result)
 
 ```
 
-You can also obtain the sample estimated mean predicted values for each treatment/exposure group and subgroup, if applicable.
+You can also obtain the marginal mean predicted outcomes under each exposure level, i.e. what would be the predicted mean outcome had everyone been exposed (set exposure to 1) and had everyone been unexposed (set exposure to 0). These predicted outcomes are "adjusted" for covariates in that they have been standardized over the observed values of covariates included in the model. Therefore, this outcome prediction procedure does not require setting the covariates to specific values (at the mean values, for example). This is a major advantage over the usual `predict` function in R, or similar functions in other statistical programs (e.g. lsmeans statement in SAS).
 ```{r, paged.print = FALSE}
 binary.res$predicted.outcome
 ```

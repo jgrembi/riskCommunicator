@@ -87,7 +87,7 @@ binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary"
 binary.res
 ```
 
-The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results, `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, `predicted.data`, and `glm.result` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  
+The result obtained from the `gComp` function is an object of class **gComp** which is a list containing the summary results, `results.df`, `n`, `R`, `boot.result`, `contrast`, `family`, `formula`, `predicted.outcome`, and `glm.result` (see `?gComp` or `help(gComp)` for a more detailed explanation of each item in the list).  
 
 ```{r gComp_class_explaination}
 class(binary.res)

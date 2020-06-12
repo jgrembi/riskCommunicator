@@ -34,8 +34,9 @@
 #'   \item{$contrast}{Contrast levels compared} 
 #'   \item{$family}{Error distribution used in the model}
 #'   \item{$formula}{Model formula used to fit the \code{glm}}
-#'   \item{$predicted.outcome}{A data.frame with the mean and 95% confidence limits for 
-#'     predicted values for both exposed and unexposed counterfactual predictions}
+#'   \item{$predicted.outcome}{A data.frame with the marginal mean predicted outcomes 
+#'   (with 95\% confidence limits) for each exposure level (i.e. under both exposed 
+#'   and unexposed counterfactual predictions)}
 #'   \item{$glm.result}{The \code{glm} class object returned from the 
 #'   fitted regression of the outcome on the exposure and relevant covariates.}
 #'
