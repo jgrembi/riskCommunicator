@@ -29,13 +29,13 @@ testthat::test_that("outcome is expected value", {
                                  dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)),
                                                timeout = as.numeric(timeout)), 
                                Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX",
-                               outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 4)$results.df[6,5, drop = T], 2)), 2.04)
+                               outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 4)$results.df[4,5, drop = T], 2)), 2.04)
   ## continuous outcome
   testthat::expect_equal(gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", R = 4)$results.df[1,4, drop = T], 61.6257)
   ## count outcome
   testthat::expect_equal(round(gComp(data = cvdd, formula = "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", outcome.type = "count", R = 4)$results.df[1,4, drop = T], 2), 0.05)
   ## binary outcome, categorical exposure
-  testthat::expect_equal(unname(round(gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", outcome.type = "binary", R = 5)$results.df[14,4, drop = T], 2)), 1.58)
+  testthat::expect_equal(unname(round(gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", outcome.type = "binary", R = 5)$results.df[10,4, drop = T], 2)), 1.58)
   ## binary outcome, continuous exposure
   testthat::expect_equal(round(gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 5)$results.df[4,4, drop = T], 2), 4.12)
   ## binary outcome, continuous exposure, subgroups

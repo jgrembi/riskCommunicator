@@ -304,7 +304,8 @@ gComp <- function(data,
 # Output results list
   res <- list(
     summary = summary[,-1, drop = FALSE],
-    results.df = res_ci_df, 
+    results.df = res_ci_df %>%
+      dplyr::filter(!grepl("exposure/treatment", .data$Parameter)), 
     n = dplyr::n_distinct(data), 
     R = R, 
     boot.result = boot_res,
