@@ -270,7 +270,7 @@ gComp <- function(data,
       dplyr::mutate(Parameter = ifelse(.data$Parameter == "Mean outcome with exposure treatment", "Mean outcome with exposure/treatment", 
                     ifelse(.data$Parameter == "Mean outcome without exposure treatment", "Mean outcome without exposure/treatment", 
                            ifelse(.data$Parameter == "Number needed to treat harm", "Number needed to treat/harm", .data$Parameter)))) %>%
-        dplyr::left_join(ci.long, by = c("Parameter", "Comparison", "Subgroup")) %>%
+      dplyr::left_join(ci.long, by = c("Parameter", "Comparison", "Subgroup")) %>%
       dplyr::mutate(Outcome = pt_estimate$Y) %>%
       dplyr::select(.data$Outcome, .data$Comparison, .data$Subgroup, .data$Parameter, .data$Estimate:.data$`97.5% CL`) %>%
       dplyr::mutate_at(dplyr::vars(tidyselect::contains("Estimate") | tidyselect::contains("CL")), as.character) %>% 
@@ -300,7 +300,7 @@ gComp <- function(data,
     pred.outcome <- res_ci_df %>%
       dplyr::filter(grepl("exposure/treatment", .data$Parameter)) %>%
       dplyr::mutate(Group = ifelse(.data$Parameter == "Mean outcome with exposure/treatment", gsub("_v._.*", "", .data$Comparison), gsub(".*_v._", "", .data$Comparison))) %>%
-      dplyr::select(tidyselect::any_of(c("Parameter", "Group", "Subgroup", "Estimate", "2.5% CL","97.5% CL"))) %>%
+      dplyr::select(tidyselect::any_of(c("Parameter", "Outcome", "Group", "Subgroup", "Estimate", "2.5% CL","97.5% CL"))) %>%
       unique() %>%
       dplyr::arrange(dplyr::across(tidyselect::any_of(c("Group", "Subgroup", "Parameter")))) 
     
