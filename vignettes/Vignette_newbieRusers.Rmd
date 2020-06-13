@@ -316,8 +316,7 @@ plot(binary.res.subgroup)
 We expect to see the histograms to look approximately normally distributed and the estimates to fall close to the dotted red line on the Q-Q plots.
 
 In order to facilitate plotting of the results, the `results.df` output contains a data.frame with all of the info needed to make your own results plot, as shown below:
-```{r binary_outcome_resultsPlot, out.width = "100%"}
-
+```{r binary_outcome_resultsPlot, fig.height = 3, fig.width = 5, out.width = "100%"}
 ggplot(catExp.res$results.df %>% 
          filter(Parameter %in% c("Risk Difference", "Risk Ratio"))
 ) + 
