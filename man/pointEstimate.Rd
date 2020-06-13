@@ -19,7 +19,7 @@ pointEstimate(
 )
 }
 \arguments{
-\item{data}{(Required) A data.frame or tibble containing variables for
+\item{data}{(Required) A data.frame containing variables for
 \code{Y}, \code{X}, and \code{Z} or with variables matching the model
 variables specified in a user-supplied formula. Data set should also
 contain variables for the optional \code{subgroup} and \code{offset}, if

@@ -9,18 +9,14 @@ Authors@R:
            comment = c(ORCID = "0000-0001-6142-4913"))
 Depends: R (>= 3.5)
 Imports:
-    magrittr,
-    tibble,
+    boot,
     dplyr,
     ggplot2,
-    stats,
-    boot,
     gridExtra,
+    magrittr,
     purrr,
-    furrr,
+    stats,
     rlang, 
-    rsample, 
-    stringr,
     tidyr,
     tidyselect, 
     tidyverse

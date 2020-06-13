@@ -3,7 +3,7 @@
 #' @description Generate a point estimate of the outcome difference and ratio
 #'   using G-computation
 #'
-#' @param data (Required) A data.frame or tibble containing variables for
+#' @param data (Required) A data.frame containing variables for
 #'   \code{Y}, \code{X}, and \code{Z} or with variables matching the model
 #'   variables specified in a user-supplied formula. Data set should also
 #'   contain variables for the optional \code{subgroup} and \code{offset}, if
@@ -332,8 +332,8 @@ pointEstimate <- function(data,
         subgroup_res <- suppressMessages(purrr::map_dfc(subgroups_list, function(s) {
           predict_df_s = fn_output %>% 
             dplyr::select(tidyselect::contains(s))
-          fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
-          return(c(fn_results_tibble, subgroup = s, Comparison = paste0(e, "_v._", exposure_list[1])))
+          fn_results_df <- get_results_dataframe(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+          return(c(fn_results_df, subgroup = s, Comparison = paste0(e, "_v._", exposure_list[1])))
         }))
         subgp_results <- subgroup_res %>%
           as.data.frame() 
@@ -346,8 +346,8 @@ pointEstimate <- function(data,
         # s <- subgroups_list[1]
         predict_df_s = fn_output %>% 
           dplyr::select(tidyselect::contains(s))
-        fn_results_tibble <- get_results_tibble(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
-        return(c(fn_results_tibble, subgroup = s, Comparison = contrasts_list))
+        fn_results_df <- get_results_dataframe(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+        return(c(fn_results_df, subgroup = s, Comparison = contrasts_list))
       }))
       results <- subgroup_res %>%
         as.data.frame()
@@ -358,16 +358,16 @@ pointEstimate <- function(data,
       # e <- exposure_list[2]
       predict_df_e <- fn_output %>%
         dplyr::select(tidyselect::contains(match = c(exposure_list[1], e))) #contains(exposure_list[1]), tidyselect::contains(e))
-      fn_results_tibble <- get_results_tibble(predict.df = predict_df_e, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
-      return(c(fn_results_tibble, subgroup = NA, Comparison = paste0(e, "_v._", exposure_list[1])))
+      fn_results_df <- get_results_dataframe(predict.df = predict_df_e, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+      return(c(fn_results_df, subgroup = NA, Comparison = paste0(e, "_v._", exposure_list[1])))
     }))
     results <- contrasts_res %>%
       as.data.frame()
     colnames(results) <- contrasts_list
   } else { # For when NO subgroups are specified and exposure has only 2 levels
-    fn_results_tibble <- get_results_tibble(predict.df = fn_output, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+    fn_results_df <- get_results_dataframe(predict.df = fn_output, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
     
-    results <- fn_results_tibble %>%
+    results <- fn_results_df %>%
       as.data.frame() %>%
       dplyr::rename(Estimate = ".") %>%
       dplyr::mutate_if(is.numeric, round, digits = 4) %>%

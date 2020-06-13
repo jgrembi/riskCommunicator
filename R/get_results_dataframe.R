@@ -30,7 +30,7 @@
 #' @importFrom dplyr select pull
 #' @importFrom tidyselect starts_with
 
-get_results_tibble <- function(predict.df, outcome.type, rate.multiplier) {
+get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
   
   col.names <- names(predict.df)
   

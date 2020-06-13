@@ -29,15 +29,13 @@
 #' plot(diabetes.result)
 #'
 #' @importFrom gridExtra grid.arrange
-#' @importFrom dplyr rename group_by mutate
-#' @importFrom stats var
-#' @importFrom tibble as_tibble
-#' @importFrom tidyr pivot_longer gather
+#' @importFrom dplyr group_by mutate select ungroup
+#' @importFrom tidyr pivot_longer 
 #' @importFrom magrittr %>%
-#' @importFrom ggplot2 ggplot aes geom_histogram facet_grid facet_wrap geom_qq
-#'   theme_bw geom_abline labs label_wrap_gen
+#' @importFrom ggplot2 ggplot aes geom_histogram facet_wrap geom_qq geom_qq_line
+#'   theme_bw labs label_wrap_gen
 #' @importFrom rlang .data
-#' @importFrom stringr str_wrap
+#' @importFrom tidyselect contains
 #'
 #' @keywords plot.gComp
 
