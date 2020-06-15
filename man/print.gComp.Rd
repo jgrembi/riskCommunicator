@@ -27,7 +27,7 @@ Print results from bootstrap computations of the g-computation
 data(cvdd)
 set.seed(4832)
 diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat",
-Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 50)
+Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 print(diabetes.result)
 
 
