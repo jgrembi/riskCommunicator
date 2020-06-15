@@ -25,7 +25,7 @@
 #' data(cvdd)
 #' set.seed(538)
 #' diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES",
-#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 100)
+#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 80)
 #' plot(diabetes.result)
 #'
 #' @importFrom gridExtra grid.arrange

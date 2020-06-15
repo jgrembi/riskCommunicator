@@ -56,7 +56,7 @@
 #'   estimates. }   
 #'   
 #'   As bootstrap resamples are generated with random sampling, users should
-#'   set a seed (\code{\link[base]{set.seed}} for reproducible
+#'   set a seed (\code{\link{set.seed}} for reproducible
 #'   confidence intervals.
 #'  
 #' @note

@@ -1,12 +1,13 @@
 Package: riskCommunicator
 Title: G-Computation to Estimate Risk Differences/Ratios, Rate Differences/Ratios, and Other Epidemiological Effects
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R: c(
     person(given = "Jessica",
            family = "Grembi",
-           role = c("aut", "cre"),
+           role = c("aut", "cre", "cph"),
            email = "jess.grembi@gmail.com",
-           comment = c(ORCID = "0000-0001-6142-4913"))
+           comment = c(ORCID = "0000-0001-6142-4913")),
+           person("Elizabeth", "Rogawski McQuade", role = "ctb", comment = c(ORCID = "0000-0002-4942-3747")))
 Depends: R (>= 3.5)
 Imports:
     boot,

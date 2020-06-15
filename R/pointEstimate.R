@@ -104,7 +104,7 @@
 #'   }
 #'
 #'   As counterfactual predictions are generated with random sampling of the
-#'   distribution, users should set a seed (\code{\link[base]{set.seed}} for
+#'   distribution, users should set a seed (\code{\link{set.seed}}) for
 #'   reproducible confidence intervals.
 #'
 #' @note
