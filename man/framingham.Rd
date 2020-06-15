@@ -41,11 +41,11 @@ A data frame with 11627 rows and 39 variables:
 \item{TIMEAP}{Number of days from Baseline exam to first Angina during the followup or Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
 \item{TIMEMI}{Number of days from Baseline exam to first HOSPMI event during followup or Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
 \item{TIMEMIFC}{Number of days from Baseline exam to first MI_FCHD event during followup or Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
-\item{TIMECHD}{Number of days from Baseline exam to first ANYCHD event during followupor Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
-\item{TIMESTRK}{Number of days from Baseline exam to first STROKE event during followupor Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
-\item{TIMECVD}{Number of days from Baseline exam to first CVD event during followupor Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
+\item{TIMECHD}{Number of days from Baseline exam to first ANYCHD event during followup or Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
+\item{TIMESTRK}{Number of days from Baseline exam to first STROKE event during followup or Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
+\item{TIMECVD}{Number of days from Baseline exam to first CVD event during followup or Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
 \item{TIMEDTH}{Number of days from Baseline exam to death if occurring during followup or Number of days from Baseline to censor date. Censor date may be end of followup, or last known contact date if subject is lost to followup.}
-\item{TIMEHYP}{Number of days from Baseline exam to first HYPERTEN event during followupor Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
+\item{TIMEHYP}{Number of days from Baseline exam to first HYPERTEN event during followup or Number of days from Baseline to censor date. Censor date may be end of followup, death or last known contact date if subject is lost to followup.}
 }
 }
 \usage{

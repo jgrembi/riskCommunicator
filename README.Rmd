@@ -66,7 +66,7 @@ bmi.results
 ```
 
 The results from the g-computation show the estimated risk difference and ratio, in addition to other information.
-From these results, we see that obese persons have an 11.6% (95% CI: 7.2, 16.6) increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, moreso than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
+From these results, we see that obese persons have an 11.6% (95% CI: 7.2, 16.6) increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, more so than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
 
 
 

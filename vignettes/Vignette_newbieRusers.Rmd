@@ -67,7 +67,7 @@ mydata <- read.csv("C:/your/file/path/yourdata.csv")
 ```
 
 
-The examples provided in this vigette will use the dataset **cvdd** and that data can be accessed with:
+The examples provided in this vignette will use the dataset **cvdd** and that data can be accessed with:
 ```{r dataset}
 data(cvdd)
 ```
@@ -217,13 +217,13 @@ catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX"
 catExp.res
 
 ```
-From these results, we see that obese persons have the highest increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, moreso than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
+From these results, we see that obese persons have the highest increase in 24-year risk of cardiovascular disease or death compared to normal weight persons. Underweight persons also have increased risk, more so than overweight persons. Not surprisingly, the estimate comparing underweight to normal weight persons is imprecise given the few people in the dataset who were underweight.
 
 
 ## Continuous exposure example
 Question: what is the effect of a 10-year difference in age on the 24-year risk of cardiovascular disease or death due to any cause?
 
-Estimates can also be produced for continous exposures. The default effects are produced for a one unit difference in the exposure at the mean value of the exposure variable. Under the hood, your continuous exposure is first centered at the mean, and then effects are estimated for a one unit difference. You can specify the exposure.scalar option to estimate effects for a more interpretable contrast, as desired. For example, if the continuous exposure is age in years, specifying the exposure.scalar option as 10 would result in effects for a 10 year difference in age, rather than a 1 year difference. We will try this below.
+Estimates can also be produced for continuous exposures. The default effects are produced for a one unit difference in the exposure at the mean value of the exposure variable. Under the hood, your continuous exposure is first centered at the mean, and then effects are estimated for a one unit difference. You can specify the exposure.scalar option to estimate effects for a more interpretable contrast, as desired. For example, if the continuous exposure is age in years, specifying the exposure.scalar option as 10 would result in effects for a 10 year difference in age, rather than a 1 year difference. We will try this below.
 
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
@@ -236,7 +236,7 @@ contExp.res
 ```
 These results demonstrate that the 24-year risk of cardiovascular disease or death increases by an absolute 24.3% (95% CI: 22.5%, 26.2%) for a 10 year increase in age. The risk difference, risk ratio, and NNT estimates specifically apply at the mean observed age, or 50 years. The odds ratio is constant regardless of which 10-year difference in age is considered along the observed range.
 
-NOTE: in this example, because the underlying parametric model for a binary outcome is logistic regression, the risks for a continuous exposure will be estimated to be linear on the log-odds (logit) scale, such that the odds ratio for any one unit increase in the continuous variable is constant. However, the risks will not be linear on the linear (risk difference) or log (risk ratio) scales, such that these parameters will not be constant across the range of the continuous exposure. Users should be aware that the risk difference, risk ratio, number needed to treat/harm (for a binary outcome) and the incidence rate difference (for a rate/count outcome) reported with a continous exposure apply specifically at the mean of the continuous exposure. The effects do not necessarily apply across the entire range of the variable. However, variations in the effect are likely small, especially near the mean.
+NOTE: in this example, because the underlying parametric model for a binary outcome is logistic regression, the risks for a continuous exposure will be estimated to be linear on the log-odds (logit) scale, such that the odds ratio for any one unit increase in the continuous variable is constant. However, the risks will not be linear on the linear (risk difference) or log (risk ratio) scales, such that these parameters will not be constant across the range of the continuous exposure. Users should be aware that the risk difference, risk ratio, number needed to treat/harm (for a binary outcome) and the incidence rate difference (for a rate/count outcome) reported with a continuous exposure apply specifically at the mean of the continuous exposure. The effects do not necessarily apply across the entire range of the variable. However, variations in the effect are likely small, especially near the mean.
 
 
 ## Rate outcome example
@@ -275,7 +275,7 @@ rate.res.alt
 Similarly to the risk analysis above, this analysis suggests that there is a large effect of diabetes on cardiovascular disease. Specifically, the absolute rate of cardiovascular disease or death due to any cause is 2.19 cases/100 person-years (95% CI: 1.38, 3.26) higher among subjects with diabetes at baseline compared to subjects without diabetes at baseline. In relative terms, the rate is 91.3% (95% CI: 56.1, 133.9) higher. You will note that the incidence rate ratio is further from the null than the risk ratio, but closer to the null than the odds ratio. This is expected based on the mathematical properties of these effect measures.
 
 
-## Countinuous outcome example
+## Continuous outcome example
 Question: what is the effect of having diabetes at the beginning of the study on casual serum glucose (mg/dL) after 6 years of follow-up?
 
 This example estimates the marginal mean difference in the continuous outcome associated with the exposure. In this example, linear regression is used as the underlying parametric model for g-computation.
@@ -287,7 +287,7 @@ cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", 
 
 cont.res
 ```
-This analysis shows that individuals with diabetes at baseline have a 61.6 mg/dL (95% CI: 49.1, 80.8) higher casual serum gluose level after 6 years compared to individuals without diabetes at baseline.
+This analysis shows that individuals with diabetes at baseline have a 61.6 mg/dL (95% CI: 49.1, 80.8) higher casual serum glucose level after 6 years compared to individuals without diabetes at baseline.
   
 ## Count outcome example
 Question: what is the effect of having diabetes at the beginning of the study on the number of hospitalizations experienced over 24 years of follow-up?
@@ -309,7 +309,7 @@ This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI
 # Checking model fit
 
 To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estimates by calling:
-```{r catExp_binaryOutcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
+```{r catExp_binaryOutcome_plot, fig.width = 12, fig.height = 10, out.width = "100%"}
 plot(catExp.res)
 ```
 

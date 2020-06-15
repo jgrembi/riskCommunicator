@@ -9,7 +9,7 @@ estimates}
 \code{riskCommunicator} is a package for estimating flexible epidemiological
 effect measures including both differences and ratios. The package is based
 on the parametric G-formula (g-computation with parametric models) developed
-by Robbins et. al. in 1986 as an alternative to inverse probabilty weighting.  
+by Robbins et. al. in 1986 as an alternative to inverse probability weighting.  
 It is useful for estimating the impact of interventions in the presence of 
 treatment-confounder-feedback and is a powerful tool for causal inference, 
 but has seen limited success due to lack of software for the computationally 

@@ -90,7 +90,7 @@
 #'   range of the continuous exposure. Users should be aware that the risk 
 #'   difference, risk ratio, number needed to treat/harm (for a binary outcome) 
 #'   and the incidence rate difference (for a rate/count outcome) reported with 
-#'   a continous exposure apply specifically at the mean of the continuous 
+#'   a continuous exposure apply specifically at the mean of the continuous 
 #'   exposure. The effects do not necessarily apply across the entire range of 
 #'   the variable. However, variations in the effect are likely small, 
 #'   especially near the mean.
