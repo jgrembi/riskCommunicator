@@ -33,7 +33,7 @@ Plot histograms and Q-Q plots for each the difference and ratio
 data(cvdd)
 set.seed(538)
 diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES",
-Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 80)
+Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 75)
 plot(diabetes.result)
 
 }
