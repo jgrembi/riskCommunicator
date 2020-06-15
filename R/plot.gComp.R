@@ -23,9 +23,9 @@
 #' ## whether the individual is currently a smoker, and
 #' ## if they have a history of hypertension.
 #' data(cvdd)
-#' set.seed(538)
+#' set.seed(58)
 #' diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES",
-#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 75)
+#' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 60)
 #' plot(diabetes.result)
 #'
 #' @importFrom gridExtra grid.arrange
