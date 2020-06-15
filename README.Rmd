@@ -27,13 +27,13 @@ This package operationalizes g-computation, which has not been widely adopted du
 
 ## Installation
 
-You can install the released version of `riskCommunicator` from [CRAN](https://CRAN.R-project.org) with:
+Soon, you will be able to install the released version of `riskCommunicator` from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("riskCommunicator")
 ```
 
-And the development version is available as a source package through [GitHub](https://github.com/) Installation requires the ability to compile R packages. This means that R and the R tool-chain must be installed, which requires the Xcode command-line tools on Mac and Rtools on Windows.
+For now, the development version is available as a source package through [GitHub](https://github.com/).  Installation requires the ability to compile R packages. This means that R and the R tool-chain must be installed, which requires the Xcode command-line tools on Mac and Rtools on Windows.
 
 The easiest source installation method uses the devtools package:
 ``` r

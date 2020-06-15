@@ -36,16 +36,16 @@ inference methods or advanced coding.
 
 ## Installation
 
-You can install the released version of `riskCommunicator` from
-[CRAN](https://CRAN.R-project.org) with:
+Soon, you will be able to install the released version of
+`riskCommunicator` from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("riskCommunicator")
 ```
 
-And the development version is available as a source package through
-[GitHub](https://github.com/) Installation requires the ability to
-compile R packages. This means that R and the R tool-chain must be
+For now, the development version is available as a source package
+through [GitHub](https://github.com/). Installation requires the ability
+to compile R packages. This means that R and the R tool-chain must be
 installed, which requires the Xcode command-line tools on Mac and Rtools
 on Windows.
 
