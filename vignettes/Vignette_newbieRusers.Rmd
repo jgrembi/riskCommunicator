@@ -202,7 +202,7 @@ From these results, we see that females (sex = 1) have a larger increase in the 
 ## Categorical exposure example
 Question: what is the effect of obesity on the 24-year risk of cardiovascular disease or death due to any cause?
 
-You can do a similar analysis when your exposure variable is not binary (has more than 2 categories). In this example, we specify obesity as a cagetorical variable (`bmicat` coding: 0 = normal weight; 1=underweight; 2=overweight; 3=obese) and therefore have an exposure with more than 2 categories. To ensure that the effects are estimated with the referent of your choice, you can change the referent category using code provided above or you could code your categorical exposure with '0' coded as the referent.
+You can do a similar analysis when your exposure variable is not binary (has more than 2 categories). In this example, we specify obesity as a categorical variable (`bmicat` coding: 0 = normal weight; 1=underweight; 2=overweight; 3=obese) and therefore have an exposure with more than 2 categories. To ensure that the effects are estimated with the referent of your choice, you can change the referent category using code provided above or you could code your categorical exposure with '0' coded as the referent.
 
 As above, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat.
 
@@ -309,14 +309,14 @@ This analysis shows that individuals with diabetes at baseline have 0.05 (95% CI
 # Checking model fit
 
 To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estimates by calling:
-```{r binary_outcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
-plot(binary.res.subgroup)
+```{r catExp_binaryOutcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
+plot(catExp.res)
 ```
 
 We expect to see the histograms to look approximately normally distributed and the estimates to fall close to the dotted red line on the Q-Q plots.
 
 In order to facilitate plotting of the results, the `results.df` output contains a data.frame with all of the info needed to make your own results plot, as shown below:
-```{r binary_outcome_resultsPlot, fig.height = 3, fig.width = 5, out.width = "100%"}
+```{r catExp_binaryOutcome_resultsPlot, fig.height = 3, fig.width = 5, out.width = "100%"}
 ggplot(catExp.res$results.df %>% 
          filter(Parameter %in% c("Risk Difference", "Risk Ratio"))
 ) + 
@@ -331,20 +331,19 @@ ggplot(catExp.res$results.df %>%
   facet_wrap(~Parameter, scale = "free") + 
   theme_bw() + 
   theme(legend.position = "none")
-
 ```
 
 
 
 You can also obtain the marginal mean predicted outcomes under each exposure level, i.e. what would be the predicted mean outcome had everyone been exposed (set exposure to 1) and had everyone been unexposed (set exposure to 0). These predicted outcomes are "adjusted" for covariates in that they have been standardized over the observed values of covariates included in the model. Therefore, this outcome prediction procedure does not require setting the covariates to specific values (at the mean values, for example). This is a major advantage over the usual `predict` function in R, or similar functions in other statistical programs (e.g. lsmeans statement in SAS).
-```{r, paged.print = FALSE}
-binary.res.subgroup$predicted.outcome
+```{r catExp_binaryOutcome_predOutcomes, paged.print = FALSE}
+catExp.res$predicted.outcome
 ```
 
 Additionally, if you are interested in examining the coefficient estimates and other components of the underlying `glm` that is also provided as an output.  The final item in the **gComp** class object is 'glm.result' which is a **glm** class object and can be manipulated like the results from a regular `glm` or `lm` object in R. For example, you can obtain the coefficient estimates of the fitted `glm` by using the `summary` function.
-```{r binary_outcome_glm.result, paged.print = FALSE}
+```{r catExp_binaryOutcome_glm.result, paged.print = FALSE}
 
-summary(binary.res$glm.result)
+summary(catExp.res$glm.result)
 
 ```
 
