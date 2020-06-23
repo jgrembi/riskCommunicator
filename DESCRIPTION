@@ -1,5 +1,5 @@
 Package: riskCommunicator
-Title: G-Computation to Estimate Risk Differences/Ratios, Rate Differences/Ratios, and Other Epidemiological Effects
+Title: G-Computation to Estimate Interpretable Epidemiological Effects
 Version: 0.1.0
 Authors@R: c(
     person(given = "Jessica",
@@ -21,7 +21,7 @@ Imports:
     tidyr,
     tidyselect, 
     tidyverse
-Description: Estimates flexible epidemiological effect measures including both differences and ratios using the parametric G-formula developed as an alternative to inverse probability weighting.  It is useful for estimating the impact of interventions in the presence of treatment-confounder-feedback.
+Description: Estimates flexible epidemiological effect measures including both differences and ratios using the parametric G-formula developed as an alternative to inverse probability weighting.  It is useful for estimating the impact of interventions in the presence of treatment-confounder-feedback. G-computation was originally described by Robbins (1986) <doi:10.1016/0270-0255(86)90088-6> and has been described in detail by Ahern, Hubbard, and Galea (2009) <doi:10.1093/aje/kwp015>; Snowden, Rose, and Mortimer (2011) <doi:10.1093/aje/kwq472>; and Westreich et al. (2012) <doi:10.1002/sim.5316>.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
