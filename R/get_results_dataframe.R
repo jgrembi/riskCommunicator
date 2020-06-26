@@ -39,7 +39,7 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
     dplyr::pull() 
   
   noTx_odds <- noTx.predict %>%
-    exp() %>%
+    exp(.) %>%
     mean(na.rm = T)
   
   Tx.predict <-  predict.df %>%
@@ -47,7 +47,7 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
     dplyr::pull() 
   
   Tx_odds <- Tx.predict %>%
-    exp() %>%
+    exp(.) %>%
     mean(na.rm = T)
   
   if (outcome.type == "binary") {
