@@ -3,14 +3,14 @@ title: "riskCommunicator Manuscript Vignette"
 author: "Jessica Grembi, Elizabeth Rogawski McQuade"
 date: "`r Sys.Date()`"
 output: 
-    html_vignette:
+    pdf_document:
       number_sections: no
       toc: yes
-    pdf:
+    rmarkdown::html_vignette:
       number_sections: no
       toc: yes
 vignette: >
-  %\VignetteIndexEntry{Quick Vignette: Included in Manuscript}
+  %\VignetteIndexEntry{Short Vignette: Included in Manuscript}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{tidyverse}
