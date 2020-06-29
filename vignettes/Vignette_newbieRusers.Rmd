@@ -7,7 +7,7 @@ output:
       number_sections: no
       toc: yes
 vignette: >
-  %\VignetteIndexEntry{riskCommunicator package extended vignette for newbie R users}
+  %\VignetteIndexEntry{Extended Vignette: For Newbie R Users}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{tidyverse}
@@ -30,15 +30,10 @@ This package operationalizes g-computation, which has not been widely adopted du
 # Getting started
 
 ## Installation 
-The `riskCommunicator` R package is available as a source package through GitHub. Installation requires the ability to compile R packages. This means that R and the R tool-chain must be installed, which requires the Xcode command-line tools on Mac and Rtools on Windows.
-
-The easiest source installation method uses the devtools package:
+The `riskCommunicator` R package is available from CRAN so can be installed using the following command:
 ```{r installation, eval = F}
-library(devtools)
-devtools::install_github("jgrembi/riskCommunicator")
+install.packages("riskCommunicator")
 ```
-
-You will likely get asked if you want to update several packages, it might take a few minutes if you choose to update all. When loading the `riskCommunicator` package in the next step, if you get an error related to an older version of a package in namespace (e.g. `namespace 'rlang' 0.4.2 is already loaded but 0.4.3 is required`), we suggest trying `install.packages("<name of package causing error>")` and restarting your R session.
 
 
 Load packages:
@@ -87,7 +82,12 @@ An example of the error message you will receive if one of your covariates is a 
 cvdd.break <- cvdd %>% 
   mutate(PREVHYP = as.character(PREVHYP))
   
-binary.res.break <- gComp(data = cvdd.break, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+binary.res.break <- gComp(data = cvdd.break, 
+                          Y = "cvd_dth", 
+                          X = "DIABETES", 
+                          Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                          outcome.type = "binary", 
+                          R = 200)
 ```
 
 You also want to make sure that the referent category for factor variables is the category of your choice. To change the referent category for a factor variable, you can use the following code. The referent category should be listed first.
@@ -143,7 +143,10 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200)
+binary.res <- gComp(data = cvdd, 
+                    formula = cvdd.formula, 
+                    outcome.type = "binary", 
+                    R = 200)
 ```
 
 
@@ -151,7 +154,12 @@ Alternatively, we could run the same analysis by specifying the outcome, exposur
 ```{r binary_outcome_noFormula}
 set.seed(1298)
 
-binary.res.alt <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+binary.res.alt <- gComp(data = cvdd, 
+                        Y = "cvd_dth", 
+                        X = "DIABETES", 
+                        Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                        outcome.type = "binary", 
+                        R = 200)
 ```
 
 Note that we did not need to specify function arguments that did not apply for our analysis. For example, if we wanted to estimate unadjusted effects, with no Z covariates, we could simply leave out the Z argument in the function above. Arguments that are not included in the function statement are automatically populated with the default values. See below another example of the same analysis, which includes all arguments at their default values. This example is syntactically equivalent to the first example for **binary.res** (i.e. the code being evaluated is exactly the same), but is functionally equivalent to both of the examples above (i.e. will produce the same results).
@@ -159,7 +167,19 @@ Note that we did not need to specify function arguments that did not apply for o
 ```{r binary_outcome_defaults}
 set.seed(1298)
 
-binary.res.alt2 <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200, Y = NULL, X = NULL, Z = NULL, subgroup = NULL, offset = NULL, rate.multiplier = 1, clusterID = NULL, parallel = "no", ncpus = 1)
+binary.res.alt2 <- gComp(data = cvdd, 
+                         formula = cvdd.formula, 
+                         outcome.type = "binary", 
+                         R = 200, 
+                         Y = NULL, 
+                         X = NULL, 
+                         Z = NULL, 
+                         subgroup = NULL, 
+                         offset = NULL, 
+                         rate.multiplier = 1, 
+                         clusterID = NULL, 
+                         parallel = "no", 
+                         ncpus = 1)
 ```
 
 
@@ -192,7 +212,13 @@ We can also do the same analysis within subgroups. Here we'll estimate effects s
 ```{r binary_outcome_subgroup, paged.print = FALSE}
 set.seed(1298)
 
-binary.res.subgroup <- gComp(data = cvdd, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "binary", R = 200)
+binary.res.subgroup <- gComp(data = cvdd, 
+                             Y = "cvd_dth", 
+                             X = "DIABETES", 
+                             Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                             subgroup = "SEX", 
+                             outcome.type = "binary", 
+                             R = 200)
 
 binary.res.subgroup
 ```
@@ -212,7 +238,12 @@ table(cvdd$bmicat)
 prop.table(table(cvdd$bmicat))*100
 
 set.seed(345)
-catExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
+catExp.res <- gComp(data = cvdd, 
+                    Y = "cvd_dth", 
+                    X = "bmicat", 
+                    Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), 
+                    outcome.type = "binary", 
+                    R = 200)
 
 catExp.res
 
@@ -229,7 +260,13 @@ As above, we will estimate the risk difference, risk ratio, odds ratio, and numb
 
 ```{r continuous_exposure, paged.print = FALSE}
 set.seed(4528)
-contExp.res <- gComp(data = cvdd, Y = "cvd_dth", X = "AGE", Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", exposure.scalar = 10, R = 200)
+contExp.res <- gComp(data = cvdd, 
+                     Y = "cvd_dth", 
+                     X = "AGE", 
+                     Z = c("BMI", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), 
+                     outcome.type = "binary", 
+                     exposure.scalar = 10, 
+                     R = 200)
 
 contExp.res
 
@@ -254,7 +291,14 @@ Then, we can run the analysis as above, first setting the seed and then calling 
 ```{r rate_outcome, paged.print = FALSE}
 set.seed(6534)
 
-rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res <- gComp(data = cvdd.t, 
+                  Y = "cvd_dth", 
+                  X = "DIABETES", 
+                  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                  outcome.type = "rate", 
+                  rate.multiplier = 365.25*100, 
+                  offset = "timeout", 
+                  R = 200)
 
 rate.res
 ```
@@ -266,7 +310,12 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 
 set.seed(6534)
 ## Call the gComp function
-rate.res.alt <- gComp(data = cvdd.t, formula = cvdd.formula, outcome.type = "rate", rate.multiplier = (365.25*100), offset = "timeout", R = 200)
+rate.res.alt <- gComp(data = cvdd.t, 
+                      formula = cvdd.formula, 
+                      outcome.type = "rate", 
+                      rate.multiplier = (365.25*100), 
+                      offset = "timeout", 
+                      R = 200)
 rate.res.alt
 
 ```
@@ -283,7 +332,12 @@ This example estimates the marginal mean difference in the continuous outcome as
 ```{r continuous_outcome, paged.print = FALSE}
 set.seed(9385)
 
-cont.res <- gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", R = 200)
+cont.res <- gComp(data = cvdd, 
+                  Y = "glucoseyear6", 
+                  X = "DIABETES", 
+                  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                  outcome.type = "continuous", 
+                  R = 200)
 
 cont.res
 ```
@@ -299,7 +353,10 @@ set.seed(7295)
 
 count.formula <- "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP"
 
-count.res <- gComp(data = cvdd, formula = count.formula, outcome.type = "count", R = 200)
+count.res <- gComp(data = cvdd, 
+                   formula = count.formula, 
+                   outcome.type = "count", 
+                   R = 200)
 
 count.res
 ```

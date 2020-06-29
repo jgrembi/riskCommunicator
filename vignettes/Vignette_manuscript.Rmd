@@ -1,13 +1,16 @@
 ---
-title: "riskCommunicator package manuscript vignette"
+title: "riskCommunicator Manuscript Vignette"
 author: "Jessica Grembi, Elizabeth Rogawski McQuade"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
+    html_vignette:
+      number_sections: no
+      toc: yes
+    pdf:
       number_sections: no
       toc: yes
 vignette: >
-  %\VignetteIndexEntry{riskCommunicator package vignette for manuscript}
+  %\VignetteIndexEntry{Quick Vignette: Included in Manuscript}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{tidyverse}
@@ -31,10 +34,9 @@ This package operationalizes g-computation, which has not been widely adopted du
 
 ## Installation  
 
-The `riskCommunicator` R package is available as a source package through GitHub. Installation using the devtools package:
+The `riskCommunicator` R package is available from CRAN so can be installed using the following command:
 ```{r installation, eval = F}
-library(devtools)
-devtools::install_github("jgrembi/riskCommunicator")
+install.packages("riskCommunicator")
 ```
 
 Load packages:
@@ -82,7 +84,10 @@ cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 set.seed(1298)
 
 ## Call the gComp function
-binary.res <- gComp(data = cvdd, formula = cvdd.formula, outcome.type = "binary", R = 200)
+binary.res <- gComp(data = cvdd, 
+                    formula = cvdd.formula, 
+                    outcome.type = "binary", 
+                    R = 1000)
 
 binary.res
 ```
@@ -117,7 +122,14 @@ cvdd.t <- cvdd %>%
 
 set.seed(6534)
 
-rate.res <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res <- gComp(data = cvdd.t, 
+                  Y = "cvd_dth", 
+                  X = "DIABETES", 
+                  Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                  outcome.type = "rate", 
+                  rate.multiplier = 365.25*100, 
+                  offset = "timeout", 
+                  R = 1000)
 
 rate.res
 ```
@@ -135,7 +147,15 @@ Here, we will estimate the same effects above, but in subgroups defined by sex.
 
 set.seed(6534)
 
-rate.res.subgroup <- gComp(data = cvdd.t, Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), subgroup = "SEX", outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout", R = 200)
+rate.res.subgroup <- gComp(data = cvdd.t, 
+                           Y = "cvd_dth", 
+                           X = "DIABETES", 
+                           Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
+                           subgroup = "SEX", 
+                           outcome.type = "rate", 
+                           rate.multiplier = 365.25*100, 
+                           offset = "timeout", 
+                           R = 1000)
 
 rate.res.subgroup
 ```

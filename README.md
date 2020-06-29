@@ -36,16 +36,16 @@ inference methods or advanced coding.
 
 ## Installation
 
-Soon, you will be able to install the released version of
-`riskCommunicator` from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of `riskCommunicator` from
+[CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("riskCommunicator")
 ```
 
-For now, the development version is available as a source package
-through [GitHub](https://github.com/). Installation requires the ability
-to compile R packages. This means that R and the R tool-chain must be
+The development version is available as a source package through
+[GitHub](https://github.com/). Installation requires the ability to
+compile R packages. This means that R and the R tool-chain must be
 installed, which requires the Xcode command-line tools on Mac and Rtools
 on Windows.
 
@@ -78,12 +78,12 @@ coding: 0 = normal weight; 1=underweight; 2=overweight; 3=obese)
 library(riskCommunicator)
 library(ggplot2)
 library(tidyverse)
-#> ── Attaching packages ──────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+#> ── Attaching packages ──────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
 #> ✓ tibble  3.0.1     ✓ dplyr   1.0.0
 #> ✓ tidyr   1.1.0     ✓ stringr 1.4.0
 #> ✓ readr   1.3.1     ✓ forcats 0.5.0
 #> ✓ purrr   0.3.4
-#> ── Conflicts ─────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+#> ── Conflicts ─────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 ## basic example code
