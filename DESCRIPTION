@@ -1,6 +1,6 @@
 Package: riskCommunicator
 Title: G-Computation to Estimate Interpretable Epidemiological Effects
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: c(
     person(given = "Jessica",
            family = "Grembi",
