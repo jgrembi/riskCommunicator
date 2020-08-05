@@ -27,7 +27,7 @@
 #'   limits of the outcome difference and ratio} 
 #'   \item{$results.df}{Data.frame with parameter estimates, 2.5\% confidence 
 #'   limit, and 97.5\% confidence limit each as a column} 
-#'   \item{$n}{Number of observations in the original dataset} 
+#'   \item{$n}{Number of unique observations in the original dataset} 
 #'   \item{$R}{Number of bootstrap iterations}
 #'   \item{$boot.result}{Data.frame containing the results of the \code{R}
 #'   bootstrap iterations of the g-computation} 
