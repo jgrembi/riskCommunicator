@@ -39,16 +39,14 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
     dplyr::pull() 
   
   noTx_odds <- noTx.predict %>%
-    exp(.) %>%
-    mean(na.rm = T)
+    exp(.) 
   
   Tx.predict <-  predict.df %>%
     dplyr::select(tidyselect::starts_with(col.names[2])) %>%
     dplyr::pull() 
   
   Tx_odds <- Tx.predict %>%
-    exp(.) %>%
-    mean(na.rm = T)
+    exp(.) 
   
   if (outcome.type == "binary") {
     results_tbl <- data.frame(noTx =  noTx_odds/(1 + noTx_odds),
@@ -61,17 +59,17 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
                                   noTx_odds = NA,
                                   Tx_odds = NA)
   } else if (outcome.type == "continuous") {
-    results_tbl <- data.frame(noTx =  mean(noTx.predict, na.rm = T),
-                                  Tx = mean(Tx.predict, na.rm = T),
+    results_tbl <- data.frame(noTx =  noTx.predict,
+                                  Tx = Tx.predict,
                                   noTx_odds = NA,
                                   Tx_odds = NA)
   } else {
     stop("outcome.type not supported")
   }
   
-  diff <- results_tbl$Tx - results_tbl$noTx
-  ratio <- results_tbl$Tx/results_tbl$noTx
-  ratio_odds <- results_tbl$Tx_odds/results_tbl$noTx_odds
+  diff <- mean(results_tbl$Tx, na.rm = T) - mean(results_tbl$noTx, na.rm = T)
+  ratio <- mean(results_tbl$Tx, na.rm = T)/mean(results_tbl$noTx, na.rm = T)
+  ratio_odds <- mean(results_tbl$Tx_odds, na.rm = T)/mean(results_tbl$noTx_odds, na.rm = T)
   res <- c(`Risk Difference` = ifelse(outcome.type == "binary", diff, NA),
            `Risk Ratio` = ifelse(outcome.type == "binary", ratio, NA),
            `Odds Ratio` = ifelse(outcome.type == "binary", ratio_odds, NA),
