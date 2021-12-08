@@ -80,7 +80,9 @@ Here, we will estimate the risk difference, risk ratio, odds ratio, and number n
 ## Specify the regression formula
 cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 
-## For reproducibility, we should always set the seed since the g-computation uses random resampling of the data to calculate confidence intervals and random sampling of the distribution when predicting outcomes
+## For reproducibility, we should always set the seed since the g-computation uses  
+## random resampling of the data to calculate confidence intervals and random  
+## sampling of the distribution when predicting outcomes.
 set.seed(1298)
 
 ## Call the gComp function
@@ -96,13 +98,14 @@ The result obtained from the `gComp` function is an object of class **gComp** wh
 
 ```{r gComp_class_explaination}
 class(binary.res)
-# The names of the different items in the list 
+
+## The names of the different items in the list: 
 names(binary.res)
 
-# Sample size of the original data:
+## Sample size of the original data:
 binary.res$n 
 
-# Contrast being compared in the analysis:
+## Contrast being compared in the analysis:
 binary.res$contrast
 ```
 
@@ -115,7 +118,8 @@ Here, we will estimate the rate difference and rate ratio, adjusting for patient
 
 
 ```{r rate_outcome, paged.print = FALSE}
-#modify the dataset to change the variable cvd_dth from a factor to a numeric variable since the outcome for Poisson regression must be numeric
+## Modify the dataset to change the variable cvd_dth from a factor to a numeric variable  
+## since the outcome for Poisson regression must be numeric.
 cvdd.t <- cvdd %>%
   dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)),
                 timeout = as.numeric(timeout))
@@ -143,7 +147,8 @@ Here, we will estimate the same effects above, but in subgroups defined by sex.
 
 
 ```{r rate_outcome_subgroup, paged.print = FALSE}
-#modify the dataset to change the variable cvd_dth from a factor to a numeric variable since the outcome for Poisson regression must be numeric
+## Modify the dataset to change the variable cvd_dth from a factor to a numeric variable  
+## since the outcome for Poisson regression must be numeric.
 
 set.seed(6534)
 
