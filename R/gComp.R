@@ -153,7 +153,7 @@
 #' @seealso \code{\link{pointEstimate}} \code{\link[boot]{boot}}
 #'   
 gComp <- function(data, 
-                  outcome.type =  c("binary", "count","rate", "continuous"), 
+                  outcome.type =  c("binary", "count","count_nb", "rate", "continuous"), 
                   formula = NULL, 
                   Y = NULL, 
                   X = NULL, 
@@ -190,7 +190,7 @@ gComp <- function(data,
   pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean)
   
   ####### Run bootstrap resampling, calculate point estimate for each resample, and get 95% CI for estimates
-  # Define bootsrap statistic
+  # Define bootstrap statistic
   fun.statistic <- function(x, idx, outcome.type = outcome.type, offset = offset, formula = formula, 
                             Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, 
                             exposure.scalar = exposure.scalar, exposure.center = exposure.center, 

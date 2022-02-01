@@ -34,6 +34,13 @@ testthat::test_that("outcome is expected value", {
   testthat::expect_equal(gComp(data = cvdd, Y = "glucoseyear6", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "continuous", R = 4)$results.df[1,4, drop = T], 61.6257)
   ## count outcome
   testthat::expect_equal(round(gComp(data = cvdd, formula = "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", outcome.type = "count", R = 4)$results.df[1,4, drop = T], 2), 0.05)
+  ## negative binomial outcome
+  set.seed(1298)
+  testthat::expect_equal(round(gComp(data = cvdd %>%
+                                       dplyr::rowwise %>%
+                                       dplyr::mutate(outpt_clinic_visits = ifelse(DIABETES == 0, rnbinom(n = 1, size = 1.22, mu = 6), rnbinom(n = 1, mu = 14, size = 4.2))) %>%
+                                       dplyr::ungroup,
+                                     formula = outpt_clinic_visits ~ DIABETES + AGE + SEX + BMI + PREVHYP, outcome.type = "count_nb", R = 10)$results.df[1,4, drop = T], 2), 7.91)
   ## binary outcome, categorical exposure
   testthat::expect_equal(unname(round(gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", outcome.type = "binary", R = 5)$results.df[10,4, drop = T], 2)), 1.58)
   ## binary outcome, continuous exposure

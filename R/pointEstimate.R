@@ -12,8 +12,10 @@
 #'   type. Acceptable responses, and the corresponding error distribution and
 #'   link function used in the \code{glm}, include: \describe{
 #'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
-#'   used.} \item{count}{A Poisson distribution 
-#'   with link = 'log' is used.}
+#'   used.} 
+#'   \item{count}{A Poisson distribution with link = 'log' is used.}
+#'   \item{count_nb}{A negative binomial model is used, where the theta 
+#'   parameter is estimated internally.}
 #'   \item{rate}{A Poisson distribution with link = 'log' is used; ideal for 
 #'    events/person-time outcomes.} \item{continuous}{A gaussian distribution 
 #'    with link = 'identity' is used.}
@@ -43,12 +45,12 @@
 #'   subgroups for stratified analysis. Effects will be reported for each
 #'   category of the subgroup variable. Variable will be automatically converted
 #'   to a factor if not already.
-#' @param offset (Optional, only applicable for rate outcomes) Default NULL.
+#' @param offset (Optional, only applicable for rate/count outcomes) Default NULL.
 #'   Character argument which specifies the person-time denominator for rate
 #'   outcomes to be included as an offset in the Poisson regression model.
 #'   Numeric variable should be on the linear scale; function will take natural
 #'   log before including in the model.
-#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default
+#' @param rate.multiplier (Optional, only applicable for rate/count outcomes) Default
 #'   1. Numeric value to multiply to the rate-based effect measures. This option
 #'   facilitates reporting effects with interpretable person-time denominators.
 #'   For example, if the person-time variable (offset) is in days, a multiplier
@@ -129,6 +131,10 @@
 #'   exposure. The effects do not necessarily apply across the entire range of 
 #'   the variable. However, variations in the effect are likely small, 
 #'   especially near the mean.
+#'   
+#'  @note 
+#'   For negative binomial models, \code{MASS::glm.nb} is used instead of the
+#'    standard \code{stats::glm} function used for all other models.
 #'     
 #' @references 
 #'  Ahern J, Hubbard A, Galea S. Estimating the effects of potential public health 
@@ -181,7 +187,7 @@
 
 
 pointEstimate <- function(data, 
-                          outcome.type = c("binary", "count","rate", "continuous"),
+                          outcome.type = c("binary", "count", "count_nb", "rate", "continuous"),
                           formula = NULL, 
                           Y = NULL, 
                           X = NULL, 
@@ -207,6 +213,8 @@ pointEstimate <- function(data,
   } else if (outcome.type %in% c("count", "rate")) {
     family <- stats::poisson(link = "log")
     if (is.null(offset) & outcome.type == "rate") stop("Offset must be provided for rate outcomes")
+  } else if (outcome.type == "count_nb") {
+    family = NULL
   } else if (outcome.type == "continuous") {
     family <- stats::gaussian(link = "identity")
   } else {
@@ -253,9 +261,9 @@ pointEstimate <- function(data,
     #                 logOffset = log(offset2))
     if (!is.null(subgroup)){
       subgroup <- rlang::sym(subgroup)
-      allVars <- unlist(c(Y, as.character(X), Z, offset, subgroup))
+      allVars <- unlist(c(Y, as.character(X), Z, as.character(offset), subgroup))
     } else {
-      allVars <- unlist(c(Y, as.character(X), Z, offset))
+      allVars <- unlist(c(Y, as.character(X), Z, as.character(offset)))
     }
   } else {
     subgroup <- rlang::sym(subgroup)
@@ -296,10 +304,18 @@ pointEstimate <- function(data,
   }
   
   # Run GLM
-  if (!is.null(offset)) {
+  if (!is.null(offset) & outcome.type != "count_nb") {
     working.df <- working.df %>%
       dplyr::mutate(offset2 = !!offset + 0.00001)
     glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit, offset = log(offset2))
+  } else if (outcome.type == "count_nb") {
+    if (!is.null(offset)) {
+      working.df <- working.df %>%
+        dplyr::mutate(offset2 = !!offset + 0.00001)
+      #add offset to formula per glm.nb requirement
+      formula <- stats::as.formula(paste(paste0(as.character(formula)[2], as.character(formula)[1], as.character(formula)[3]), "offset(log(offset2))", sep = " + "))
+    } 
+    glm_result <- MASS::glm.nb(formula = formula, data = working.df, na.action = stats::na.omit)
   } else {
     glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit)
   }

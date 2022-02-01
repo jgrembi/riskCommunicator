@@ -114,7 +114,7 @@ binary.res$contrast
 
 Research question: what is the effect of having diabetes at the beginning of the study on the rate of cardiovascular disease or death due to any cause? 
 
-Here, we will estimate the rate difference and rate ratio, adjusting for patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline). We have included **timeout** as the offset and a `rate.multiplier` of 365.25*100 so that the estimates are returned with units of 100 person-years. Poisson regression is used as the underlying parametric model for g-computation.
+Here, we will estimate the rate difference and rate ratio, adjusting for patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline). We have included **timeout** as the `offset` and a `rate.multiplier` of 365.25*100 so that the estimates are returned with units of 100 person-years. Poisson regression is used as the underlying parametric model for g-computation.
 
 
 ```{r rate_outcome, paged.print = FALSE}

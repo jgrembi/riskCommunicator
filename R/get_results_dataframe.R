@@ -53,7 +53,7 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
                                   Tx = Tx_odds/(1 + Tx_odds),
                                   noTx_odds = noTx_odds,
                                   Tx_odds = Tx_odds) 
-  } else if (outcome.type %in% c("rate", "count")) {
+  } else if (outcome.type %in% c("rate", "count", "count_nb")) {
     results_tbl <- data.frame(noTx =  noTx_odds,
                                   Tx = Tx_odds,
                                   noTx_odds = NA,
@@ -73,8 +73,8 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
   res <- c(`Risk Difference` = ifelse(outcome.type == "binary", diff, NA),
            `Risk Ratio` = ifelse(outcome.type == "binary", ratio, NA),
            `Odds Ratio` = ifelse(outcome.type == "binary", ratio_odds, NA),
-           `Incidence Rate Difference` = ifelse(outcome.type == "rate", (diff*rate.multiplier), ifelse(outcome.type == "count", diff, NA)),
-           `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count"), ratio, NA),
+           `Incidence Rate Difference` = ifelse(outcome.type == "rate", (diff*rate.multiplier), ifelse(outcome.type %in% c("count", "count_nb"), diff, NA)),
+           `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count", "count_nb"), ratio, NA),
            `Mean Difference` = ifelse(outcome.type == "continuous", diff, NA),
            `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA),
            `Average Tx` = ifelse(outcome.type == "rate", rate.multiplier*results_tbl$Tx, results_tbl$Tx),
