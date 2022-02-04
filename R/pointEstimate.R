@@ -55,7 +55,11 @@
 #' @param offset.predict (Optional, only applicable for rate/count outcomes). 
 #'   Default 1 Numeric variable signifying the person-time value to use in 
 #'   predictions; the offset variable will be set to this when predicting under 
-#'   the counterfactual conditions.
+#'   the counterfactual conditions. This value should be set to the person-time 
+#'   denominator desired for the rate difference measure and must be inputted in 
+#'   the units of the original offset variable (e.g. if the offset variable is 
+#'   in days and the desired rate difference is the rate per 100 person-years, 
+#'   offset.predict should be inputted as 36525).
 #' @param rate.multiplier (Optional, only applicable for rate/count outcomes) Default
 #'   1. Numeric value to multiply to the rate-based effect measures. This option
 #'   facilitates reporting effects with interpretable person-time denominators.
