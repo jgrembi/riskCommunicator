@@ -14,11 +14,13 @@
 #'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
 #'   used.} 
 #'   \item{count}{A Poisson distribution with link = 'log' is used.}
-#'   \item{count_nb}{A negative binomial model is used, where the theta 
-#'   parameter is estimated internally.}
+#'   \item{count_nb}{A negative binomial model with link = 'log' is used, where the theta 
+#'   parameter is estimated internally; ideal for over-dispersed count data.}
 #'   \item{rate}{A Poisson distribution with link = 'log' is used; ideal for 
-#'    events/person-time outcomes.} \item{continuous}{A gaussian distribution 
-#'    with link = 'identity' is used.}
+#'    events/person-time outcomes.} 
+#'    \item{rate_nb} {A negative binomial model with link = 'log' is used, where the theta 
+#'   parameter is estimated internally; ideal for over-dispersed events/person-time outcomes.}
+#'    \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 #'   }
 #' @param formula (Optional) Default NULL. An object of class "formula" (or one
 #'   that can be coerced to that class) which provides the the complete model
@@ -46,10 +48,14 @@
 #'   category of the subgroup variable. Variable will be automatically converted
 #'   to a factor if not already.
 #' @param offset (Optional, only applicable for rate/count outcomes) Default NULL.
-#'   Character argument which specifies the person-time denominator for rate
-#'   outcomes to be included as an offset in the Poisson regression model.
-#'   Numeric variable should be on the linear scale; function will take natural
-#'   log before including in the model.
+#'   Character argument which specifies the variable name to be used as the 
+#'   person-time denominator for rate outcomes to be included as an offset in the
+#'   Poisson regression model. Numeric variable should be on the linear scale; 
+#'   function will take natural log before including in the model.
+#' @param offset.predict (Optional, only applicable for rate/count outcomes). 
+#'   Default 1 Numeric variable signifying the person-time value to use in 
+#'   predictions; the offset variable will be set to this when predicting under 
+#'   the counterfactual conditions.
 #' @param rate.multiplier (Optional, only applicable for rate/count outcomes) Default
 #'   1. Numeric value to multiply to the rate-based effect measures. This option
 #'   facilitates reporting effects with interpretable person-time denominators.
@@ -107,7 +113,16 @@
 #'
 #'   As counterfactual predictions are generated with random sampling of the
 #'   distribution, users should set a seed (\code{\link{set.seed}}) for
-#'   reproducible confidence intervals.
+#'   reproducible confidence intervals. 
+#'   
+#' @note 
+#'  While offsets are used to account for differences in follow-up time 
+#'   between individuals in the \code{glm} model, rate differences are 
+#'   calculated assuming equivalent follow-up of all individuals (i.e. 
+#'   predictions for each exposure are based on all observations having the 
+#'   same offset value). The default is 1 (specifying 1 unit of the original 
+#'   offset variable) or the user can specify an offset to be used in the 
+#'   predictions with the offset.predict argument.
 #'
 #' @note
 #'  Note that for a protective exposure (risk difference less than 0), the 
@@ -180,6 +195,7 @@
 #' @importFrom rlang sym
 #' @importFrom magrittr %>%
 #' @importFrom purrr map_dfc
+#' @importFrom MASS glm.nb
 #'
 #' @seealso \code{\link{gComp}}
 
@@ -187,19 +203,20 @@
 
 
 pointEstimate <- function(data, 
-                          outcome.type = c("binary", "count", "count_nb", "rate", "continuous"),
+                          outcome.type = c("binary", "count", "count_nb", "rate", "rate_nb", "continuous"),
                           formula = NULL, 
                           Y = NULL, 
                           X = NULL, 
                           Z = NULL, 
                           subgroup = NULL,  
                           offset = NULL, 
+                          offset.predict = 1,
                           rate.multiplier = 1,
                           exposure.scalar = 1,
                           exposure.center = TRUE) {
 
   # Bind variable locally to function for offset2
-  offset2 <- NULL
+  offset2_name = rlang::sym(paste0(offset, "_adj"))
   
   # Ensure outcome.type is one of the allowed responses
   outcome.type <- match.arg(outcome.type)
@@ -213,7 +230,7 @@ pointEstimate <- function(data,
   } else if (outcome.type %in% c("count", "rate")) {
     family <- stats::poisson(link = "log")
     if (is.null(offset) & outcome.type == "rate") stop("Offset must be provided for rate outcomes")
-  } else if (outcome.type == "count_nb") {
+  } else if (outcome.type %in% c("count_nb", "rate_nb")) {
     family = NULL
   } else if (outcome.type == "continuous") {
     family <- stats::gaussian(link = "identity")
@@ -252,23 +269,16 @@ pointEstimate <- function(data,
   }
   
   # Make list of variables that will be used (Y, X, Z, and subgroup/offset if specified)
-  if (is.null(offset) & is.null(subgroup)) {
-    allVars <- unlist(c(Y, as.character(X), Z))
-  } else if (!is.null(offset)) {
+  
+  allVars <- unlist(c(Y, as.character(X), Z))
+  if (!is.null(offset)) {
     offset <- rlang::sym(offset)
-    # data <- data %>%
-    #   dplyr::mutate(offset2 = !!offset + 0.00001,
-    #                 logOffset = log(offset2))
-    if (!is.null(subgroup)){
-      subgroup <- rlang::sym(subgroup)
-      allVars <- unlist(c(Y, as.character(X), Z, as.character(offset), subgroup))
-    } else {
-      allVars <- unlist(c(Y, as.character(X), Z, as.character(offset)))
-    }
-  } else {
-    subgroup <- rlang::sym(subgroup)
-    allVars <- unlist(c(Y, as.character(X), Z, subgroup))
+    allVars <- c(allVars, as.character(offset))
   }
+  if (!is.null(subgroup)) {
+    subgroup <- rlang::sym(subgroup)
+    allVars <- c(allVars, subgroup)
+  } 
   
   # Ensure all variables are provided in the dataset
   if (!all(allVars %in% names(working.df))) stop("One or more of the supplied model variables, offset, or subgroup is not included in the data")
@@ -304,24 +314,24 @@ pointEstimate <- function(data,
   }
   
   # Run GLM
-  if (!is.null(offset) & outcome.type != "count_nb") {
+  if (!is.null(offset)) {
     working.df <- working.df %>%
-      dplyr::mutate(offset2 = !!offset + 0.00001)
-    glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit, offset = log(offset2))
-  } else if (outcome.type == "count_nb") {
-    if (!is.null(offset)) {
-      working.df <- working.df %>%
-        dplyr::mutate(offset2 = !!offset + 0.00001)
-      #add offset to formula per glm.nb requirement
-      formula <- stats::as.formula(paste(paste0(as.character(formula)[2], as.character(formula)[1], as.character(formula)[3]), "offset(log(offset2))", sep = " + "))
-    } 
-    glm_result <- MASS::glm.nb(formula = formula, data = working.df, na.action = stats::na.omit)
+      dplyr::mutate(!!offset2_name := !!offset + 0.00001) 
+    formula <- stats::as.formula(paste(paste0(as.character(formula)[2], as.character(formula)[1], as.character(formula)[3]), paste0("offset(log(", offset2_name, "))"), sep = " + "))
+    if (!outcome.type %in% c("count_nb", "rate_nb")) {
+      glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit)
+      # eval(parse(text = paste0(
+      #   "glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit, offset = log(",offset2_name,"))"
+      # )))
+    } else if (outcome.type %in% c("count_nb", "rate_nb")) {
+      glm_result <- MASS::glm.nb(formula = formula, data = working.df, na.action = stats::na.omit)
+    }
   } else {
     glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit)
   }
   
   # Predict outcomes for each observation/individual at each level of treatment/exposure
-  fn_output <- make_predict_df(glm.res = glm_result, df = working.df, X = X, subgroup = subgroup, offset = offset)
+  fn_output <- make_predict_df(glm.res = glm_result, df = working.df, X = X, subgroup = subgroup, offset = offset, offset.predict = offset.predict)
   
   # Rename vars in predicted dataset so it's clear
   results_tbl_all <- fn_output

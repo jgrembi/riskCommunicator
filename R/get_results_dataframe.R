@@ -9,9 +9,15 @@
 #'   type. Acceptable responses, and the corresponding error distribution and
 #'   link function used in the \code{glm}, include: \describe{
 #'   \item{binary}{(Default) A binomial distribution with link = 'logit' is
-#'   used.} \item{count}{A Poisson distribution with link = 'log' is used.}
-#'   \item{rate}{A Poisson distribution with link = 'log' is used.}
-#'   \item{continuous}{A gaussian distribution with link = 'identity' is used.}
+#'   used.} 
+#'   \item{count}{A Poisson distribution with link = 'log' is used.}
+#'   \item{count_nb}{A negative binomial model with link = 'log' is used, where the theta 
+#'   parameter is estimated internally; ideal for over-dispersed count data.}
+#'   \item{rate}{A Poisson distribution with link = 'log' is used; ideal for 
+#'    events/person-time outcomes.} 
+#'    \item{rate_nb} {A negative binomial model with link = 'log' is used, where the theta 
+#'   parameter is estimated internally; ideal for over-dispersed events/person-time outcomes.}
+#'    \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 #'   }
 #' @param rate.multiplier (Optional, only applicable for rate outcomes) Default
 #'   1. Numeric value to multiply to the rate-based effect measures. This option
@@ -53,7 +59,7 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
                                   Tx = Tx_odds/(1 + Tx_odds),
                                   noTx_odds = noTx_odds,
                                   Tx_odds = Tx_odds) 
-  } else if (outcome.type %in% c("rate", "count", "count_nb")) {
+  } else if (outcome.type %in% c("rate", "count", "count_nb", "rate_nb")) {
     results_tbl <- data.frame(noTx =  noTx_odds,
                                   Tx = Tx_odds,
                                   noTx_odds = NA,
@@ -73,12 +79,12 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
   res <- c(`Risk Difference` = ifelse(outcome.type == "binary", diff, NA),
            `Risk Ratio` = ifelse(outcome.type == "binary", ratio, NA),
            `Odds Ratio` = ifelse(outcome.type == "binary", ratio_odds, NA),
-           `Incidence Rate Difference` = ifelse(outcome.type == "rate", (diff*rate.multiplier), ifelse(outcome.type %in% c("count", "count_nb"), diff, NA)),
-           `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count", "count_nb"), ratio, NA),
+           `Incidence Rate Difference` = ifelse(outcome.type %in% c("rate", "rate_nb"), (diff*rate.multiplier), ifelse(outcome.type %in% c("count", "count_nb"), diff, NA)),
+           `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count", "count_nb", "rate_nb"), ratio, NA),
            `Mean Difference` = ifelse(outcome.type == "continuous", diff, NA),
            `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA),
-           `Average Tx` = ifelse(outcome.type == "rate", rate.multiplier*results_tbl$Tx, results_tbl$Tx),
-           `Average noTx` = ifelse(outcome.type == "rate", rate.multiplier*results_tbl$noTx, results_tbl$noTx))
+           `Average Tx` = ifelse(outcome.type %in% c("rate", "rate_nb"), rate.multiplier*results_tbl$Tx, results_tbl$Tx),
+           `Average noTx` = ifelse(outcome.type %in% c("rate", "rate_nb"), rate.multiplier*results_tbl$noTx, results_tbl$noTx))
   
   return(res)
 }

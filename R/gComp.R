@@ -153,13 +153,14 @@
 #' @seealso \code{\link{pointEstimate}} \code{\link[boot]{boot}}
 #'   
 gComp <- function(data, 
-                  outcome.type =  c("binary", "count","count_nb", "rate", "continuous"), 
+                  outcome.type =  c("binary", "count","count_nb", "rate", "rate_nb", "continuous"), 
                   formula = NULL, 
                   Y = NULL, 
                   X = NULL, 
                   Z = NULL, 
                   subgroup = NULL,
                   offset = NULL, 
+                  offset.predict = 1,
                   rate.multiplier = 1, 
                   exposure.scalar = 1,
                   R = 200,
@@ -187,22 +188,35 @@ gComp <- function(data,
   }
   
   # Get point estimate for diff and ratio
-  pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = X_mean)
+  pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, 
+                               offset = offset, offset.predict = offset.predict,
+                               subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                               exposure.scalar = exposure.scalar, exposure.center = X_mean)
   
   ####### Run bootstrap resampling, calculate point estimate for each resample, and get 95% CI for estimates
   # Define bootstrap statistic
-  fun.statistic <- function(x, idx, outcome.type = outcome.type, offset = offset, formula = formula, 
-                            Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, 
+  fun.statistic <- function(x, idx, outcome.type = outcome.type, 
+                            formula = formula, Y = Y, X = X, Z = Z, 
+                            offset = offset, offset.predict = offset.predict,
+                            subgroup = subgroup, rate.multiplier = rate.multiplier, 
                             exposure.scalar = exposure.scalar, exposure.center = exposure.center, 
                             clusters = clusters) {
     
     if (is.null(clusters)) {
-      estimate <- suppressMessages(pointEstimate(x[idx,], outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = exposure.center))
+      estimate <- suppressMessages(pointEstimate(x[idx,], outcome.type = outcome.type, 
+                                                 formula = formula, Y = Y, X = X, Z = Z, 
+                                                 offset = offset, offset.predict = offset.predict,
+                                                 subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                                                 exposure.scalar = exposure.scalar, exposure.center = exposure.center))
     } else {
       cls <- sample(clusters, size = length(clusters), replace = TRUE)
       df.bs <- lapply(cls, function(b) subset(x, x[[clusterID]] == b))
       df.bs <- do.call(rbind, df.bs)
-      estimate <- suppressMessages(pointEstimate(df.bs, outcome.type = outcome.type, offset = offset, formula = formula, Y = Y, X = X, Z = Z, subgroup = subgroup, rate.multiplier = rate.multiplier, exposure.scalar = exposure.scalar, exposure.center = exposure.center))
+      estimate <- suppressMessages(pointEstimate(df.bs, outcome.type = outcome.type, 
+                                                 formula = formula, Y = Y, X = X, Z = Z, 
+                                                 offset = offset, offset.predict = offset.predict,
+                                                 subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                                                 exposure.scalar = exposure.scalar, exposure.center = exposure.center))
     }
     if (length(names(estimate$parameter.estimates)) > 1) {
       output <- sapply(names(estimate$parameter.estimates), function (n) c(estimate$parameter.estimates[[n]], estimate$predicted.outcome[[n]]))
@@ -217,7 +231,8 @@ gComp <- function(data,
   # Run bootstrap iterations
   boot_out <- boot::boot(data = data, statistic = fun.statistic, R = R, parallel = parallel, ncpus = ncpus, 
                          outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z,
-                         subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier, 
+                         offset = offset, offset.predict = offset.predict,
+                         subgroup = subgroup, rate.multiplier = rate.multiplier, 
                          exposure.scalar = exposure.scalar, exposure.center = X_mean, clusters = clusters)
   
   # Format output from boot function

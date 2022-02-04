@@ -11,11 +11,15 @@
 #' @param subgroup (Optional) Default NULL. Character argument of the variable
 #'   name to use for subgroup analyses. Variable automatically transformed to a
 #'   factor within the function if not supplied as such.
-#' @param offset (Optional, only applicable for rate outcomes) Default NULL.
-#'   Character argument which specifies the person-time denominator for rate
-#'   outcomes to be included as an offset in the Poisson regression model.
-#'   Numeric variable should be on the linear scale; function will take natural
-#'   log before including in the model.
+#' @param offset (Optional, only applicable for rate/count outcomes) Default NULL.
+#'   Character argument which specifies the variable name to be used as the 
+#'   person-time denominator for rate outcomes to be included as an offset in the
+#'   Poisson regression model. Numeric variable should be on the linear scale; 
+#'   function will take natural log before including in the model.
+#' @param offset.predict (Optional, only applicable for rate/count outcomes). 
+#'   Default 1 Numeric variable signifying the person-time value to use in 
+#'   predictions; the offset variable will be set to this when predicting under 
+#'   the counterfactual conditions.
 #'
 #' @return A data.frame of predicted outcomes for each level of
 #'   treatment/exposure.  Additional columns are provided for each subgroup
@@ -25,12 +29,15 @@
 #' @importFrom purrr map_dfc
 #' @importFrom stats predict
 #'   
-make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL) {
+make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL, offset.predict = 1) {
  
-  # Define variable offset2 in dataset since it was used in the original glm.  We set it to 1 because log(1) = 0 and therefore no offset is used in the 
+  # Define variable offset2 in dataset since it was used in the original glm.  Default is to set it to 1 because 
+  #   log(1) = 0 and therefore no offset is used in the predictions (assume same person-time for all observations).
+  #   However, the user can specify the prediction offset with the offset.predict argument.
   if (!is.null(offset)) {
+    offset2_name = rlang::sym(paste0(offset, "_adj"))
     df <- df %>%
-      dplyr::mutate(offset2 = 1)
+      dplyr::mutate(!!offset2_name := offset.predict)
   }
   
   if (is.numeric(df[[X]])) {
@@ -38,7 +45,7 @@ make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL) {
   } else {
     predict.levels <- levels(df[[X]])
   }
-   # For each observation in the dataframe, predict (using the supplied glm result) data for each level of the treatment/exposure.
+   # For each observation in the data.frame, predict (using the supplied glm result) data for each level of the treatment/exposure.
   result.output.final <- suppressMessages(purrr::map_dfc(predict.levels, function(x) {  # For each level of X (treatment/exposure), do the following...
     if (is.numeric(df[[X]])) {
       newdata <- df %>% dplyr::mutate(!!X := x)
