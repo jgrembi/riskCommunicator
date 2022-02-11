@@ -330,8 +330,10 @@ pointEstimate <- function(data,
     } else if (outcome.type %in% c("count_nb", "rate_nb")) {
       glm_result <- MASS::glm.nb(formula = formula, data = working.df, na.action = stats::na.omit)
     }
-  } else {
+  } else if (!outcome.type %in% c("count_nb", "rate_nb")) {
     glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit)
+  } else {
+    glm_result <- MASS::glm.nb(formula = formula, data = working.df, na.action = stats::na.omit)
   }
   
   # Predict outcomes for each observation/individual at each level of treatment/exposure
