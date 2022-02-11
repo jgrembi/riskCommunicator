@@ -24,9 +24,10 @@
 #' @return An object of class \code{gComp} which is a named list with components:
 #'
 #'   \item{$summary}{Summary providing parameter estimates and 95\% confidence
-#'   limits of the outcome difference and ratio} 
+#'   limits of the outcome difference and ratio (in a print-pretty format)} 
 #'   \item{$results.df}{Data.frame with parameter estimates, 2.5\% confidence 
-#'   limit, and 97.5\% confidence limit each as a column} 
+#'   limit, and 97.5\% confidence limit each as a column (which can be used for easy 
+#'   incorporation into tables for publication)} 
 #'   \item{$n}{Number of unique observations in the original dataset} 
 #'   \item{$R}{Number of bootstrap iterations}
 #'   \item{$boot.result}{Data.frame containing the results of the \code{R}
