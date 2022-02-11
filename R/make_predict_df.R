@@ -16,14 +16,14 @@
 #'   person-time denominator for rate outcomes to be included as an offset in the
 #'   Poisson regression model. Numeric variable should be on the linear scale; 
 #'   function will take natural log before including in the model.
-#' @param offset.predict (Optional, only applicable for rate/count outcomes). 
+#' @param rate.multiplier (Optional, only applicable for rate/count outcomes). 
 #'   Default 1 Numeric variable signifying the person-time value to use in 
 #'   predictions; the offset variable will be set to this when predicting under 
 #'   the counterfactual conditions. This value should be set to the person-time 
 #'   denominator desired for the rate difference measure and must be inputted in 
 #'   the units of the original offset variable (e.g. if the offset variable is 
 #'   in days and the desired rate difference is the rate per 100 person-years, 
-#'   offset.predict should be inputted as 36525).
+#'   rate.multiplier should be inputted as 365.25*100).
 #'
 #' @return A data.frame of predicted outcomes for each level of
 #'   treatment/exposure.  Additional columns are provided for each subgroup
@@ -33,15 +33,15 @@
 #' @importFrom purrr map_dfc
 #' @importFrom stats predict
 #'   
-make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL, offset.predict = 1) {
+make_predict_df <- function(glm.res, df, X, subgroup = NULL, offset = NULL, rate.multiplier = 1) {
  
   # Define variable offset2 in dataset since it was used in the original glm.  Default is to set it to 1 because 
   #   log(1) = 0 and therefore no offset is used in the predictions (assume same person-time for all observations).
-  #   However, the user can specify the prediction offset with the offset.predict argument.
+  #   However, the user can specify the prediction offset with the rate.multiplier argument.
   if (!is.null(offset)) {
     offset2_name = rlang::sym(paste0(offset, "_adj"))
     df <- df %>%
-      dplyr::mutate(!!offset2_name := offset.predict)
+      dplyr::mutate(!!offset2_name := rate.multiplier)
   }
   
   if (is.numeric(df[[X]])) {

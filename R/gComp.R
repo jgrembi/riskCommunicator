@@ -58,6 +58,14 @@
 #'   As bootstrap resamples are generated with random sampling, users should
 #'   set a seed (\code{\link{set.seed}} for reproducible
 #'   confidence intervals.
+#'   
+#'   While offsets are used to account for differences in follow-up time 
+#'   between individuals in the \code{glm} model, rate differences are 
+#'   calculated assuming equivalent follow-up of all individuals (i.e. 
+#'   predictions for each exposure are based on all observations having the 
+#'   same offset value). The default is 1 (specifying 1 unit of the original 
+#'   offset variable) or the user can specify an offset to be used in the 
+#'   predictions with the rate.multiplier argument.
 #'  
 #' @note
 #'  Note that for a protective exposure (risk difference less than 0), the 
@@ -94,7 +102,7 @@
 #'   exposure. The effects do not necessarily apply across the entire range of 
 #'   the variable. However, variations in the effect are likely small, 
 #'   especially near the mean.
-#'     
+#'        
 #' @note 
 #'  The documentation for \code{\link[boot]{boot}} includes details about 
 #'  reproducible seeds when using parallel computing.   
@@ -160,7 +168,6 @@ gComp <- function(data,
                   Z = NULL, 
                   subgroup = NULL,
                   offset = NULL, 
-                  offset.predict = 1,
                   rate.multiplier = 1, 
                   exposure.scalar = 1,
                   R = 200,
@@ -189,24 +196,24 @@ gComp <- function(data,
   
   # Get point estimate for diff and ratio
   pt_estimate <- pointEstimate(data, outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z, 
-                               offset = offset, offset.predict = offset.predict,
-                               subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                               offset = offset, rate.multiplier = rate.multiplier, 
+                               subgroup = subgroup, 
                                exposure.scalar = exposure.scalar, exposure.center = X_mean)
   
   ####### Run bootstrap resampling, calculate point estimate for each resample, and get 95% CI for estimates
   # Define bootstrap statistic
   fun.statistic <- function(x, idx, outcome.type = outcome.type, 
                             formula = formula, Y = Y, X = X, Z = Z, 
-                            offset = offset, offset.predict = offset.predict,
-                            subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                            offset = offset, rate.multiplier = rate.multiplier, 
+                            subgroup = subgroup, 
                             exposure.scalar = exposure.scalar, exposure.center = exposure.center, 
                             clusters = clusters) {
     
     if (is.null(clusters)) {
       estimate <- suppressMessages(pointEstimate(x[idx,], outcome.type = outcome.type, 
                                                  formula = formula, Y = Y, X = X, Z = Z, 
-                                                 offset = offset, offset.predict = offset.predict,
-                                                 subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                                                 offset = offset, rate.multiplier = rate.multiplier, 
+                                                 subgroup = subgroup, 
                                                  exposure.scalar = exposure.scalar, exposure.center = exposure.center))
     } else {
       cls <- sample(clusters, size = length(clusters), replace = TRUE)
@@ -214,8 +221,8 @@ gComp <- function(data,
       df.bs <- do.call(rbind, df.bs)
       estimate <- suppressMessages(pointEstimate(df.bs, outcome.type = outcome.type, 
                                                  formula = formula, Y = Y, X = X, Z = Z, 
-                                                 offset = offset, offset.predict = offset.predict,
-                                                 subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                                                 offset = offset, rate.multiplier = rate.multiplier, 
+                                                 subgroup = subgroup, 
                                                  exposure.scalar = exposure.scalar, exposure.center = exposure.center))
     }
     if (length(names(estimate$parameter.estimates)) > 1) {
@@ -231,8 +238,8 @@ gComp <- function(data,
   # Run bootstrap iterations
   boot_out <- boot::boot(data = data, statistic = fun.statistic, R = R, parallel = parallel, ncpus = ncpus, 
                          outcome.type = outcome.type, formula = formula, Y = Y, X = X, Z = Z,
-                         offset = offset, offset.predict = offset.predict,
-                         subgroup = subgroup, rate.multiplier = rate.multiplier, 
+                         offset = offset, rate.multiplier = rate.multiplier, 
+                         subgroup = subgroup,  
                          exposure.scalar = exposure.scalar, exposure.center = X_mean, clusters = clusters)
   
   # Format output from boot function

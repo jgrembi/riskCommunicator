@@ -19,12 +19,6 @@
 #'   parameter is estimated internally; ideal for over-dispersed events/person-time outcomes.}
 #'    \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 #'   }
-#' @param rate.multiplier (Optional, only applicable for rate outcomes) Default
-#'   1. Numeric value to multiply to the rate-based effect measures. This option
-#'   facilitates reporting effects with interpretable person-time denominators.
-#'   For example, if the person-time variable (offset) is in days, a multiplier
-#'   of 365*100 would result in estimates of rate differences per 100
-#'   person-years.
 #'
 #' @return A list containing the calculated results for the applicable measures
 #'   (based on the outcome.type): Risk Difference, Risk Ratio, Odds Ratio,
@@ -36,7 +30,7 @@
 #' @importFrom dplyr select pull
 #' @importFrom tidyselect starts_with
 
-get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
+get_results_dataframe <- function(predict.df, outcome.type) {
   
   col.names <- names(predict.df)
   
@@ -79,12 +73,12 @@ get_results_dataframe <- function(predict.df, outcome.type, rate.multiplier) {
   res <- c(`Risk Difference` = ifelse(outcome.type == "binary", diff, NA),
            `Risk Ratio` = ifelse(outcome.type == "binary", ratio, NA),
            `Odds Ratio` = ifelse(outcome.type == "binary", ratio_odds, NA),
-           `Incidence Rate Difference` = ifelse(outcome.type %in% c("rate", "rate_nb"), (diff*rate.multiplier), ifelse(outcome.type %in% c("count", "count_nb"), diff, NA)),
+           `Incidence Rate Difference` = ifelse(outcome.type %in% c("rate", "rate_nb","count", "count_nb"), diff, NA),
            `Incidence Rate Ratio` = ifelse(outcome.type %in% c("rate", "count", "count_nb", "rate_nb"), ratio, NA),
            `Mean Difference` = ifelse(outcome.type == "continuous", diff, NA),
            `Number needed to treat` = ifelse(outcome.type == "binary", 1/diff, NA),
-           `Average Tx` = ifelse(outcome.type %in% c("rate", "rate_nb"), rate.multiplier*results_tbl$Tx, results_tbl$Tx),
-           `Average noTx` = ifelse(outcome.type %in% c("rate", "rate_nb"), rate.multiplier*results_tbl$noTx, results_tbl$noTx))
+           `Average Tx` = mean(results_tbl$Tx, na.rm = T),
+           `Average noTx` = mean(results_tbl$noTx, na.rm = T))
   
   return(res)
 }

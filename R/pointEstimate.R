@@ -52,20 +52,14 @@
 #'   person-time denominator for rate outcomes to be included as an offset in the
 #'   Poisson regression model. Numeric variable should be on the linear scale; 
 #'   function will take natural log before including in the model.
-#' @param offset.predict (Optional, only applicable for rate/count outcomes). 
+#' @param rate.multiplier (Optional, only applicable for rate/count outcomes). 
 #'   Default 1 Numeric variable signifying the person-time value to use in 
 #'   predictions; the offset variable will be set to this when predicting under 
 #'   the counterfactual conditions. This value should be set to the person-time 
 #'   denominator desired for the rate difference measure and must be inputted in 
 #'   the units of the original offset variable (e.g. if the offset variable is 
 #'   in days and the desired rate difference is the rate per 100 person-years, 
-#'   offset.predict should be inputted as 36525).
-#' @param rate.multiplier (Optional, only applicable for rate/count outcomes) Default
-#'   1. Numeric value to multiply to the rate-based effect measures. This option
-#'   facilitates reporting effects with interpretable person-time denominators.
-#'   For example, if the person-time variable (offset) is in days, a multiplier
-#'   of 365*100 would result in estimates of rate differences per 100
-#'   person-years.
+#'   rate.multiplier should be inputted as 365.25*100).
 #' @param exposure.scalar (Optional, only applicable for continuous exposure)
 #'   Default 1. Numeric value to scale effects with a continuous exposure. This 
 #'   option facilitates reporting effects for an interpretable contrast (i.e. 
@@ -126,7 +120,7 @@
 #'   predictions for each exposure are based on all observations having the 
 #'   same offset value). The default is 1 (specifying 1 unit of the original 
 #'   offset variable) or the user can specify an offset to be used in the 
-#'   predictions with the offset.predict argument.
+#'   predictions with the rate.multiplier argument.
 #'
 #' @note
 #'  Note that for a protective exposure (risk difference less than 0), the 
@@ -214,7 +208,6 @@ pointEstimate <- function(data,
                           Z = NULL, 
                           subgroup = NULL,  
                           offset = NULL, 
-                          offset.predict = 1,
                           rate.multiplier = 1,
                           exposure.scalar = 1,
                           exposure.center = TRUE) {
@@ -337,7 +330,7 @@ pointEstimate <- function(data,
   }
   
   # Predict outcomes for each observation/individual at each level of treatment/exposure
-  fn_output <- make_predict_df(glm.res = glm_result, df = working.df, X = X, subgroup = subgroup, offset = offset, offset.predict = offset.predict)
+  fn_output <- make_predict_df(glm.res = glm_result, df = working.df, X = X, subgroup = subgroup, offset = offset, rate.multiplier = rate.multiplier)
   
   # Rename vars in predicted dataset so it's clear
   results_tbl_all <- fn_output
@@ -364,7 +357,7 @@ pointEstimate <- function(data,
         subgroup_res <- suppressMessages(purrr::map_dfc(subgroups_list, function(s) {
           predict_df_s = fn_output %>% 
             dplyr::select(tidyselect::contains(s))
-          fn_results_df <- get_results_dataframe(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+          fn_results_df <- get_results_dataframe(predict.df = predict_df_s, outcome.type = outcome.type)
           return(c(fn_results_df, subgroup = s, Comparison = paste0(e, "_v._", exposure_list[1])))
         }))
         subgp_results <- subgroup_res %>%
@@ -378,7 +371,7 @@ pointEstimate <- function(data,
         # s <- subgroups_list[1]
         predict_df_s = fn_output %>% 
           dplyr::select(tidyselect::contains(s))
-        fn_results_df <- get_results_dataframe(predict.df = predict_df_s, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+        fn_results_df <- get_results_dataframe(predict.df = predict_df_s, outcome.type = outcome.type)
         return(c(fn_results_df, subgroup = s, Comparison = contrasts_list))
       }))
       results <- subgroup_res %>%
@@ -390,14 +383,14 @@ pointEstimate <- function(data,
       # e <- exposure_list[2]
       predict_df_e <- fn_output %>%
         dplyr::select(tidyselect::contains(match = c(exposure_list[1], e))) #contains(exposure_list[1]), tidyselect::contains(e))
-      fn_results_df <- get_results_dataframe(predict.df = predict_df_e, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+      fn_results_df <- get_results_dataframe(predict.df = predict_df_e, outcome.type = outcome.type)
       return(c(fn_results_df, subgroup = NA, Comparison = paste0(e, "_v._", exposure_list[1])))
     }))
     results <- contrasts_res %>%
       as.data.frame()
     colnames(results) <- contrasts_list
   } else { # For when NO subgroups are specified and exposure has only 2 levels
-    fn_results_df <- get_results_dataframe(predict.df = fn_output, outcome.type = outcome.type, rate.multiplier = rate.multiplier)
+    fn_results_df <- get_results_dataframe(predict.df = fn_output, outcome.type = outcome.type)
     
     results <- fn_results_df %>%
       as.data.frame() %>%
