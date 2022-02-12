@@ -35,7 +35,7 @@ used.}
 parameter is estimated internally; ideal for over-dispersed count data.}
 \item{rate}{A Poisson distribution with link = 'log' is used; ideal for 
  events/person-time outcomes.} 
- \item{rate_nb} {A negative binomial model with link = 'log' is used, where the theta 
+ \item{rate_nb}{A negative binomial model with link = 'log' is used, where the theta 
 parameter is estimated internally; ideal for over-dispersed events/person-time outcomes.}
  \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 }}
@@ -54,8 +54,8 @@ outcome variable. Can optionally provide a formula instead of \code{Y} and
 exposure variable (or treatment group assignment), which can be binary,
 categorical, or continuous. This variable can be supplied as a factor
 variable (for binary or categorical exposures) or a continuous variable.
-For binary/categorical exposures, \code{X} should be supplied as a factor with 
-the lowest level set to the desired referent. Numeric variables are 
+For binary/categorical exposures, \code{X} should be supplied as a factor 
+with the lowest level set to the desired referent. Numeric variables are 
 accepted, but will be centered (see Note). Character variables are not 
 accepted and will throw an error. Can optionally provide a formula
 instead of \code{Y} and \code{X} variables.}
