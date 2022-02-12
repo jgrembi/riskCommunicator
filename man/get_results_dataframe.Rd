@@ -6,7 +6,7 @@
 incidence rate difference/ratio, mean difference, and/or number needed to
 treat)}
 \usage{
-get_results_dataframe(predict.df, outcome.type, rate.multiplier)
+get_results_dataframe(predict.df, outcome.type)
 }
 \arguments{
 \item{predict.df}{(Required) A data.frame output from the
@@ -17,17 +17,16 @@ at each level of treatment/exposure.}
 type. Acceptable responses, and the corresponding error distribution and
 link function used in the \code{glm}, include: \describe{
 \item{binary}{(Default) A binomial distribution with link = 'logit' is
-used.} \item{count}{A Poisson distribution with link = 'log' is used.}
-\item{rate}{A Poisson distribution with link = 'log' is used.}
-\item{continuous}{A gaussian distribution with link = 'identity' is used.}
+used.} 
+\item{count}{A Poisson distribution with link = 'log' is used.}
+\item{count_nb}{A negative binomial model with link = 'log' is used, where the theta 
+parameter is estimated internally; ideal for over-dispersed count data.}
+\item{rate}{A Poisson distribution with link = 'log' is used; ideal for 
+ events/person-time outcomes.} 
+ \item{rate_nb} {A negative binomial model with link = 'log' is used, where the theta 
+parameter is estimated internally; ideal for over-dispersed events/person-time outcomes.}
+ \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 }}
-
-\item{rate.multiplier}{(Optional, only applicable for rate outcomes) Default
-1. Numeric value to multiply to the rate-based effect measures. This option
-facilitates reporting effects with interpretable person-time denominators.
-For example, if the person-time variable (offset) is in days, a multiplier
-of 365*100 would result in estimates of rate differences per 100
-person-years.}
 }
 \value{
 A list containing the calculated results for the applicable measures

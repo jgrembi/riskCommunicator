@@ -6,7 +6,7 @@
 \usage{
 pointEstimate(
   data,
-  outcome.type = c("binary", "count", "rate", "continuous"),
+  outcome.type = c("binary", "count", "count_nb", "rate", "rate_nb", "continuous"),
   formula = NULL,
   Y = NULL,
   X = NULL,
@@ -29,11 +29,15 @@ they are specified.}
 type. Acceptable responses, and the corresponding error distribution and
 link function used in the \code{glm}, include: \describe{
 \item{binary}{(Default) A binomial distribution with link = 'logit' is
-used.} \item{count}{A Poisson distribution 
-with link = 'log' is used.}
+used.} 
+\item{count}{A Poisson distribution with link = 'log' is used.}
+\item{count_nb}{A negative binomial model with link = 'log' is used, where the theta 
+parameter is estimated internally; ideal for over-dispersed count data.}
 \item{rate}{A Poisson distribution with link = 'log' is used; ideal for 
- events/person-time outcomes.} \item{continuous}{A gaussian distribution 
- with link = 'identity' is used.}
+ events/person-time outcomes.} 
+ \item{rate_nb} {A negative binomial model with link = 'log' is used, where the theta 
+parameter is estimated internally; ideal for over-dispersed events/person-time outcomes.}
+ \item{continuous}{A gaussian distribution with link = 'identity' is used.}
 }}
 
 \item{formula}{(Optional) Default NULL. An object of class "formula" (or one
@@ -66,18 +70,20 @@ subgroups for stratified analysis. Effects will be reported for each
 category of the subgroup variable. Variable will be automatically converted
 to a factor if not already.}
 
-\item{offset}{(Optional, only applicable for rate outcomes) Default NULL.
-Character argument which specifies the person-time denominator for rate
-outcomes to be included as an offset in the Poisson regression model.
-Numeric variable should be on the linear scale; function will take natural
-log before including in the model.}
+\item{offset}{(Optional, only applicable for rate/count outcomes) Default NULL.
+Character argument which specifies the variable name to be used as the 
+person-time denominator for rate outcomes to be included as an offset in the
+Poisson regression model. Numeric variable should be on the linear scale; 
+function will take natural log before including in the model.}
 
-\item{rate.multiplier}{(Optional, only applicable for rate outcomes) Default
-1. Numeric value to multiply to the rate-based effect measures. This option
-facilitates reporting effects with interpretable person-time denominators.
-For example, if the person-time variable (offset) is in days, a multiplier
-of 365*100 would result in estimates of rate differences per 100
-person-years.}
+\item{rate.multiplier}{(Optional, only applicable for rate/count outcomes). 
+Default 1 Numeric variable signifying the person-time value to use in 
+predictions; the offset variable will be set to this when predicting under 
+the counterfactual conditions. This value should be set to the person-time 
+denominator desired for the rate difference measure and must be inputted in 
+the units of the original offset variable (e.g. if the offset variable is 
+in days and the desired rate difference is the rate per 100 person-years, 
+rate.multiplier should be inputted as 365.25*100).}
 
 \item{exposure.scalar}{(Optional, only applicable for continuous exposure)
 Default 1. Numeric value to scale effects with a continuous exposure. This 
@@ -140,6 +146,14 @@ The \code{pointEstimate} function executes the following steps on
   reproducible confidence intervals.
 }
 \note{
+While offsets are used to account for differences in follow-up time 
+  between individuals in the \code{glm} model, rate differences are 
+  calculated assuming equivalent follow-up of all individuals (i.e. 
+  predictions for each exposure are based on all observations having the 
+  same offset value). The default is 1 (specifying 1 unit of the original 
+  offset variable) or the user can specify an offset to be used in the 
+  predictions with the rate.multiplier argument.
+
 Note that for a protective exposure (risk difference less than 0), the 
   'Number needed to treat/harm' is interpreted as the number needed to treat, 
   and for a harmful exposure (risk difference greater than 0), it is 
@@ -160,6 +174,10 @@ For continuous exposure variables, the default effects are provided
   exposure. The effects do not necessarily apply across the entire range of 
   the variable. However, variations in the effect are likely small, 
   especially near the mean.
+  
+ @note 
+  For negative binomial models, \code{MASS::glm.nb} is used instead of the
+   standard \code{stats::glm} function used for all other models.
 }
 \examples{
 ## Obtain the risk difference and risk ratio for cardiovascular disease or death

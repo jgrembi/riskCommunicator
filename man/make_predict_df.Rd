@@ -5,7 +5,14 @@
 \title{Using \code{glm} results, predict outcomes for each individual at each level
 of treatment/exposure}
 \usage{
-make_predict_df(glm.res, df, X, subgroup = NULL, offset = NULL)
+make_predict_df(
+  glm.res,
+  df,
+  X,
+  subgroup = NULL,
+  offset = NULL,
+  rate.multiplier = 1
+)
 }
 \arguments{
 \item{glm.res}{(Required) A fitted object of class inheriting from "glm" that
@@ -22,11 +29,20 @@ exposure/treatment group assignment.}
 name to use for subgroup analyses. Variable automatically transformed to a
 factor within the function if not supplied as such.}
 
-\item{offset}{(Optional, only applicable for rate outcomes) Default NULL.
-Character argument which specifies the person-time denominator for rate
-outcomes to be included as an offset in the Poisson regression model.
-Numeric variable should be on the linear scale; function will take natural
-log before including in the model.}
+\item{offset}{(Optional, only applicable for rate/count outcomes) Default NULL.
+Character argument which specifies the variable name to be used as the 
+person-time denominator for rate outcomes to be included as an offset in the
+Poisson regression model. Numeric variable should be on the linear scale; 
+function will take natural log before including in the model.}
+
+\item{rate.multiplier}{(Optional, only applicable for rate/count outcomes). 
+Default 1 Numeric variable signifying the person-time value to use in 
+predictions; the offset variable will be set to this when predicting under 
+the counterfactual conditions. This value should be set to the person-time 
+denominator desired for the rate difference measure and must be inputted in 
+the units of the original offset variable (e.g. if the offset variable is 
+in days and the desired rate difference is the rate per 100 person-years, 
+rate.multiplier should be inputted as 365.25*100).}
 }
 \value{
 A data.frame of predicted outcomes for each level of
