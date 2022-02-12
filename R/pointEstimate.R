@@ -248,14 +248,14 @@ pointEstimate <- function(data,
     if (class(working.df[,Y]) == "factor" & length(levels(working.df[,Y])) > 2) stop("Outcome is not binary")
         family <- stats::binomial(link = 'logit')
   } else if (outcome.type %in% c("count", "rate")) {
-    if (!class(working.df[,Y]) %in% c("integer", "numeric", "double")) stop("Outcome is not numeric")
+    if (!is.numeric(working.df %>% dplyr::pull(Y))) stop("Outcome is not numeric")
     family <- stats::poisson(link = "log")
     if (is.null(offset) & outcome.type %in% c("rate", "rate_nb")) stop("Offset must be provided for rate outcomes")
   } else if (outcome.type %in% c("count_nb", "rate_nb")) {
-    if (!class(working.df[,Y]) %in% c("integer", "numeric", "double")) stop("Outcome is not numeric")
+    if (!is.numeric(working.df %>% dplyr::pull(Y))) stop("Outcome is not numeric")
     family = NULL
   } else if (outcome.type == "continuous") {
-    if (!class(working.df[,Y]) %in% c("integer", "numeric", "double")) stop("Outcome is not numeric")
+    if (!is.numeric(working.df %>% dplyr::pull(Y))) stop("Outcome is not numeric")
     family <- stats::gaussian(link = "identity")
   } else {
     stop("This package only supports binary/dichotomous, count/rate, or continuous outcome variable models")
