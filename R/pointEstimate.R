@@ -221,19 +221,6 @@ pointEstimate <- function(data,
   # set new df to modify
   working.df <- data
   
-  # Specify model family and link for the given outcome.type
-  if (outcome.type %in% c("binary")) {
-    family <- stats::binomial(link = 'logit')
-  } else if (outcome.type %in% c("count", "rate")) {
-    family <- stats::poisson(link = "log")
-    if (is.null(offset) & outcome.type == "rate") stop("Offset must be provided for rate outcomes")
-  } else if (outcome.type %in% c("count_nb", "rate_nb")) {
-    family = NULL
-  } else if (outcome.type == "continuous") {
-    family <- stats::gaussian(link = "identity")
-  } else {
-    stop("This package only supports binary/dichotomous, count/rate, or continuous outcome variable models")
-  }
   
   # Determine model formula, X, Y, and Z from specified terms, ensure sufficient info provided (either X & Y or formula)
   if (!is.null(X)) X <- rlang::sym(X)
@@ -254,6 +241,24 @@ pointEstimate <- function(data,
     Y <- as.character(formula[[2]])
     X <- rlang::sym(all.vars(formula[[3]])[1])
     Z <- all.vars(formula[[3]])[-1]
+  }
+  
+  # Specify model family and link for the given outcome.type
+  if (outcome.type %in% c("binary")) {
+    if (class(working.df[,Y]) == "factor" & length(levels(working.df[,Y])) > 2) stop("Outcome is not binary")
+        family <- stats::binomial(link = 'logit')
+  } else if (outcome.type %in% c("count", "rate")) {
+    if (!is.numeric(class(working.df[,Y]))) stop("Outcome is not numeric")
+    family <- stats::poisson(link = "log")
+    if (is.null(offset) & outcome.type %in% c("rate", "rate_nb")) stop("Offset must be provided for rate outcomes")
+  } else if (outcome.type %in% c("count_nb", "rate_nb")) {
+    if (!is.numeric(class(working.df[,Y]))) stop("Outcome is not numeric")
+    family = NULL
+  } else if (outcome.type == "continuous") {
+    if (!is.numeric(class(working.df[,Y]))) stop("Outcome is not numeric")
+    family <- stats::gaussian(link = "identity")
+  } else {
+    stop("This package only supports binary/dichotomous, count/rate, or continuous outcome variable models")
   }
   
   # Determine X_mean
