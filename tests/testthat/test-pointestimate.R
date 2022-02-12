@@ -37,5 +37,15 @@ testthat::test_that("outcome is expected value", {
                                          dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)),
                                                        timeout = as.numeric(timeout)), Y = "cvd_dth", X = "DIABETES", Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), 
                                        outcome.type = "rate", rate.multiplier = 365.25*100, offset = "timeout")$parameter.estimates$Estimate[[4]], 2.1892)
-  ## add in tests for count, count_nb and rate_nb
+  set.seed(424)
+  testthat::expect_equal(round(pointEstimate(data = cvdd %>% 
+                                               dplyr::rowwise() %>%
+                                               dplyr::mutate(outpt_clinic_visits = ifelse(DIABETES == 0, rnbinom(n = 1, mu = 6, size = 1.22), rnbinom(n = 1, mu = 14, size = 4.2))) %>%
+                                               dplyr::ungroup(),
+                                             formula = outpt_clinic_visits ~ DIABETES + AGE + SEX + BMI + PREVHYP, outcome.type = "count_nb")$parameter.estimates$Estimate[4], 4), 8.4779)
+  testthat::expect_equal(round(pointEstimate(data = cvdd %>% 
+                                               dplyr::rowwise() %>%
+                                               dplyr::mutate(outpt_clinic_visits = ifelse(DIABETES == 0, rnbinom(n = 1, mu = 6, size = 1.22), rnbinom(n = 1, mu = 14, size = 4.2))) %>%
+                                               dplyr::ungroup(),
+                                             formula = outpt_clinic_visits ~ DIABETES + AGE + SEX + BMI + PREVHYP, outcome.type = "rate_nb")$parameter.estimates$Estimate[4], 4), 7.0174)
 })

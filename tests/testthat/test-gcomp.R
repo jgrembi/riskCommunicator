@@ -52,6 +52,19 @@ testthat::test_that("outcome is expected value", {
                                                                    id.cat = factor(id)), 
                                      formula = "nhosp ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP", clusterID = "id.cat", 
                                      outcome.type = "count", R = 4)$results.df[1,4, drop = T], 2), 0.05)
+  ## negative binomial count and rate (count_nb, rate_nb)
+  set.seed(424)
+  testthat::expect_equal(round(gComp(data = cvdd %>% 
+                                               dplyr::rowwise() %>%
+                                               dplyr::mutate(outpt_clinic_visits = ifelse(DIABETES == 0, rnbinom(n = 1, mu = 6, size = 1.22), rnbinom(n = 1, mu = 14, size = 4.2))) %>%
+                                               dplyr::ungroup(),
+                                             formula = "outpt_clinic_visits ~ DIABETES + AGE + SEX + BMI + PREVHYP", outcome.type = "count_nb", R = 10)$results.df[1,6, drop = T], 2), 9.27)
+  testthat::expect_equal(round(gComp(data = cvdd %>% 
+                                               dplyr::rowwise() %>%
+                                               dplyr::mutate(outpt_clinic_visits = ifelse(DIABETES == 0, rnbinom(n = 1, mu = 6, size = 1.22), rnbinom(n = 1, mu = 14, size = 4.2))) %>%
+                                               dplyr::ungroup(),
+                                             formula = "outpt_clinic_visits ~ DIABETES + AGE + SEX + BMI + PREVHYP", outcome.type = "rate_nb", subgroup = "SEX", R = 5)$results.df[4,5, drop = T], 2), 2.26)
+  
 })
 
 testthat::test_that("class is correct", {
