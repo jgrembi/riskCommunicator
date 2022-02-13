@@ -5,3 +5,5 @@
 ^cran-comments.md$
 ^README\.Rmd$
 ^CRAN-RELEASE$
+^revdep$
+^CRAN_submission_checklist\.R
