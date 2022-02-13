@@ -218,33 +218,33 @@ outcome.type = "binary", R = 20)
 Ahern J, Hubbard A, Galea S. Estimating the effects of potential public health 
   interventions on population disease burden: a step-by-step illustration of 
   causal inference methods. Am. J. Epidemiol. 2009;169(9):1140–1147.
-  \href{https://doi.org/10.1093/aje/kwp015}{Manuscript link}
+  \href{\doi{10.1093/aje/kwp015}}{Manuscript link}
  
  Altman DG, Deeks JJ, Sackett DL. Odds ratios should be avoided when events 
-  are common. BMJ. 1998;317(7168):1318. \href{https://doi.org/10.1136/bmj.317.7168.1318 }{Manuscript link}
+  are common. BMJ. 1998;317(7168):1318. \href{\doi{10.1136/bmj.317.7168.1318 }}{Manuscript link}
 
  Hernán MA, Robins JM (2020). Causal Inference: What If. Boca Raton: 
-  Chapman & Hall/CRC. /href{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}{Book link}
+  Chapman & Hall/CRC. \href{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}{Book link}
 
  Hutton JL. Number needed to treat: properties and problems. Journal of the 
   Royal Statistical Society: Series A (Statistics in Society). 2000;163(3):381–402.
-  \href{https://doi.org/10.1111/1467-985X.00175}{Manuscript link}
+  \href{\doi{10.1111/1467-985X.00175}}{Manuscript link}
 
  Robins J. A new approach to causal inference in mortality studies with a 
   sustained exposure period—application to control of the healthy worker 
-  survivor effect. Mathematical Modelling. 1986;7(9):1393–1512. \href{https://doi.org/10.1016/0270-0255(86)90088-6}{Manuscript link}
+  survivor effect. Mathematical Modelling. 1986;7(9):1393–1512. \href{\doi{10.1016/0270-0255(86)90088-6}}{Manuscript link}
   
  Snowden JM, Rose S, Mortimer KM. Implementation of G-computation on a 
   simulated data set: demonstration of a causal inference technique. 
-  Am. J. Epidemiol. 2011;173(7):731–738. \href{https://doi.org/10.1093/aje/kwq472}{Manuscript link}
+  Am. J. Epidemiol. 2011;173(7):731–738. \href{\doi{10.1093/aje/kwq472}}{Manuscript link}
   
  Stang A, Poole C, Bender R. Common problems related to the use of number 
   needed to treat. Journal of Clinical Epidemiology. 2010;63(8):820–825. 
-  \href{https://doi.org/10.1016/j.jclinepi.2009.08.006}{Manuscript link}
+  \href{\doi{10.1016/j.jclinepi.2009.08.006}}{Manuscript link}
   
  Westreich D, Cole SR, Young JG, et al. The parametric g-formula to 
   estimate the effect of highly active antiretroviral therapy on incident 
-   AIDS or death. Stat Med. 2012;31(18):2000–2009. \href{https://doi.org/10.1002/sim.5316}{Manuscript link}
+   AIDS or death. Stat Med. 2012;31(18):2000–2009. \href{\doi{10.1002/sim.5316}}{Manuscript link}
 }
 \seealso{
 \code{\link{pointEstimate}} \code{\link[boot]{boot}}
