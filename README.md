@@ -4,7 +4,6 @@
 # riskCommunicator
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 An R package for estimating risk differences and relative risk measures.
@@ -16,14 +15,15 @@ logistic regression. In particular, `riskCommunicator` estimates risk
 and rate differences, in addition to risk and rate ratios. The package
 estimates these effects using g-computation with the appropriate
 parametric model depending on the outcome (logistic regression for
-binary outcomes, Poisson regression for rate or count outcomes, and
-linear regression for continuous outcomes). Therefore, the package can
-handle binary, rate, count, and continuous outcomes and allows for
-dichotomous, categorical (\>2 categories), or continuous exposure
-variables. Additional features include estimation of effects stratified
-by subgroup and adjustment of standard errors for clustering. Confidence
-intervals are constructed by bootstrap at the individual or cluster
-level, as appropriate.
+binary outcomes, Poisson regression for rate or count outcomes, negative
+binomial regression for overdispersed rate or count outcomes, and linear
+regression for continuous outcomes). Therefore, the package can handle
+binary, rate, count, and continuous outcomes and allows for dichotomous,
+categorical (>2 categories), or continuous exposure variables.
+Additional features include estimation of effects stratified by subgroup
+and adjustment of standard errors for clustering. Confidence intervals
+are constructed by bootstrap at the individual or cluster level, as
+appropriate.
 
 This package operationalizes g-computation, which has not been widely
 adopted due to computational complexity, in an easy-to-use
@@ -78,12 +78,12 @@ coding: 0 = normal weight; 1=underweight; 2=overweight; 3=obese)
 library(riskCommunicator)
 library(ggplot2)
 library(tidyverse)
-#> ── Attaching packages ──────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
-#> ✓ tibble  3.0.1     ✓ dplyr   1.0.0
-#> ✓ tidyr   1.1.0     ✓ stringr 1.4.0
-#> ✓ readr   1.3.1     ✓ forcats 0.5.0
+#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+#> ✓ tibble  3.1.6     ✓ dplyr   1.0.8
+#> ✓ tidyr   1.2.0     ✓ stringr 1.4.0
+#> ✓ readr   2.1.2     ✓ forcats 0.5.1
 #> ✓ purrr   0.3.4
-#> ── Conflicts ─────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+#> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 ## basic example code
@@ -96,20 +96,20 @@ bmi.results
 #> 
 #> Parameter estimates: 
 #>                             bmicat1_v._bmicat0 Estimate (95% CI)
-#> Risk Difference                            0.054 (-0.114, 0.204)
-#> Risk Ratio                                  1.099 (0.790, 1.375)
+#> Risk Difference                            0.042 (-0.082, 0.178)
+#> Risk Ratio                                  1.106 (0.792, 1.454)
 #> Odds Ratio                                  1.248 (0.631, 2.506)
-#> Number needed to treat/harm                               18.462
+#> Number needed to treat/harm                               23.846
 #>                             bmicat2_v._bmicat0 Estimate (95% CI)
-#> Risk Difference                            0.023 (-0.007, 0.064)
-#> Risk Ratio                                  1.042 (0.989, 1.120)
+#> Risk Difference                            0.017 (-0.005, 0.049)
+#> Risk Ratio                                  1.044 (0.988, 1.126)
 #> Odds Ratio                                  1.097 (0.973, 1.297)
-#> Number needed to treat/harm                               43.685
+#> Number needed to treat/harm                               57.405
 #>                             bmicat3_v._bmicat0 Estimate (95% CI)
-#> Risk Difference                             0.116 (0.072, 0.166)
-#> Risk Ratio                                  1.211 (1.129, 1.318)
+#> Risk Difference                             0.093 (0.056, 0.136)
+#> Risk Ratio                                  1.235 (1.143, 1.354)
 #> Odds Ratio                                  1.628 (1.348, 2.037)
-#> Number needed to treat/harm                                8.642
+#> Number needed to treat/harm                               10.733
 ```
 
 The results from the g-computation show the estimated risk difference
