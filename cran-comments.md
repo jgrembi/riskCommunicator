@@ -6,12 +6,12 @@ This is a resubmission. In this version I have:
 * Added references to the Description field of the DESCRIPTION file.
 
 ## Test environments
-* local OS macOS Catalina install, R 4.0.0
+* local OS macOS Catalina install, R 4.1.2
 * win-builder (devel and release)
-* rhub (debian-gcc-devel, linux-x86_64-centos6-epel-rdt)
+* rhub (debian-gcc-devel, linux-x86_64-centos-epel)
 
 ## R CMD check results
-For local OS and linux-x86_64-centos6-epel-rdt there were no ERRORs or WARNINGs or NOTEs. 
+For local OS and linux-x86_64-centos6-epel there were no ERRORs or WARNINGs or NOTEs. 
 For win-builder and debian-gcc-devel there were no ERRORs or WARNINGs.
 
 For win-builder there was 1 NOTE:
