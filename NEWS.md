@@ -6,7 +6,7 @@
 
 * Added additional error checks to prevent users from inputting incorrect data structures.
 
-*
+
 
 # riskCommunicator 0.1.0.9000
 

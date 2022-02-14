@@ -1,17 +1,39 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Reduced the DESCRIPTION title to 58 characters.
+* Added functionality to use negative binomial distribution for overdispersed count/rate outcomes.
 
-* Added references to the Description field of the DESCRIPTION file.
+* Changed order of operations for calculating risk difference which resulted in changes to previous estimates at the hundredths decimal place.
+
+* Added additional error checks to prevent users from inputting incorrect data structures.
+
 
 ## Test environments
 * local OS macOS Catalina install, R 4.1.2
 * win-builder (devel and release)
-* rhub (debian-gcc-devel, linux-x86_64-centos-epel)
+* rhub (debian-gcc-devel, ubuntu-gcc-devel, ubuntu-gcc-release, linux-x86_64-rocker-gcc-san)
 
 ## R CMD check results
-For local OS and linux-x86_64-centos6-epel there were no ERRORs or WARNINGs or NOTEs. 
+For local OS, win-builder, debian-gcc-devel, ubuntu-gcc-devel, ubuntu-gcc-release, and linux-x86_64-rocker-gcc-san there were no ERRORs or WARNINGs or NOTEs.
+
+
+## Downstream dependencies
+There are currently no downstream dependencies for this package
+
+
+# Previous cran-comments
+## Resubmission
+This is a resubmission. In this version I have:
+* Reduced the DESCRIPTION title to 58 characters.
+* Added references to the Description field of the DESCRIPTION file.
+
+## Test environments
+* local OS macOS Catalina install, R 4.0.0
+* win-builder (devel and release)
+* rhub (debian-gcc-devel, linux-x86_64-centos-epel-rdt)
+
+## R CMD check results
+For local OS and linux-x86_64-centos6-epel-rdt there were no ERRORs or WARNINGs or NOTEs. 
 For win-builder and debian-gcc-devel there were no ERRORs or WARNINGs.
 
 For win-builder there was 1 NOTE:
