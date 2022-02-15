@@ -53,7 +53,7 @@
 #'   Poisson regression model. Numeric variable should be on the linear scale; 
 #'   function will take natural log before including in the model.
 #' @param rate.multiplier (Optional, only applicable for rate/count outcomes). 
-#'   Default 1 Numeric variable signifying the person-time value to use in 
+#'   Default 1. Numeric variable signifying the person-time value to use in 
 #'   predictions; the offset variable will be set to this when predicting under 
 #'   the counterfactual conditions. This value should be set to the person-time 
 #'   denominator desired for the rate difference measure and must be inputted in 

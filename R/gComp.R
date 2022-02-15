@@ -13,7 +13,7 @@
 #'   confidence intervals. The \code{clusterID} will be used as the level for
 #'   resampling in the bootstrap procedure.
 #' @param parallel (Optional) Default "no." The type of parallel operation to be used. Available 
-#'   options (besides the default of no parallel processing) include multicore" (not available 
+#'   options (besides the default of no parallel processing) include "multicore" (not available 
 #'   for Windows) or "snow." This argument is passed directly to \code{\link[boot]{boot}}.
 #'   See note below about setting seeds and parallel computing.
 #' @param ncpus (Optional, only used if parallel is set to "multicore" or "snow") Default 1. 

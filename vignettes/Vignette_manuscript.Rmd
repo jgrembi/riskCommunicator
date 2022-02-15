@@ -109,6 +109,12 @@ binary.res$n
 binary.res$contrast
 ```
 
+### Checking model fit
+
+To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estimates by calling:
+```{r binary_outcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
+plot(binary.res)
+```
 
 ## Rate outcome example
 
@@ -147,10 +153,6 @@ Here, we will estimate the same effects above, but in subgroups defined by sex.
 
 
 ```{r rate_outcome_subgroup, paged.print = FALSE}
-## Modify the dataset to change the variable cvd_dth from a factor to a numeric variable  
-## since the outcome for Poisson regression must be numeric.
-
-set.seed(6534)
 
 rate.res.subgroup <- gComp(data = cvdd.t, 
                            Y = "cvd_dth", 
@@ -165,13 +167,52 @@ rate.res.subgroup <- gComp(data = cvdd.t,
 rate.res.subgroup
 ```
   
+### Ease of plotting output with ggplot2 - just for gComp results
+```{r plot-rate-outcome-results, warning=F}
+#saving the output and modifying the labels of the SEX variable to specify male/female instead of 0/1
+# also adding a new variable to show the line indicating no difference found (0 for rate difference, 1 for rate ratio)
 
-# Checking model fit
+df = rate.res.group$results.df %>%
+  mutate(Subgroup = ifelse(Subgroup == "SEX0", "Male", "Female"),
+         hline = ifelse(Parameter == "Incidence Rate Ratio", 1, 0)) 
 
-To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estimates by calling:
-```{r binary_outcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
-plot(binary.res)
+ggplot(df, aes(x = Subgroup, y = Estimate)) + 
+  geom_point(size = 2) + 
+  geom_errorbar(aes(ymin = `2.5% CL`, ymax = `97.5% CL`), width = 0.2) + 
+  facet_wrap(~Parameter) +
+  theme_bw() + 
+  labs(x = "", color = "") + 
+  geom_hline(aes(yintercept = hline), color = "red", linetype = "dashed", alpha = 0.3) 
 ```
+
+### Ease of plotting output with ggplot2 - comparing against standard regression model results
+```{r plot-rate-outcome-results-v-std-regression, warning=F}
+#saving the output and modifying the labels of the SEX variable to specify male/female instead of 0/1
+# also adding a new variable to show the line indicating no difference found (0 for rate difference, 1 for rate ratio)
+df.standard.regression = data.frame(Subgroup = c("Male", "Male", "Female", "Female"), Parameter = c("Incidence Rate Difference", "Incidence Rate Ratio", "Incidence Rate Difference", "Incidence Rate Ratio"), Estimate = c(NA, 1.79, NA, 2.04), lCI = c(NA, 1.32, NA, 1.51), uCI = c(NA, 2.44, NA, 2.77)) %>%
+  mutate(outcome = "cvd_dth", 
+         Comparison = "DIABETES1_v._DIABETES0",
+         hline = ifelse(Parameter == "Incidence Rate Ratio", 1, 0),
+         calc = "Standard regression model - covariate-conditional effect estimate") %>%
+  rename(`97.5% CL` = uCI, `2.5% CL` = lCI)
+df2 = rate.res.group$results.df %>%
+  mutate(Subgroup = ifelse(Subgroup == "SEX0", "Male", "Female"),
+         hline = ifelse(Parameter == "Incidence Rate Ratio", 1, 0),
+         calc = "riskCommunicator - marginal effect estimate") %>%
+  bind_rows(df.standard.regression)
+
+ggplot(df2, aes(x = Subgroup, y = Estimate, color = calc)) + 
+  geom_point(size = 2, position = position_dodge(width = .5)) + 
+  geom_errorbar(aes(ymin = `2.5% CL`, ymax = `97.5% CL`), width = 0.2, position = position_dodge(width = .5)) + 
+  facet_wrap(~Parameter) +
+  theme_bw() + 
+  labs(x = "", color = "") + 
+  geom_hline(aes(yintercept = hline), color = "red", linetype = "dashed", alpha = 0.3) + 
+  theme(legend.position = "bottom") + 
+  guides(color = guide_legend(nrow = 2))
+```
+
+
 
 
 

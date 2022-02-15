@@ -6,4 +6,5 @@
 ^README\.Rmd$
 ^CRAN-RELEASE$
 ^revdep$
-^CRAN_submission_checklist\.R
+^CRAN_submission_checklist\.R$
+^CRAN-SUBMISSION$
