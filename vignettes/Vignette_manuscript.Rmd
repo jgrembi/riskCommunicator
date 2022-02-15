@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 The `riskCommunicator` package facilitates the estimation of common epidemiological effect measures that are relevant to public health, but that are often not trivial to obtain from common regression models, like logistic regression. In particular, `riskCommunicator` estimates risk and rate differences, in addition to risk and rate ratios. The package estimates these effects using g-computation with the appropriate parametric model depending on the outcome (logistic regression for binary outcomes, Poisson regression for rate or count outcomes, negative binomial regression for overdispersed rate or count outcomes, and linear regression for continuous outcomes). Therefore, the package can handle binary, rate, count, and continuous outcomes and allows for dichotomous, categorical (>2 categories), or continuous exposure variables. Additional features include estimation of effects stratified by subgroup and adjustment of standard errors for clustering. Confidence intervals are constructed by bootstrap at the individual or cluster level, as appropriate. 
 
-This package operationalizes g-computation, which has not been widely adopted due to computational complexity, in an easy-to-use implementation tool to increase the reporting of more interpretable epidemiological results. To make the package accessible to a broad range of health researchers, our goal was to design a function that was as straightforward as the standard logistic regression functions in R (e.g. glm) and that would require little to no expertise in causal inference methods or advanced coding.
+This package operationalizes g-computation, which has not been widely adopted due to computational complexity, in an easy-to-use implementation tool to increase the reporting of more interpretable epidemiological results. To make the package accessible to a broad range of health researchers, our goal was to design a function that was as straightforward as the standard logistic regression functions in R (e.g. `glm`) and that would require little to no expertise in causal inference methods or advanced coding.
 
 
 # Getting started
@@ -76,7 +76,7 @@ Research question: what is the effect of having diabetes at the beginning of the
 
 Here, we will estimate the risk difference, risk ratio, odds ratio, and number needed to treat, adjusting for patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline). Logistic regression is used as the underlying parametric model for g-computation.
 
-```{r binary_outcome, paged.print = FALSE}
+```{r binary_outcome, paged.print = FALSE, cache=T}
 ## Specify the regression formula
 cvdd.formula <- cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP
 
@@ -167,12 +167,13 @@ rate.res.subgroup <- gComp(data = cvdd.t,
 rate.res.subgroup
 ```
   
-### Ease of plotting output with ggplot2 - just for gComp results
-```{r plot-rate-outcome-results, warning=F}
+### The `results.df` component of the `gComp` function output is formatted as a data.frame.  This makes it very easy to immediately plot the results using **ggplot2** or your favorite R plotting functionality.  Here's an example for plotting the results of the different subgroups (sexes) for the rate example above.
+
+```{r plot-rate-outcome-results, warning = F}
 #saving the output and modifying the labels of the SEX variable to specify male/female instead of 0/1
 # also adding a new variable to show the line indicating no difference found (0 for rate difference, 1 for rate ratio)
 
-df = rate.res.group$results.df %>%
+df = rate.res.subgroup$results.df %>%
   mutate(Subgroup = ifelse(Subgroup == "SEX0", "Male", "Female"),
          hline = ifelse(Parameter == "Incidence Rate Ratio", 1, 0)) 
 
@@ -186,7 +187,7 @@ ggplot(df, aes(x = Subgroup, y = Estimate)) +
 ```
 
 ### Ease of plotting output with ggplot2 - comparing against standard regression model results
-```{r plot-rate-outcome-results-v-std-regression, warning=F}
+```{r plot-rate-outcome-results-v-std-regression, warning = F}
 #saving the output and modifying the labels of the SEX variable to specify male/female instead of 0/1
 # also adding a new variable to show the line indicating no difference found (0 for rate difference, 1 for rate ratio)
 df.standard.regression = data.frame(Subgroup = c("Male", "Male", "Female", "Female"), Parameter = c("Incidence Rate Difference", "Incidence Rate Ratio", "Incidence Rate Difference", "Incidence Rate Ratio"), Estimate = c(NA, 1.79, NA, 2.04), lCI = c(NA, 1.32, NA, 1.51), uCI = c(NA, 2.44, NA, 2.77)) %>%
@@ -195,7 +196,7 @@ df.standard.regression = data.frame(Subgroup = c("Male", "Male", "Female", "Fema
          hline = ifelse(Parameter == "Incidence Rate Ratio", 1, 0),
          calc = "Standard regression model - covariate-conditional effect estimate") %>%
   rename(`97.5% CL` = uCI, `2.5% CL` = lCI)
-df2 = rate.res.group$results.df %>%
+df2 = rate.res.subgroup$results.df %>%
   mutate(Subgroup = ifelse(Subgroup == "SEX0", "Male", "Female"),
          hline = ifelse(Parameter == "Incidence Rate Ratio", 1, 0),
          calc = "riskCommunicator - marginal effect estimate") %>%
