@@ -127,10 +127,10 @@ std.reg.or = glm(formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PRE
 
 std.reg.or
 
-(df.std.reg.or = data.frame(exp(cbind(OR = coef(std.reg.or), confint.default(std.reg.or, level = 0.95)))) %>%
+df.std.reg.or = data.frame(exp(cbind(OR = coef(std.reg.or), confint.default(std.reg.or, level = 0.95)))) %>%
   # and we pull out only the estimate we are concerned with for the predictor DIABETES
   filter(rownames(.) == "DIABETES1") %>%
-  rename(LL = `X2.5..`, UL = `X97.5..`))
+  rename(LL = `X2.5..`, UL = `X97.5..`)
 
 ```
 
@@ -148,10 +148,10 @@ std.reg.rr
 cov.std.reg.rr = sandwich::vcovHC(std.reg.rr)
 std.err <- sqrt(diag(cov.std.reg.rr))
 
-(df.std.reg.rr = data.frame(Estimate = exp(coef(std.reg.rr)[2]), 
+df.std.reg.rr = data.frame(Estimate = exp(coef(std.reg.rr)[2]), 
                       Robust_SE = exp(std.err[2]),
                       LL = exp(coef(std.reg.rr)[2] - 1.96 * std.err[2]), 
-                      UL = exp(coef(std.reg.rr)[2] + 1.96 * std.err[2])))
+                      UL = exp(coef(std.reg.rr)[2] + 1.96 * std.err[2]))
 
 ```
 
@@ -166,7 +166,7 @@ std.reg.rd = glm(formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PRE
 ```
 
 We can re-create Table 2 from the manuscript now!
-```{r table 2, echo = F}
+```{r table 2}
 # combine standard regression results
 std.regression.res = df.std.reg.or %>%
   mutate(Parameter = "Odds Ratio",
