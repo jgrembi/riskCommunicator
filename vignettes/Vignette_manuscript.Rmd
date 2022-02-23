@@ -342,7 +342,7 @@ combined.std.reg = df.spr.rate %>%
 ```
 
 Now, we can plot the same figure shown in the manuscript.
-```{r plot-rate-outcome-results-v-std-regression, warning = F, fig.width = 10, fig.height = 6}
+```{r plot-rate-outcome-results-v-std-regression, warning = F, fig.width = 8, fig.height = 4}
 # Combine the riskCommunicator results with the standard Poisson regression results
 df.combined = rate.res$results.df %>%
   mutate(Subgroup = "All") %>%
@@ -396,6 +396,9 @@ rate.ratio = ggplot(df.combined %>%
 
 ggarrange(rate.ratio, rate.diff, ncol = 2, common.legend = T, legend = "bottom",
           labels = c("A", "B"), widths = c(1, 1))
+```
+
+```{r save-Fig1, include = F, eval = F}
 ggsave(filename = "~/Dropbox/Framingham teaching data set/Manuscript drafts/Fig1.tiff", device = "tiff", width = 10, height = 6)
 ```
 
