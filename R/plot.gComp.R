@@ -28,7 +28,7 @@
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 60)
 #' plot(diabetes.result)
 #'
-#' @importFrom gridExtra grid.arrange
+#' @importFrom ggpubr ggarrange annotate_figure
 #' @importFrom dplyr group_by mutate select ungroup
 #' @importFrom tidyr pivot_longer 
 #' @importFrom magrittr %>%
@@ -50,7 +50,11 @@ plot.gComp <- function(x, ...) {
     tidyr::pivot_longer(cols = .data$`Risk Difference`:.data$`Mean Difference`, names_to = "key", values_drop_na = TRUE) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference")),
-                  value = as.numeric(.data$value),
+                  # value = as.numeric(.data$value),
+                  value = case_when(
+                    key %in% c("Risk Ratio","Odds Ratio","Incidence Rate Ratio") ~ log(as.numeric(.data$value)),
+                    key %in% c("Risk Difference","Incidence Rate Difference","Mean Difference") ~ as.numeric(.data$value)
+                  ),
                   Comparison = gsub("_v._", " v. ", .data$Comparison),
                   test = ifelse(is.na(.data$Subgroup), .data$Comparison, paste0(.data$Comparison, " ", .data$Subgroup)))
   
@@ -59,13 +63,13 @@ plot.gComp <- function(x, ...) {
         ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) +
         ggplot2::facet_wrap(~key, scales = "free", nrow = 2) +
         ggplot2::theme_bw() +
-        ggplot2::labs(title = "Histograms") 
+        ggplot2::labs(title = "Histograms", x = "Bootstrap estimate", y = "Count") 
       qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) +
         ggplot2::geom_qq(shape = 1, size = 2) +
         ggplot2::facet_wrap(~key, scales = "free", nrow = 2) +
-        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
+        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + 
         ggplot2::theme_bw() +
-        ggplot2::labs(title = "Q-Q plots") 
+        ggplot2::labs(title = "Q-Q plots", x = "Theoretical quantile", y = "Bootstrap estimate quantile") 
     } else if (length(unique(df$Comparison)) == 1) {
       hist <- ggplot2::ggplot(df) + 
         ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
@@ -74,16 +78,16 @@ plot.gComp <- function(x, ...) {
                             ncol = length(unique(df$key)), 
                             labeller = ggplot2::label_wrap_gen(14)) + 
         ggplot2::theme_bw() + 
-        ggplot2::labs(title = "Histograms") 
+        ggplot2::labs(title = "Histograms", x = "Bootstrap estimate", y = "Count") 
       qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) + 
         ggplot2::geom_qq(shape = 1, size = 2) + 
         ggplot2::facet_wrap(Subgroup ~ key, 
                             scales = "free", 
                             ncol = length(unique(df$key)),
                             labeller = ggplot2::label_wrap_gen(14)) + 
-        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
+        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + 
         ggplot2::theme_bw() + 
-        ggplot2::labs(title = "Q-Q plots") 
+        ggplot2::labs(title = "Q-Q plots", x = "Theoretical quantile", y = "Bootstrap estimate quantile") 
     } else {
       hist <- ggplot2::ggplot(df) + 
         ggplot2::geom_histogram(ggplot2::aes(x = value), bins = x$R/(x$R*.05)) + 
@@ -92,17 +96,20 @@ plot.gComp <- function(x, ...) {
                             ncol = length(unique(df$key)), 
                             labeller = ggplot2::label_wrap_gen(14)) + 
         ggplot2::theme_bw() + 
-        ggplot2::labs(title = "Histograms") 
+        ggplot2::labs(title = "Histograms", x = "Bootstrap estimate", y = "Count") 
       qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = value)) + 
         ggplot2::geom_qq(shape = 1, size = 2) + 
         ggplot2::facet_wrap(test ~ key, 
                             scales = "free", 
                             ncol = length(unique(df$key)),
                             labeller = ggplot2::label_wrap_gen(14)) + 
-        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + #line.p = c(0.025, 0.975)
+        ggplot2::geom_qq_line(linetype = "dotdash", color = "red") + 
         ggplot2::theme_bw() + 
-        ggplot2::labs(title = "Q-Q plots") }
+        ggplot2::labs(title = "Q-Q plots", x = "Theoretical quantile", y = "Bootstrap estimate quantile") }
     
-  gridExtra::grid.arrange(hist, qqplot, ncol = 2)
+  plot <- ggpubr::ggarrange(hist, qqplot, ncol = 2)
+  note <- "NOTE: All ratio values are plotted as natural log of the actual estimate"
+  ggpubr::annotate_figure(plot,
+                          bottom = text_grob(note, color = "blue", size = 18))
   
 }
