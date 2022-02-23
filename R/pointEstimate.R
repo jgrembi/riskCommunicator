@@ -320,7 +320,7 @@ pointEstimate <- function(data,
   if (!is.null(offset)) {
     working.df <- working.df %>%
       dplyr::mutate(!!offset2_name := !!offset + 0.00001) 
-    formula <- stats::as.formula(paste(paste0(as.character(formula)[2], as.character(formula)[1], as.character(formula)[3]), paste0("offset(log(", offset2_name, "))"), sep = " + "))
+    formula <- stats::formula(paste0(as.character(formula)[2], as.character(formula)[1], as.character(formula)[3], " + ", paste0("offset(log(", offset2_name, "))")))
     if (!outcome.type %in% c("count_nb", "rate_nb")) {
       glm_result <- stats::glm(formula = formula, data = working.df, family = family, na.action = stats::na.omit)
       # eval(parse(text = paste0(

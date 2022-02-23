@@ -16,10 +16,14 @@ vignette: >
   %\VignetteDepends{tidyverse}
 ---
 
-```{r, include = FALSE}
+```{r, echo = FALSE}
+options(width = 60)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
+  # tidy.opts = list(width.cutoff = 60,
+  #                  args.newline = TRUE),
+  # tidy = T
 )
 ```
 
@@ -44,7 +48,10 @@ Load packages:
 library(riskCommunicator)
 library(tidyverse)
 library(printr)
+library(formatR)
 library(sandwich)
+library(stringr)
+library(ggpubr)
 ```
 
 ## Description of main package function
@@ -160,8 +167,10 @@ We can try to calculate the risk difference using a log-linear regression, but t
 ```{r std-regression-risk-difference, eval = F}
 std.reg.rd = glm(formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP, 
                  data = cvdd %>%
-                   ## to use linear regression, we need to change DIABETES from a factor to a numeric (0,1) variable
-                   mutate(cvd_dth = ifelse(cvd_dth == "0", 0, ifelse(cvd_dth == "1", 1, NA))), 
+                   ## To use linear regression, we need to change DIABETES from a 
+                   ##   factor to a numeric (0,1) variable
+                   mutate(cvd_dth = ifelse(cvd_dth == "0", 0, 
+                                           ifelse(cvd_dth == "1", 1, NA))), 
                  family=gaussian(link = 'log'))
 ```
 
@@ -170,18 +179,34 @@ We can re-create Table 2 from the manuscript now!
 # combine standard regression results
 std.regression.res = df.std.reg.or %>%
   mutate(Parameter = "Odds Ratio",
-         Std_regression = paste0(round(OR, 2), " (", round(LL, 2), ", ", round(UL, 2), ")")) %>%
+         Std_regression = paste0(round(OR, 2), 
+                                 " (", 
+                                 round(LL, 2), 
+                                 ", ", 
+                                 round(UL, 2), 
+                                 ")")) %>%
   bind_rows(df.std.reg.rr %>%
               mutate(Parameter = "Risk Ratio",
-                     Std_regression = paste0(round(Estimate, 2), " (", round(LL, 2), ", ", round(UL, 2), ")"))) %>%
+                     Std_regression = paste0(round(Estimate, 2), 
+                                             " (", 
+                                             round(LL, 2), 
+                                             ", ", 
+                                             round(UL, 2), 
+                                             ")"))) %>%
   select(Parameter, Std_regression) %>%
   rename(`Standard regression` = Std_regression)
 rownames(std.regression.res) = NULL
 
 
 (table2 = binary.res$results.df %>%
-  mutate(riskCommunicator = paste0(format(round(Estimate, 2), 2), " (", format(round(`2.5% CL`, 2), 2), ", ", format(round(`97.5% CL`, 2), 2), ")"),
-         riskCommunicator = ifelse(Parameter == "Number needed to treat/harm", round(Estimate, 2), riskCommunicator)) %>%
+  mutate(riskCommunicator = paste0(format(round(Estimate, 2), 2), 
+                                   " (", 
+                                   format(round(`2.5% CL`, 2), 2), 
+                                   ", ", 
+                                   format(round(`97.5% CL`, 2), 2), 
+                                   ")"),
+         riskCommunicator = ifelse(Parameter == "Number needed to treat/harm", 
+                                   round(Estimate, 2), riskCommunicator)) %>%
   select(Parameter, riskCommunicator) %>%
   left_join(std.regression.res, by = "Parameter"))
 ```
@@ -194,9 +219,10 @@ Research question: what is the effect of having diabetes at the beginning of the
 Here, we will estimate the rate difference and rate ratio, adjusting for patient's age, sex, body mass index (BMI), smoking status (current smoker or not), and prevalence of hypertension (if they are hypertensive or not at baseline). We have included **timeout** as the `offset` and a `rate.multiplier` of `365.25*100` so that the estimates are returned with units of 100 person-years. Poisson regression is used as the underlying parametric model for g-computation. (Note: for overdispersed count/rate outcomes, the negative binomial distribution can be specified by setting `outcome.type` to **"count_nb"** or **"rate_nb"**.)
 
 
-```{r rate_outcome, paged.print = FALSE}
-## Modify the dataset to change the variable cvd_dth from a factor to a numeric variable  
-## since the outcome for Poisson regression must be numeric.
+```{r rate_outcome, cache = T}
+## Modify the dataset to change the variable cvd_dth from a factor 
+##  to a numeric variable since the outcome for Poisson
+##  regression must be numeric.
 cvdd.t <- cvdd %>%
   dplyr::mutate(cvd_dth = as.numeric(as.character(cvd_dth)),
                 timeout = as.numeric(timeout))
@@ -223,7 +249,7 @@ Research question: what is the effect of having diabetes at the beginning of the
 Here, we will estimate the same effects above, but in subgroups defined by sex.
 
 
-```{r rate_outcome_subgroup, paged.print = FALSE}
+```{r rate_outcome_subgroup, cache = T}
 
 rate.res.subgroup <- gComp(data = cvdd.t, 
                            Y = "cvd_dth", 
@@ -242,8 +268,10 @@ rate.res.subgroup
 ### The `results.df` component of the `gComp` function output is formatted as a data.frame.  This makes it very easy to immediately plot the results using **ggplot2** or your favorite R plotting functionality.  Here's an example for plotting the results of the different subgroups (sexes) for the rate example above.
 
 ```{r plot-rate-outcome-results, warning = F}
-#saving the output and modifying the labels of the SEX variable to specify male/female instead of 0/1
-# also adding a new variable to show the line indicating no difference found (0 for rate difference, 1 for rate ratio)
+# Saving the output and modifying the labels of the SEX variable to specify 
+#   male/female instead of 0/1
+# Also adding a new variable to show the line indicating no difference found 
+#   (0 for rate difference, 1 for rate ratio)
 
 df = rate.res.subgroup$results.df %>%
   mutate(Subgroup = ifelse(Subgroup == "SEX0", "Male", "Female"),
@@ -251,51 +279,70 @@ df = rate.res.subgroup$results.df %>%
 
 ggplot(df, aes(x = Subgroup, y = Estimate)) + 
   geom_point(size = 2) + 
-  geom_errorbar(aes(ymin = `2.5% CL`, ymax = `97.5% CL`), width = 0.2) + 
+  geom_errorbar(aes(ymin = `2.5% CL`, ymax = `97.5% CL`), 
+                width = 0.2) + 
   facet_wrap(~Parameter) +
   theme_bw() + 
   labs(x = "", color = "") + 
-  geom_hline(aes(yintercept = hline), color = "red", linetype = "dashed", alpha = 0.3) 
+  geom_hline(aes(yintercept = hline), 
+             color = "red", 
+             linetype = "dashed", 
+             alpha = 0.3) 
 ```
 
 ### Let's make a figure comparing the results we got above using riskCommunicator with those we get using standard regression models for this rate example.
 
 First, we need to get the covariate-conditional estimates using standard Poisson regression.
 ```{r std-regression-models-rate}
-# Standard Poisson regression for the rate question, across both sexes
-std.reg.rate = glm(formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP + offset(log(timeout+0.001)), data = cvdd.t, family = "poisson")
+# Standard Poisson regression (spr) for the rate question, across both sexes
+spr.rate = glm(
+  formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP + 
+    offset(log(timeout+0.001)),
+  data = cvdd.t, 
+  family = "poisson"
+  )
 
 # get the parameter estimate and CI from the model object
-df.std.reg.rate = as.data.frame(exp(cbind(Estimate = coef(std.reg.rate), confint.default(std.reg.rate, level = 0.95)))) %>%
+df.spr.rate = as.data.frame(
+  exp(cbind(Estimate = coef(spr.rate), confint.default(spr.rate, level = 0.95)))
+  ) %>%
   rename(`2.5% CL` = `2.5 %`, `97.5% CL` = `97.5 %`) %>%
   filter(rownames(.) == "DIABETES1") %>%
   mutate(Subgroup = "All")
 
 
-# Standard Poisson regression for the rate question, by subgroup (SEX)
-std.reg.rate.subgroup = glm(formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP + DIABETES*SEX + offset(log(timeout+0.001)), data = cvdd.t, family = "poisson")
+# Standard Poisson regression (spr) for the rate question, by subgroup (SEX)
+spr.rate.subgroup = glm(
+  formula = cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP + 
+    DIABETES*SEX + offset(log(timeout+0.001)), 
+  data = cvdd.t, 
+  family = "poisson"
+  )
 
 # Get the variance-covariance matrix so we can calculate standard errors
-se.subgroup = vcov(std.reg.rate.subgroup)
+se.subgroup = vcov(spr.rate.subgroup)
 
 # Get estimates and CIs
-df.std.reg.rate.subgroup = data.frame(Subgroup = c("Male", "Female"),
-                                      raw.est = c(coef(std.reg.rate.subgroup)[2], coef(std.reg.rate.subgroup)[2] + coef(std.reg.rate.subgroup)[8]),
-                                      SE = c(sqrt(se.subgroup[2,2]), sqrt(se.subgroup[2,2] + se.subgroup[8,8] + 2*se.subgroup[2,8]))) %>%
+df.spr.rate.subgroup = data.frame(
+  Subgroup = c("Male", "Female"),
+  raw.est = c(coef(spr.rate.subgroup)[2], 
+              coef(spr.rate.subgroup)[2] + coef(spr.rate.subgroup)[8]),
+  SE = c(sqrt(se.subgroup[2,2]), 
+         sqrt(se.subgroup[2,2] + se.subgroup[8,8] + 2*se.subgroup[2,8]))) %>%
   mutate(Estimate = exp(raw.est), 
          `2.5% CL` = exp(raw.est - 1.96 * SE),
          `97.5% CL` = exp(raw.est + 1.96 * SE))
 
 # Combine the results from the subgroup and full model into a single data.frame
-combined.std.reg = df.std.reg.rate %>%
-  bind_rows(df.std.reg.rate.subgroup %>%
+combined.std.reg = df.spr.rate %>%
+  bind_rows(df.spr.rate.subgroup %>%
             select(Subgroup, Estimate:`97.5% CL`)) %>%
   mutate(Parameter = "Incidence Rate Ratio",
          model = "Standard Poisson Regression")
 ```
 
 Now, we can plot the same figure shown in the manuscript.
-```{r plot-rate-outcome-results-v-std-regression, warning = F}
+```{r plot-rate-outcome-results-v-std-regression, warning = F, fig.width = 10, fig.height = 6}
 # Combine the riskCommunicator results with the standard Poisson regression results
 df.combined = rate.res$results.df %>%
   mutate(Subgroup = "All") %>%
@@ -306,15 +353,50 @@ df.combined = rate.res$results.df %>%
   mutate(hline = ifelse(Parameter == "Incidence Rate Ratio", 1, 0))
 
 
-ggplot(df.combined, aes(x = Subgroup, y = Estimate, color = model)) + 
+rate.diff = ggplot(df.combined %>% 
+                      filter(Parameter == "Incidence Rate Difference"), 
+                   aes(x = Subgroup, y = Estimate, color = model)) + 
   geom_point(size = 2, position = position_dodge(width = .5)) + 
-  geom_errorbar(aes(ymin = `2.5% CL`, ymax = `97.5% CL`), width = 0.2, position = position_dodge(width = .5)) + 
+  geom_errorbar(aes(ymin = `2.5% CL`, ymax = `97.5% CL`), 
+                width = 0.2, 
+                position = position_dodge(width = .5)) + 
   scale_color_manual(values = c("#481567FF", "#3CBB75FF")) + 
-  facet_wrap(~Parameter) +
   theme_bw() + 
-  labs(x = "", color = "") + 
-  geom_hline(aes(yintercept = hline), color = "red", linetype = "dashed", alpha = 0.3) + 
+  labs(x = "",  
+       y = str_wrap('Incidence rate difference of 
+                    cardiovascular disease or death 
+                    (cases/100 person-years)', width = 32),
+       color = "") + 
+  geom_hline(aes(yintercept = hline), 
+             color = "red", 
+             linetype = "dashed", 
+             alpha = 0.3) + 
+  theme(legend.position = "none") 
+
+rate.ratio = ggplot(df.combined %>% 
+                       filter(Parameter == "Incidence Rate Ratio"), 
+                   aes(x = Subgroup, y = Estimate, color = model)) + 
+  geom_point(size = 2, position = position_dodge(width = .5)) + 
+  geom_errorbar(aes(ymin = `2.5% CL`, ymax = `97.5% CL`), 
+                width = 0.2, 
+                position = position_dodge(width = .5)) + 
+  scale_y_continuous(trans = "log2") +
+  scale_color_manual(values = c("#481567FF", "#3CBB75FF")) + 
+  theme_bw() + 
+  labs(x = "",  
+       y = str_wrap('Incidence rate ratio of 
+                    cardiovascular disease or death 
+                    (shown on natural log scale)', width = 32),
+       color = "") + 
+  geom_hline(aes(yintercept = hline), 
+             color = "red", 
+             linetype = "dashed", 
+             alpha = 0.3) + 
   theme(legend.position = "bottom") 
+
+ggarrange(rate.ratio, rate.diff, ncol = 2, common.legend = T, legend = "bottom",
+          labels = c("A", "B"), widths = c(1, 1))
+ggsave(filename = "~/Dropbox/Framingham teaching data set/Manuscript drafts/Fig1.tiff", device = "tiff", width = 10, height = 6)
 ```
 
 
