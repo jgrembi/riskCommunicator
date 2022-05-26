@@ -13,6 +13,7 @@ Imports:
     boot,
     dplyr,
     ggplot2,
+    ggpubr,
     gridExtra,
     magrittr,
     MASS,
