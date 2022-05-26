@@ -8,7 +8,7 @@ computations of the g-computation}
 \method{print}{gComp}(x, ...)
 }
 \arguments{
-\item{x}{(Required) An object of class \code{gComp}.}
+\item{x}{(Required) An object of class \code{gComp} as produced by \code{gComp()}.}
 
 \item{...}{(Optional) Further arguments passed to or from other methods.}
 }

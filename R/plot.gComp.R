@@ -28,8 +28,8 @@
 #' Z = c("AGE", "SEX", "BMI", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 60)
 #' plot(diabetes.result)
 #'
-#' @importFrom ggpubr ggarrange annotate_figure
-#' @importFrom dplyr group_by mutate select ungroup
+#' @importFrom ggpubr ggarrange annotate_figure text_grob
+#' @importFrom dplyr group_by mutate select ungroup case_when
 #' @importFrom tidyr pivot_longer 
 #' @importFrom magrittr %>%
 #' @importFrom ggplot2 ggplot aes geom_histogram facet_wrap geom_qq geom_qq_line
@@ -51,7 +51,7 @@ plot.gComp <- function(x, ...) {
     dplyr::ungroup() %>%
     dplyr::mutate(key = factor(.data$key, levels = c("Risk Difference", "Risk Ratio", "Odds Ratio", "Incidence Rate Difference", "Incidence Rate Ratio", "Mean Difference")),
                   # value = as.numeric(.data$value),
-                  value = case_when(
+                  value = dplyr::case_when(
                     key %in% c("Risk Ratio","Odds Ratio","Incidence Rate Ratio") ~ log(as.numeric(.data$value)),
                     key %in% c("Risk Difference","Incidence Rate Difference","Mean Difference") ~ as.numeric(.data$value)
                   ),
@@ -110,6 +110,6 @@ plot.gComp <- function(x, ...) {
   plot <- ggpubr::ggarrange(hist, qqplot, ncol = 2)
   note <- "NOTE: All ratio values are plotted as natural log of the actual estimate"
   ggpubr::annotate_figure(plot,
-                          bottom = text_grob(note, color = "blue", size = 18))
+                          bottom = ggpubr::text_grob(note, color = "blue", size = 18))
   
 }
