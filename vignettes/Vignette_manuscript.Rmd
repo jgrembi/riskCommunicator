@@ -3,9 +3,6 @@ title: "riskCommunicator Manuscript Vignette"
 author: "Jessica Grembi, Elizabeth Rogawski McQuade"
 date: "`r Sys.Date()`"
 output: 
-    pdf_document:
-      number_sections: no
-      toc: yes
     rmarkdown::html_vignette:
       number_sections: no
       toc: yes
