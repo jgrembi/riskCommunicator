@@ -119,10 +119,11 @@ binary.res$contrast
 
 ### Checking model fit
 
-To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estimates by calling:
+The 95% CIs obtained from the riskCommunicator package represent population-standardized marginal effects obtained with g-computation. To ensure that the parameter estimates from each bootstrap iteration are normally distributed, we can also look at the histogram and Q-Q plots of bootstrapped estimates by calling:
 ```{r binary_outcome_plot, fig.width = 12, fig.height = 9, out.width = "100%"}
 plot(binary.res)
 ```
+The histograms show the different effect estimates obtained by each bootstrap resampling of the data and should be normally distributed if the model is correctly specified.  Q-Q plots help to verify that the bootstrap values are normally distributed by comparing the actual distribution of bootstrap values against a theoretical normal distribution of values centered at mean = 0. If the estimates are normally distributed, the plotted estimates (black circles) should overlay the diagonal red dashed line.
 
 ### In the manuscript, we compare the results of gComp to standard regression models. Here, we show how to do that so we can re-create Table 2.
 

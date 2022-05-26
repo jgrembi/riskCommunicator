@@ -50,19 +50,19 @@ get_results_dataframe <- function(predict.df, outcome.type) {
   
   if (outcome.type == "binary") {
     results_tbl <- data.frame(noTx =  noTx_odds/(1 + noTx_odds),
-                                  Tx = Tx_odds/(1 + Tx_odds),
-                                  noTx_odds = noTx_odds,
-                                  Tx_odds = Tx_odds) 
+                              Tx = Tx_odds/(1 + Tx_odds),
+                              noTx_odds = noTx_odds,
+                              Tx_odds = Tx_odds) 
   } else if (outcome.type %in% c("rate", "count", "count_nb", "rate_nb")) {
     results_tbl <- data.frame(noTx =  noTx_odds,
-                                  Tx = Tx_odds,
-                                  noTx_odds = NA,
-                                  Tx_odds = NA)
+                              Tx = Tx_odds,
+                              noTx_odds = NA,
+                              Tx_odds = NA)
   } else if (outcome.type == "continuous") {
     results_tbl <- data.frame(noTx =  noTx.predict,
-                                  Tx = Tx.predict,
-                                  noTx_odds = NA,
-                                  Tx_odds = NA)
+                              Tx = Tx.predict,
+                              noTx_odds = NA,
+                              Tx_odds = NA)
   } else {
     stop("outcome.type not supported")
   }

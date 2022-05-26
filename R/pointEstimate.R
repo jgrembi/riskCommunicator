@@ -145,6 +145,16 @@
 #'   the variable. However, variations in the effect are likely small, 
 #'   especially near the mean.
 #'   
+#'  @note       
+#'  Interaction terms are not allowed in the model formula. The \code{subgroup} 
+#'   argument affords interaction between the exposure variable and a single 
+#'   covariate (that is forced to categorical if supplied as numeric) to 
+#'   estimate effects of the exposure within subgroups defined by the 
+#'   interacting covariate. To include additional interaction terms with 
+#'   variables other than the exposure, we recommend that users create the 
+#'   interaction term as a cross-product of the two interaction variables in  
+#'   a data cleaning step prior to running the model.
+#'   
 #'  @note 
 #'   For negative binomial models, \code{MASS::glm.nb} is used instead of the
 #'    standard \code{stats::glm} function used for all other models.
