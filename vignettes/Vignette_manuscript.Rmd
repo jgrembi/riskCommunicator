@@ -3,6 +3,9 @@ title: "riskCommunicator Manuscript Vignette"
 author: "Jessica Grembi, Elizabeth Rogawski McQuade"
 date: "`r Sys.Date()`"
 output: 
+    pdf_document:
+      number_sections: no
+      toc: yes
     rmarkdown::html_vignette:
       number_sections: no
       toc: yes
@@ -113,6 +116,13 @@ binary.res$n
 ## Contrast being compared in the analysis:
 binary.res$contrast
 ```
+
+
+There is also a summary method for objects with class **gComp** that contains the formula, family and link function, contrast being made, parameter estimates with 95% CIs, and a summary of the underlying glm used for predictions.
+```{r}
+summary(binary.res)
+```
+
 
 ### Checking model fit
 

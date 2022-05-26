@@ -61,7 +61,7 @@ print.summary.gComp <- function(x, ...) {
   cat("\n")
   cat("Parameter estimates:", "\n")
   print(format(x$summary))
-  cat("\n", "\n")
+  cat("\n")
   cat("Underlying glm:")
   print(x$underlying_glm)
 }

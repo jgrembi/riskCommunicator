@@ -205,6 +205,11 @@ binary.res$n
 binary.res$contrast
 ```
 
+There is also a summary method for objects with class **gComp** that contains the formula, family and link function, contrast being made, parameter estimates with 95% CIs, and a summary of the underlying glm used for predictions.
+```{r}
+summary(binary.res)
+```
+
 To check to make sure the package is estimating effects as expected, we suggest comparing the riskCommunicator results to a normal logistic regression model (for example, with the glm function in R) using the same model structure. The odds ratio from riskCommunicator should be very similar to the odds ratio obtained from glm (note: minor differences may occur due to estimating marginal vs. covariate conditional effects). Because any errors that you receive while running a normal logistic regression model will also be an issue when using the riskCommunicator package, it may be helpful to optimize the logistic regression first.
 
 We can also do the same analysis within subgroups. Here we'll estimate effects stratified by sex, or within subgroups of men and women.
