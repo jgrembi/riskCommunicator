@@ -12,6 +12,8 @@
 \arguments{
 \item{object}{(Required) An object of class \code{gComp} as produced by \code{gComp()}.}
 
+\item{...}{Further arguments passed to or from other methods.}
+
 \item{x}{(Required) An object of class \code{summary.gComp} as produced by \code{summary.gComp()}.}
 }
 \value{
@@ -33,7 +35,6 @@ set.seed(4832)
 diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat",
 Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 summary(diabetes.result)
-
 
 }
 \keyword{summary.gComp}

@@ -5,7 +5,7 @@
 #'  
 #' @param object (Required) An object of class \code{gComp} as produced by \code{gComp()}.
 #' @param x (Required) An object of class \code{summary.gComp} as produced by \code{summary.gComp()}.
-
+#' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return Returns the formula, family (with link function), contrast evaluated, resulting  
 #'   point estimate and 95\% confidence intervals of the parameters estimated, and the  
@@ -25,11 +25,12 @@
 #' Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
 #' summary(diabetes.result)
 #'
+#' @importFrom methods is
 #'
 #' @keywords summary.gComp
 #' 
 summary.gComp <- function(object, ...) {
-  if(!is(object, "gComp")) stop("Object supplied is not of class 'gComp'")
+  if(!methods::is(object, "gComp")) stop("Object supplied is not of class 'gComp'")
   
   res <- list(formula = object$formula, 
               family = object$family$family, 

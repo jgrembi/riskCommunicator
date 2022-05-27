@@ -14,9 +14,9 @@ Imports:
     dplyr,
     ggplot2,
     ggpubr,
-    gridExtra,
     magrittr,
     MASS,
+    methods,
     purrr,
     rlang,
     stats,
@@ -32,5 +32,8 @@ Suggests:
     rmarkdown,
     testthat,
     tidyverse,
-    printr
+    printr,
+    stringr,
+    formatR,
+    sandwich
 VignetteBuilder: knitr
