@@ -4,7 +4,8 @@
 #'   produces various useful summaries from it.
 #'  
 #' @param object (Required) An object of class \code{gComp} as produced by \code{gComp()}.
-#' 
+#' @param x (Required) An object of class \code{summary.gComp} as produced by \code{summary.gComp()}.
+
 #' 
 #' @return Returns the formula, family (with link function), contrast evaluated, resulting  
 #'   point estimate and 95% confidence intervals of the parameters estimated, and the  
@@ -42,4 +43,21 @@ summary.gComp <- function(object, ...) {
 }
 
 
-
+#' @export
+#' @method print summary.gComp
+print.summary.gComp <- function(x, ...) {
+  cat("Formula:", "\n")
+  cat(format(x$formula, width = 60), "\n") 
+  cat("\n")
+  cat("Family:", x$family, "\n")
+  cat("Link function:", x$link, "\n")
+  cat("\n")
+  cat("Contrast:", x$contrast, "\n")
+  cat("\n")
+  cat("Parameter estimates:", "\n")
+  print(format(x$summary))
+  cat("\n")
+  cat("Underlying glm:")
+  print(x$underlying_glm)
+  invisible(x)
+}
