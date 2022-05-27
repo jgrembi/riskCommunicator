@@ -71,5 +71,5 @@ print.summary.gComp <- function(x, ...) {
   cat("Underlying glm:")
   print(x$underlying_glm)
   # NextMethod("print")
-  # invisible(x)
+  invisible(x)
 }
