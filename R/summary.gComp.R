@@ -46,7 +46,7 @@ summary.gComp <- function(object, ...) {
               underlying_glm = underlying_glm)
   
   class(res) <- "summary.gComp"
-  return(res)
+  res
   
 }
 
@@ -64,4 +64,5 @@ print.summary.gComp <- function(x, ...) {
   cat("\n")
   cat("Underlying glm:")
   print(x$underlying_glm)
+  invisible(x)
 }
