@@ -39,7 +39,7 @@ summary.gComp <- function(object, ...) {
               underlying_glm = object$glm.result)
   
   class(res) <- "summary.gComp"
-  res
+  return(res)
 }
 
 print.summary.gComp <- function(x, ...) {
@@ -56,6 +56,6 @@ print.summary.gComp <- function(x, ...) {
   cat("\n")
   cat("Underlying glm:")
   print(x$underlying_glm)
-  NextMethod("print")
-  invisible(x)
+  # NextMethod("print")
+  # invisible(x)
 }
