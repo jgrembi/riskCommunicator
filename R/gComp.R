@@ -172,9 +172,8 @@
 #' @seealso \code{\link{pointEstimate}} \code{\link[boot]{boot}}
 #'   
 #'   
-gComp <- function(data, ...) UseMethod("gComp")
 
-gComp.default <- function(data, 
+gComp <- function(data, 
                   outcome.type =  c("binary", "count","count_nb", "rate", "rate_nb", "continuous"), 
                   formula = NULL, 
                   Y = NULL, 
