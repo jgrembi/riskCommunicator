@@ -148,6 +148,7 @@ df.std.reg.or = data.frame(exp(cbind(OR = coef(std.reg.or), confint.default(std.
   rename(LL = `X2.5..`, UL = `X97.5..`)
 
 ```
+Note the use of `confint.default` in the above call.  The typical call `confint` does not return Wald-based CIs, so we've forced it with `confint.default.` You can read more about that here: https://stats.stackexchange.com/questions/5304/why-is-there-a-difference-between-manually-calculating-a-logistic-regression-95  
 
 
 Next, we calculate the risk ratio using a Poisson approximation of log-binomial regression with robust variance (sandwich standard errors).

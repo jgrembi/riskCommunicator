@@ -31,23 +31,15 @@
 summary.gComp <- function(object, ...) {
   if(!is(object, "gComp")) stop("Object supplied is not of class 'gComp'")
   
-  formula <- object$formula
-  family <- object$family$family
-  link <- object$family$link
-  contrast <- object$contrast
-  summary <- object$summary
-  underlying_glm = object$glm.result
-  
-  res <- list(formula = formula, 
-              family = family, 
-              link = link,
-              contrast = contrast,
-              summary = summary, 
-              underlying_glm = underlying_glm)
+  res <- list(formula = object$formula, 
+              family = object$family$family, 
+              link = object$family$link,
+              contrast = object$contrast,
+              summary = object$summary, 
+              underlying_glm = object$glm.result)
   
   class(res) <- "summary.gComp"
   res
-  
 }
 
 print.summary.gComp <- function(x, ...) {
@@ -64,5 +56,6 @@ print.summary.gComp <- function(x, ...) {
   cat("\n")
   cat("Underlying glm:")
   print(x$underlying_glm)
+  NextMethod("print")
   invisible(x)
 }
