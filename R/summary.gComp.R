@@ -11,7 +11,7 @@
 #'   underlying glm used for model predictions.
 #'   
 #' @export
-#' @method summary gComp
+#' @method summary gComp 
 #'
 #' @examples
 #' ## Obtain the risk difference and risk ratio for cardiovascular disease or 
@@ -42,6 +42,9 @@ summary.gComp <- function(object, ...) {
   return(res)
 }
 
+
+#' @export
+#' @method print summary.gComp
 print.summary.gComp <- function(x, ...) {
   cat("Formula:", "\n")
   cat(format(x$formula, width = 60), "\n") 
