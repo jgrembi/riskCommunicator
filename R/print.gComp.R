@@ -6,7 +6,7 @@
 #' @param x (Required) An object of class \code{gComp} as produced by \code{gComp()}.
 #' @param ... (Optional) Further arguments passed to or from other methods.
 #'
-#' @return Returns the formula and resulting point estimate and 95% 
+#' @return Returns the formula and resulting point estimate and 95\% 
 #' confidence intervals of the difference and ratio. 
 #' 
 #'   

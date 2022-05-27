@@ -8,7 +8,7 @@
 
 #' 
 #' @return Returns the formula, family (with link function), contrast evaluated, resulting  
-#'   point estimate and 95% confidence intervals of the parameters estimated, and the  
+#'   point estimate and 95\% confidence intervals of the parameters estimated, and the  
 #'   underlying glm used for model predictions.
 #'   
 #' @export
@@ -42,7 +42,7 @@ summary.gComp <- function(object, ...) {
   return(res)
 }
 
-
+#' @rdname summary.gComp
 #' @export
 #' @method print summary.gComp
 print.summary.gComp <- function(x, ...) {

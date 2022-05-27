@@ -2,9 +2,12 @@
 % Please edit documentation in R/summary.gComp.R
 \name{summary.gComp}
 \alias{summary.gComp}
+\alias{print.summary.gComp}
 \title{Print a summary of a gComp class object.}
 \usage{
 \method{summary}{gComp}(object, ...)
+
+\method{print}{summary.gComp}(x, ...)
 }
 \arguments{
 \item{object}{(Required) An object of class \code{gComp} as produced by \code{gComp()}.}
@@ -13,7 +16,7 @@
 }
 \value{
 Returns the formula, family (with link function), contrast evaluated, resulting  
-  point estimate and 95% confidence intervals of the parameters estimated, and the  
+  point estimate and 95\% confidence intervals of the parameters estimated, and the  
   underlying glm used for model predictions.
 }
 \description{

@@ -13,7 +13,7 @@ computations of the g-computation}
 \item{...}{(Optional) Further arguments passed to or from other methods.}
 }
 \value{
-Returns the formula and resulting point estimate and 95% 
+Returns the formula and resulting point estimate and 95\% 
 confidence intervals of the difference and ratio.
 }
 \description{
