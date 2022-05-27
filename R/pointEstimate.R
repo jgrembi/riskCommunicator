@@ -255,7 +255,7 @@ pointEstimate <- function(data,
   
   # Specify model family and link for the given outcome.type
   if (outcome.type %in% c("binary")) {
-    if (class(working.df[,Y]) == "factor" & length(levels(working.df[,Y])) > 2) stop("Outcome is not binary")
+    if (inherits(working.df[,Y], "factor") & length(levels(working.df[,Y])) > 2) stop("Outcome is not binary")
         family <- stats::binomial(link = 'logit')
   } else if (outcome.type %in% c("count", "rate")) {
     if (!is.numeric(working.df %>% dplyr::pull(Y))) stop("Outcome is not numeric")

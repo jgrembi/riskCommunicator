@@ -20,8 +20,8 @@
 #' ## if they have a history of hypertension.
 #' data(cvdd)
 #' set.seed(4832)
-#' diabetes.result <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat",
-#' Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 20)
+#' diabetes.result <- gComp(cvdd, formula = "cvd_dth ~ DIABETES + AGE + SEX + BMI + CURSMOKE + PREVHYP",
+#' outcome.type = "binary", R = 20)
 #' print(diabetes.result)
 #'
 #'
