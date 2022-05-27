@@ -27,7 +27,6 @@
 #'
 #' @keywords summary.gComp
 #' 
-
 summary.gComp <- function(object, ...) {
   if(!is(object, "gComp")) stop("Object supplied is not of class 'gComp'")
   
@@ -44,6 +43,7 @@ summary.gComp <- function(object, ...) {
 
 
 #' @export
+#' @describeIn summary.gComp The print function
 #' @method print summary.gComp
 print.summary.gComp <- function(x, ...) {
   cat("Formula:", "\n")
@@ -59,6 +59,5 @@ print.summary.gComp <- function(x, ...) {
   cat("\n")
   cat("Underlying glm:")
   print(x$underlying_glm)
-  # NextMethod("print")
   invisible(x)
 }
