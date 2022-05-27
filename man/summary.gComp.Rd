@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{object}{(Required) An object of class \code{gComp} as produced by \code{gComp()}.}
+
+\item{x}{(Required) An object of class \code{summary.gComp} as produced by \code{summary.gComp()}.}
 }
 \value{
 Returns the formula, family (with link function), contrast evaluated, resulting  
