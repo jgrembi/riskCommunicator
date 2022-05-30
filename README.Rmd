@@ -62,7 +62,7 @@ library(tidyverse)
 data(cvdd)
 set.seed(345)
 bmi.results <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
-bmi.results
+summary(bmi.results)
 ```
 
 The results from the g-computation show the estimated risk difference and ratio, in addition to other information.

@@ -19,7 +19,7 @@ binary outcomes, Poisson regression for rate or count outcomes, negative
 binomial regression for overdispersed rate or count outcomes, and linear
 regression for continuous outcomes). Therefore, the package can handle
 binary, rate, count, and continuous outcomes and allows for dichotomous,
-categorical (>2 categories), or continuous exposure variables.
+categorical (\>2 categories), or continuous exposure variables.
 Additional features include estimation of effects stratified by subgroup
 and adjustment of standard errors for clustering. Confidence intervals
 are constructed by bootstrap at the individual or cluster level, as
@@ -79,20 +79,25 @@ library(riskCommunicator)
 library(ggplot2)
 library(tidyverse)
 #> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-#> ✓ tibble  3.1.6     ✓ dplyr   1.0.8
-#> ✓ tidyr   1.2.0     ✓ stringr 1.4.0
-#> ✓ readr   2.1.2     ✓ forcats 0.5.1
-#> ✓ purrr   0.3.4
+#> ✔ tibble  3.1.7     ✔ dplyr   1.0.9
+#> ✔ tidyr   1.2.0     ✔ stringr 1.4.0
+#> ✔ readr   2.1.2     ✔ forcats 0.5.1
+#> ✔ purrr   0.3.4
 #> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-#> x dplyr::filter() masks stats::filter()
-#> x dplyr::lag()    masks stats::lag()
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
 ## basic example code
 data(cvdd)
 set.seed(345)
 bmi.results <- gComp(data = cvdd, Y = "cvd_dth", X = "bmicat", Z = c("AGE", "SEX", "DIABETES", "CURSMOKE", "PREVHYP"), outcome.type = "binary", R = 200)
-bmi.results
+summary(bmi.results)
 #> Formula: 
 #> cvd_dth ~ bmicat + AGE + SEX + DIABETES + CURSMOKE + PREVHYP 
+#> 
+#> Family: binomial 
+#> Link function: logit 
+#> 
+#> Contrast: bmicat1 v. bmicat0 bmicat2 v. bmicat0 bmicat3 v. bmicat0 
 #> 
 #> Parameter estimates: 
 #>                             bmicat1_v._bmicat0 Estimate (95% CI)
@@ -110,6 +115,21 @@ bmi.results
 #> Risk Ratio                                  1.235 (1.143, 1.354)
 #> Odds Ratio                                  1.628 (1.348, 2.037)
 #> Number needed to treat/harm                               10.733
+#> 
+#> Underlying glm:
+#> Call:  stats::glm(formula = formula, family = family, data = working.df, 
+#>     na.action = stats::na.omit)
+#> 
+#> Coefficients:
+#> (Intercept)      bmicat1      bmicat2      bmicat3          AGE         SEX1  
+#>    -5.73445      0.22184      0.09288      0.48711      0.10305     -0.80522  
+#>   DIABETES1    CURSMOKE1     PREVHYP1  
+#>     1.50504      0.59057      0.76174  
+#> 
+#> Degrees of Freedom: 4220 Total (i.e. Null);  4212 Residual
+#>   (19 observations deleted due to missingness)
+#> Null Deviance:       5735 
+#> Residual Deviance: 4686  AIC: 4704
 ```
 
 The results from the g-computation show the estimated risk difference
@@ -126,6 +146,7 @@ normally distributed:
 
 ``` r
 plot(bmi.results)
+#> Warning in log(as.numeric(.data$value)): NaNs produced
 ```
 
 <img src="man/figures/README-catExp_binaryOutcome_plot-1.png" width="100%" />

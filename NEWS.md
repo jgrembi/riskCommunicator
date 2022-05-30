@@ -1,6 +1,8 @@
 # riskCommunicator 1.0.1
 
-* Added a summary method for gComp output
+* Added a summary method for class `gComp` objects
+
+* Added additional error checks for the the new summary and print methods
 
 
 # riskCommunicator 1.0.0
