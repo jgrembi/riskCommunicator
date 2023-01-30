@@ -56,6 +56,12 @@ The easiest source installation method uses the devtools package:
 devtools::install_github("jgrembi/riskCommunicator")
 ```
 
+## Citation
+
+If you use our package, please cite the manuscript introducing this package:
+Grembi JA, Rogawski McQuade ET (2022) Introducing riskCommunicator: An R package to obtain interpretable effect estimates for public health. PLOS ONE 17(7): e0265368. <https://doi.org/10.1371/journal.pone.0265368>
+
+
 ## Other Resources
 
 Bugs and difficulties in using `riskCommunicator` are welcome on the
